@@ -1,0 +1,131 @@
+<!-- import IconBadge from "./components/Badge/IconBadge";
+import TextBadge, { BadgeStatus } from "./components/Badge/TextBadge";
+import {
+  TelephoneFill,
+  EnvelopeOpenFill,
+  Coin,
+  BoxArrowRight,
+  Envelope,
+  EyeSlashFill,
+  Lock,
+  CurrencyDollar,
+  PlusLg,
+  CartCheck,
+  Cart2,
+  FunnelFill,
+  Search,
+} from "react-bootstrap-icons";
+import TextField from "./components/TextField/TextField";
+import Button from "./components/Button/Button"; -->
+
+<!-- <TextBadge title="على وشك النفاذ" status={BadgeStatus.WARNING} />
+      <TextBadge title="متوافر" status={BadgeStatus.SUCCESS} />
+      <TextBadge title="نافذ" status={BadgeStatus.DANGER} />
+      <TextBadge title="Base" status={BadgeStatus.BASE} />
+      <IconBadge icon={<TelephoneFill />} status={BadgeStatus.WARNING} />
+      <IconBadge icon={<EnvelopeOpenFill />} status={BadgeStatus.BASE} />
+      <IconBadge icon={<Coin />} status={BadgeStatus.DANGER} />
+      <IconBadge icon={<BoxArrowRight />} status={BadgeStatus.DANGER} />
+      <div
+        style={{
+          width: "300px",
+          height: "500px",
+          backgroundColor: "wheat",
+          margin: "16px",
+        }}
+      >
+        <TextField startIcon={<Envelope />} label="ايميل" inputSize="large" />
+        <TextField startIcon={<Search />} placeholder="بحث" inputSize="large" />
+        <TextField
+          startIcon={
+            <>
+              <CurrencyDollar />
+              <hr
+                style={{
+                  border: "1px solid #64748b",
+                  margin: "8px",
+                  height: "16px",
+                }}
+              />
+            </>
+          }
+          inputSize="large"
+        />
+        <TextField label="الاسم الكامل" inputSize="large" />
+        <TextField label="اسم المستودع" inputSize="large" />
+        <TextField inputSize="small" maxLength={1} />
+        <TextField
+          startIcon={<Lock />}
+          endIcon={<EyeSlashFill />}
+          label="كلمة المرور"
+          inputSize="large"
+          helperText="كلمة المرور ضعيفة"
+        />
+        <Button color="base-blue" disabled={false} text="حذف" size="large" />
+        <Button
+          color="outlined"
+          disabled={false}
+          text="دفعة جديدة"
+          size="large"
+        />
+      </div>
+      <Button color="base-blue" disabled={true} text="حفظ" size="medium" />
+      <Button color="base-blue" disabled={true} text="إرسال" size="medium" />
+      <Button
+        color="base-blue"
+        disabled={false}
+        icon={<PlusLg fontSize="small" />}
+        start
+        text="مخزن جديد"
+        size="medium"
+      />
+      <Button
+        color="secondary-light"
+        disabled={false}
+        text="عرض الأدوية"
+        size="medium"
+      />
+      <Button
+        color="secondary-light"
+        disabled={false}
+        text="عرض التفاصيل"
+        size="medium"
+      />
+      <Button
+        color="base-blue"
+        disabled={false}
+        text="تعديل معلومات الدواء"
+        size="medium"
+      />
+      <Button
+        color="light-grey"
+        disabled={false}
+        text="تصفية"
+        start={true}
+        icon={<FunnelFill fontSize="small" />}
+        size="fit"
+      />
+      <Button
+        color="secondary-light"
+        disabled={false}
+        start={false}
+        icon={<CartCheck fontSize="small" />}
+        text="إضافة إلى السلة"
+        size="medium"
+      />
+      <Button
+        color="base-blue"
+        disabled={false}
+        icon={<Cart2 fontSize="small" />}
+        start={false}
+        text="السلة"
+        size="medium"
+      />
+      <Button color="base-blue" disabled={false} text="تقييم" size="medium" />
+      <Button
+        color="base-blue"
+        disabled={false}
+        text="قبول الطلب"
+        size="medium"
+      />
+      <Button color="red" disabled={false} text="رفض الطلب" size="medium" /> -->

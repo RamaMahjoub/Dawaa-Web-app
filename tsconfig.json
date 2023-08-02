@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["twin.macro", "node"],
     "target": "es5",
     "lib": [
       "dom",
@@ -22,5 +23,5 @@
   },
   "include": [
     "src"
-  ]
+, "src/Layout/.tsx"  ]
 }
