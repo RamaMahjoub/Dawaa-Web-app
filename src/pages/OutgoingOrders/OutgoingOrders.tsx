@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
-import { ReactNode, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -8,7 +8,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { data } from "../../Schema/response/outgoingOrders.schema";
 import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
 import { getMonth } from "../../utils/Month";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
@@ -23,14 +22,17 @@ import "react-datepicker/dist/react-datepicker.css";
 import TextField from "../../components/TextField/TextField";
 import { addDays } from "date-fns";
 import DatepickerHeader from "../../components/Header/DatepickerHeader";
-interface TableSchema {
-  id: string;
-  requestDate: string;
-  to: string;
-  payment: ReactNode;
-  state: ReactNode;
-  cost: string;
-}
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  findSendedOrders,
+  selectSendedOrdersData,
+  selectSendedOrdersStatus,
+} from "../../redux/orderSlice";
+import { TableSchema } from "../../Schema/tables/SendedOrders";
+import Beat from "../../components/Loading/Beat";
+import NoData from "../NoData/NoData";
+
 const OutgoingOrders = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
@@ -56,6 +58,11 @@ const OutgoingOrders = () => {
     }),
     [pageIndex, pageSize]
   );
+
+  const dispatch = useAppDispatch();
+  const data = useAppSelector(selectSendedOrdersData);
+  let content = <NoData />;
+  const status = useAppSelector(selectSendedOrdersStatus);
   const columns = useMemo<ColumnDef<TableSchema>[]>(
     () => [
       {
@@ -66,70 +73,64 @@ const OutgoingOrders = () => {
       {
         header: "تاريخ الطلب",
         cell: (row) => row.renderValue(),
-        accessorKey: "requestDate",
+        accessorKey: "orderDate",
       },
       {
         header: "الجهة المستلمة",
         cell: (row) => row.renderValue(),
-        accessorKey: "to",
-      },
-      {
-        header: "الدفع",
-        cell: (row) => row.renderValue(),
-        accessorKey: "payment",
+        accessorKey: "supplierName",
       },
       {
         header: "الحالة",
         cell: (row) => row.renderValue(),
-        accessorKey: "state",
+        accessorKey: "status",
       },
       {
         header: "الكلفة",
         cell: (row) => row.renderValue(),
-        accessorKey: "cost",
+        accessorKey: "totalPrice",
       },
     ],
     []
   );
-  const tableData: Array<TableSchema> = data.map((order) => {
-    let cost: number = order.medicines.reduce(
-      (acc, medicine) =>
-        (acc += medicine.medicine.sellingPrice * medicine.quantity),
-      0
+  useEffect(() => {
+    dispatch(
+      findSendedOrders({ limit: String(pageSize), page: String(pageIndex) })
     );
-    const state =
-      order.state === "تم التوصيل" ? (
-        <TextBadge title={order.state} status={BadgeStatus.SUCCESS} />
-      ) : order.state === "معلّق" ? (
-        <TextBadge title={order.state} status={BadgeStatus.WARNING} />
-      ) : (
-        <TextBadge title={order.state} status={BadgeStatus.DANGER} />
-      );
-    let payment: number = order.paymment.reduce(
-      (acc, pay) => (acc += pay.amount),
-      0
+  }, [dispatch, pageIndex, pageSize]);
+  const transformedData = useMemo(() => {
+    return (
+      status === "succeeded" &&
+      data.data.length > 0 &&
+      data.data.map((order: TableSchema, index: number) => {
+        const state =
+          order.status === "Pending" ? (
+            <TextBadge title={"معلّق"} status={BadgeStatus.WARNING} />
+          ) : order.status === "Accepted" ? (
+            <TextBadge title={"تم القبول"} status={BadgeStatus.SUCCESS} />
+          ) : order.status === "Delivered" ? (
+            <TextBadge title={"تم الاستلام"} status={BadgeStatus.DONE} />
+          ) : (
+            <TextBadge title={"مرفوض"} status={BadgeStatus.DANGER} />
+          );
+        const date = new Date(order.orderDate);
+        return {
+          id: `#${order.id}`,
+          orderDate: `${getMonth(
+            date.getMonth() + 1
+          )} ${date.getFullYear()}، ${date.getDate()} `,
+          status: state,
+          supplierName: order.supplierName,
+          totalPrice: `${order.totalPrice} ل.س`,
+        };
+      })
     );
+  }, [data.data, status]);
 
-    return {
-      id: order.id,
-      requestDate: `${getMonth(
-        order.requestDate.getMonth()
-      )} ${order.requestDate.getFullYear()}، ${order.requestDate.getDate()} `,
-      payment:
-        payment !== cost ? (
-          <p className="text-red-main">غير مكتمل</p>
-        ) : (
-          <p className="text-green-main">مكتمل</p>
-        ),
-      state,
-      to: order.to.name,
-      cost: `${cost} ل.س`,
-    };
-  });
   const table = useReactTable({
-    data: tableData,
+    data: transformedData,
     columns,
-    pageCount: Math.ceil(tableData.length / pageSize),
+    pageCount: data.totalRecords,
     state: {
       pagination,
     },
@@ -138,16 +139,25 @@ const OutgoingOrders = () => {
     manualPagination: true,
     debugTable: true,
   });
-
   const navigate = useNavigate();
   const handleNavigate = (orderId: string) => {
-    navigate(`/${routes.OUTGOING_ORDERS}/${orderId}`);
+    navigate(`/${routes.OUTGOING_ORDERS}/${orderId.slice(1)}`);
   };
+  const handlePgination = (newPageIndex: number) => {
+    setPagination((pre) => ({ ...pre, pageIndex: newPageIndex }));
+  };
+  if (status === "loading") {
+    content = <Beat />;
+  } else if (status === "idle") {
+    content = <NoData />;
+  } else if (status === "failed") {
+    content = <div>error...</div>;
+  }
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
-      <div className="mid overflow-auto scrollbar-none p-large">
-        <div className="flex gap-small sm:justify-end flex-1 ">
+      <div className="overflow-auto mid scrollbar-none p-large">
+        <div className="flex flex-1 gap-small sm:justify-end ">
           <div className="flex ">
             <Button
               variant="light-grey"
@@ -160,16 +170,11 @@ const OutgoingOrders = () => {
             />
             <Menu divide={true} open={open}>
               <SubMenuProvider>
-                <SubMenu title="الدفع">
-                  <MenuItem content="مكتمل" />
-                  <MenuItem content="غير مكتمل" />
-                </SubMenu>
-              </SubMenuProvider>
-              <SubMenuProvider>
                 <SubMenu title="الحالة">
-                  <MenuItem content="مُلغى" />
+                  <MenuItem content="مرفوض" />
                   <MenuItem content="مُعلق" />
-                  <MenuItem content="تم الاستلام" />
+                  <MenuItem content="تم القبول" />
+                  <MenuItem content="تم التسليم" />
                 </SubMenu>
               </SubMenuProvider>
             </Menu>
@@ -184,23 +189,22 @@ const OutgoingOrders = () => {
             dateFormat="MMMM d, yyyy"
             customInput={
               <TextField
-                startIcon={<Calendar2Event className="pl-x-small border-l" />}
+                startIcon={<Calendar2Event className="border-l pl-x-small" />}
                 inputSize="x-large"
                 variant="fill"
-                value={"rama"}
               />
             }
           />
         </div>
       </div>
-      <div className="flex-1 bg-greyScale-lighter gap-large flex p-large overflow-auto scrollbar-thin">
-        <div className="p-large h-full w-full flex flex-col max-h-fit bg-white rounded-small">
-          <div className="bg-white flex-1  overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
-            <table style={{ minWidth: "max-content" }} className="w-full">
+      <div className="flex flex-1 overflow-auto bg-greyScale-lighter gap-large p-large scrollbar-thin">
+        <div className="flex flex-col w-full h-full bg-white p-large max-h-fit rounded-small">
+          <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
+            <table style={{ minWidth: "max-content" }} className="w-full h-full">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr
-                    className="bg-greyScale-lighter sticky top-0"
+                    className="sticky top-0 bg-greyScale-lighter"
                     key={headerGroup.id}
                   >
                     {headerGroup.headers.map((header) => {
@@ -225,33 +229,44 @@ const OutgoingOrders = () => {
                 ))}
               </thead>
               <tbody>
-                {table.getRowModel().rows.map((row) => {
-                  return (
-                    <tr
-                      className="border-b border-greyScale-light border-opacity-50 transition-colors duration-300 ease-in hover:bg-greyScale-lighter cursor-pointer"
-                      key={row.id}
-                      onClick={() => handleNavigate(row.original.id)}
-                    >
-                      {row.getVisibleCells().map((cell) => {
-                        return (
-                          <td
-                            className="py-medium px-small text-center min-w-[150px] max-w-[150px] font-semibold text-medium text-greyScale-main overflow-hidden text-ellipsis whitespace-nowrap"
-                            key={cell.id}
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
+                {table.getRowModel().rows.length > 0 ? (
+                  table.getRowModel().rows.map((row) => {
+                    return (
+                      <tr
+                        className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
+                        key={row.id}
+                        onClick={() => handleNavigate(row.original.id)}
+                      >
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <td
+                              className="py-medium px-small text-center min-w-[150px] max-w-[150px] font-semibold text-medium text-greyScale-main overflow-hidden text-ellipsis whitespace-nowrap"
+                              key={cell.id}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={columns.length}>{content}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
-          <CustomPagination page={pageIndex} count={table.getPageCount()} />
+          <CustomPagination
+            count={table.getPageCount()}
+            page={pageIndex + 1}
+            onChange={handlePgination}
+            pageSize={pageSize}
+          />
         </div>
       </div>
     </div>

@@ -4,8 +4,7 @@ import { RegisterSchema } from "../Schema/request/register.schema";
 import { RootState } from "./store";
 import { RegisterDetailSchema } from "../Schema/request/registerDetails.schema";
 import { LoginSchema } from "../Schema/request/login.schema";
-import { getStoredUser, setStoredUser } from "../utils/user-storage";
-import jwt_decode from "jwt-decode";
+import { setStoredUser } from "../utils/user-storage";
 
 type AuthState = {
   data: any;
@@ -85,7 +84,6 @@ export const authSlice = createSlice({
         state.status = "succeeded";
         state.data = action.payload;
         setStoredUser(action.payload);
-        console.log(jwt_decode(getStoredUser()!.accessToken));
         state.navigationState = "login_succeeded";
       })
       .addCase(login.rejected, (state, action) => {

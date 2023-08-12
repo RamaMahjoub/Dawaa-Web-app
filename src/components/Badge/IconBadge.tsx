@@ -15,7 +15,7 @@ const useBadgeStyles = () => {
     badge: (status: BadgeStatus) => css`
       min-width: 35px;
       height: 35px;
-      ${tw`inline-flex justify-center items-center py-x-small px-small rounded-small`}
+      ${tw`inline-flex items-center justify-center py-x-small px-small rounded-small`}
       ${status === BadgeStatus.SUCCESS
         ? css`
             ${tw`bg-green-light text-green-main`};

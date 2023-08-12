@@ -6,41 +6,91 @@ import { PlusLg, Search } from "react-bootstrap-icons";
 import Button from "../../components/Button/Button";
 import { useMediaQuery } from "react-responsive";
 import IconButton from "../../components/Button/IconButton";
-import { useState } from "react";
-import { medicines } from "../../Schema/response/medicine.schema";
+import { useEffect, useRef, useState } from "react";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
 import { PaginationState } from "@tanstack/react-table";
 import { routes } from "../../router/constant";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  findAllMedicines,
+  selectAllMedicinesData,
+  selectAllMedicinesStatus,
+} from "../../redux/medicineSlice";
+import Beat from "../../components/Loading/Beat";
+import NoData from "../NoData/NoData";
+const NotFound = require("./../../assets/medicines/not-found.png");
 
-const catigoriesList = [
-  "جميع الفئات",
-  "Bronchodilator",
-  "Statins",
-  "Antibiotic",
-  "Analgesic",
-];
 const AllMedicines = () => {
+  let catigoriesList = ["جميع الفئات"];
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const [filtered, setFiltered] = useState(catigoriesList[0]);
+  const [{ pageIndex, pageSize }, setPageIndex] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 1,
+  });
+  const dispatch = useAppDispatch();
+  const data = useAppSelector(selectAllMedicinesData);
+  const status = useAppSelector(selectAllMedicinesStatus);
+  let content = useRef<any>();
+  useEffect(() => {
+    dispatch(
+      findAllMedicines({
+        limit: String(pageSize),
+        page: String(pageIndex),
+      })
+    );
+  }, [dispatch, pageIndex, pageSize]);
+  if (status === "loading") {
+    content.current = <Beat />;
+  } else if (status === "succeeded") {
+    data.data.length > 0 &&
+    data.data.map((row: any) => catigoriesList.push(row.category));
+    data.data.length > 0 &&
+      data.data.map((row: any) => catigoriesList.push(row.category));
+    content.current =
+      data.data.length > 0
+        ? data.data.map((row: any) => (
+            <MedicineCard
+              key={row.id}
+              name={row.name}
+              category={row.category}
+              photoAlt={row.name}
+              photoSrc={NotFound}
+              subtitle={row.price}
+              action={
+                <Button
+                  variant="secondary-light"
+                  disabled={false}
+                  text="عرض التفاصيل"
+                  size="med"
+                  onClick={() => handleNavigate(row.id)}
+                />
+              }
+            />
+          ))
+        : <NoData />;
+  } else if (status === "idle") {
+    content.current = <NoData />;
+  }
   const navigate = useNavigate();
   const handleOpen = () => {
     navigate(`/${routes.STORE_MEDICINES}`);
   };
-  const [{ pageIndex }] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
   const handleNavigate = (medicineId: string) => {
     navigate(`/${routes.ALL_MEDICINES}/${medicineId}`);
   };
+  const handlePgination = (newPageIndex: number) => {
+    setPageIndex((pre) => ({ ...pre, pageIndex: newPageIndex }));
+  };
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-screen">
       <div className="header">
         <div className="mx-large md:mx-0">{title}</div>
-        <div className="flex w-8/12 lg:w-1/2 items-center justify-evenly sm:justify-between">
+        <div className="flex items-center w-8/12 lg:w-1/2 justify-evenly sm:justify-between">
           <TextField
             startIcon={<Search />}
             placeholder="بحث"
@@ -63,7 +113,7 @@ const AllMedicines = () => {
           )}
         </div>
       </div>
-      <div className="mid overflow-auto scrollbar-none p-large">
+      <div className="overflow-auto mid scrollbar-none p-large">
         {catigoriesList.map((category) => (
           <Button
             key={category}
@@ -76,30 +126,17 @@ const AllMedicines = () => {
           />
         ))}
       </div>
-      <div className="flex-1 bg-greyScale-lighter sm:flex-row flex-col gap-large flex p-large overflow-auto scrollbar-thin">
-        <div className="p-large h-full w-full flex flex-col max-h-fit bg-white rounded-small">
+      <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin">
+        <div className="flex flex-col w-full h-full bg-white p-large max-h-fit rounded-small">
           <div className="flex-1 h-full overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
-            {medicines.map((medicine) => (
-              <MedicineCard
-                key={medicine.medicineId}
-                name={medicine.name}
-                category={medicine.category}
-                photoAlt={medicine.name}
-                photoSrc={medicine.photo}
-                subtitle={medicine.supplier}
-                action={
-                  <Button
-                    variant="secondary-light"
-                    disabled={false}
-                    text="عرض التفاصيل"
-                    size="med"
-                    onClick={() => handleNavigate(medicine.medicineId)}
-                  />
-                }
-              />
-            ))}
+            {content.current}
           </div>
-          <CustomPagination page={pageIndex} count={medicines.length} />
+          <CustomPagination
+            page={pageIndex + 1}
+            count={data?.totalRecords}
+            onChange={handlePgination}
+            pageSize={pageSize}
+          />
         </div>
       </div>
     </div>

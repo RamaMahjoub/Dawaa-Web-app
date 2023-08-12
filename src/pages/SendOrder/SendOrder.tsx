@@ -1,25 +1,141 @@
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
-import { findSupplier } from "../../Schema/response/Suppliers.schema";
 import Button from "../../components/Button/Button";
-import { medicines } from "../../Schema/response/medicine.schema";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import Counter from "../../components/Counter/Counter";
 import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
 import Header, { HeaderTypes } from "../../components/Header/Header";
 import { useMediaQuery } from "react-responsive";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  Basket,
+  clearBasket,
+  getSupplierDetails,
+  selectBasket,
+  selectSupplierDetailsData,
+  selectSupplierDetailsStatus,
+} from "../../redux/supplierSlice";
+import { useEffect, useState } from "react";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { createOrder, selectNavigationStatus } from "../../redux/orderSlice";
+import { routes } from "../../router/constant";
+
+const NotFound = require("./../../assets/medicines/not-found.png");
 
 const SendOrder = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const { supplierId } = useParams();
-  const supplier = findSupplier(supplierId!);
+  let supplier;
+  const dispatch = useAppDispatch();
+  const basket = useAppSelector(selectBasket);
+  const [total, setTotal] = useState<number>(0);
+  const [medicineQuantities, setMedicineQuantities] = useState<{
+    [key: number]: number;
+  }>(
+    basket.reduce(
+      (acc: any, item: Basket) => ({
+        ...acc,
+        [item.medicine.data.id]: item.quantity,
+      }),
+      {}
+    )
+  );
+  const handleQuantityChange = (
+    medicineId: number,
+    medicinePrice: number,
+    quantity: number
+  ) => {
+    setMedicineQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [medicineId]: quantity,
+    }));
+    setTotal(
+      (prevTotal) =>
+        prevTotal -
+        medicineQuantities[medicineId] * medicinePrice +
+        medicinePrice * quantity
+    );
+  };
+  const handleFindMedicineFulfilled = (medicinePrice: number) => {
+    setTotal((prevTotal) => prevTotal + medicinePrice);
+  };
+
+  const supplierStatus = useAppSelector(selectSupplierDetailsStatus);
+  const supplierData = useAppSelector(selectSupplierDetailsData);
+  const navigationStatus = useAppSelector(selectNavigationStatus);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (navigationStatus === "sending_succeeded") {
+      navigate(`/${routes.SUPPLIERS}/${supplierId}`);
+    }
+  }, [navigationStatus, navigate, supplierId]);
+  let medicines = basket.map((item: Basket) => {
+    return (
+      <MedicineCard
+        key={item.medicine.data.id}
+        name={item.medicine.data.name}
+        subtitle={`${item.medicine.data.price} ل.س`}
+        photoAlt={item.medicine.data.name}
+        photoSrc={NotFound}
+        action={
+          <Counter
+            quantity={medicineQuantities[item.medicine.data.id]}
+            onChange={(quantity) =>
+              handleQuantityChange(
+                item.medicine.data.id,
+                item.medicine.data.price,
+                quantity
+              )
+            }
+          />
+        }
+      />
+    );
+  });
+  useEffect(() => {
+    dispatch(
+      getSupplierDetails({
+        id: supplierId!,
+      })
+    );
+
+    basket.forEach((item: Basket) => {
+      handleFindMedicineFulfilled(item.medicine.data.price);
+    });
+  }, [dispatch, supplierId, basket]);
+  if (supplierStatus === "loading") {
+    supplier = <div>loading...</div>;
+  } else if (supplierStatus === "succeeded") {
+    supplier = supplierData.data;
+  } else if (supplierStatus === "idle") {
+    supplier = "";
+  }
+
+  const handleSend = () => {
+    const medicines = basket.map((item: Basket) => {
+      return {
+        medicineId: item.medicineId,
+        quantity: medicineQuantities[item.medicineId],
+      };
+    });
+    const request = {
+      supplierId: Number(supplierId),
+      medicineOrder: medicines,
+    };
+    dispatch(createOrder(request));
+  };
+
+  const handleCancel = () => {
+    dispatch(clearBasket());
+    navigate(`/${routes.SUPPLIERS}/${supplierId}`);
+  };
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
       <div
-        className="flex-1 bg-greyScale-lighter overflow-auto scrollbar-thin gap-large flex p-large flex-col sm:flex-row"
+        className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter scrollbar-thin gap-large p-large sm:flex-row"
         style={{ height: "calc(100% - 125px)" }}
       >
         <div className="sm:w-4/12 min-w-min">
@@ -30,27 +146,27 @@ const SendOrder = () => {
             <table>
               <tbody className="flex flex-col gap-large">
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     الجهة المستقبلة:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">
+                  <td className="break-words text-greyScale-main text-medium">
                     {supplier.name}
                   </td>
                 </tr>
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     الجهة المرسلة:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">
+                  <td className="break-words text-greyScale-main text-medium">
                     مستودع محجوب
                   </td>
                 </tr>
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     مكان التوصيل:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">
-                    {supplier.address}{" "}
+                  <td className="break-words text-greyScale-main text-medium">
+                    {supplier.location}
                   </td>
                 </tr>
               </tbody>
@@ -64,6 +180,7 @@ const SendOrder = () => {
                 disabled={false}
                 size="med"
                 style={{ flex: "1" }}
+                onClick={handleSend}
               />
               <Button
                 text="إلغاء الطلب"
@@ -71,28 +188,20 @@ const SendOrder = () => {
                 disabled={false}
                 size="med"
                 style={{ flex: "1" }}
+                onClick={handleCancel}
               />
             </div>
           )}
         </div>
-        <div className="bg-white flex flex-col h-full sm:w-8/12 rounded-med p-large">
+        <div className="flex flex-col h-full bg-white sm:w-8/12 rounded-med p-large">
           <p className="h-10 text-x-large text-greyScale-main">العناصر</p>
           <div className="flex-1 overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
-            {medicines.map((medicine) => (
-              <MedicineCard
-                key={medicine.medicineId}
-                name={medicine.name}
-                subtitle={`${medicine.sellingPrice} ل.س`}
-                photoAlt={medicine.name}
-                photoSrc={medicine.photo}
-                action={<Counter />}
-              />
-            ))}
+            {medicines}
           </div>
-          <div className="w-full pt-large  flex items-center justify-end">
+          <div className="flex items-center justify-end w-full pt-large">
             <TextBadge
               className="mx-medium"
-              title={`125000 ل.س`}
+              title={`${total} ل.س`}
               status={BadgeStatus.BASE}
             />
           </div>

@@ -12,16 +12,16 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      {/* <ToastContainer
+  // <React.StrictMode>
+  <Provider store={store}>
+    {/* <ToastContainer
         transition={Flip}
         autoClose={8000}
         hideProgressBar={true}
         theme="colored"
         position={toast.POSITION.BOTTOM_CENTER}
       /> */}
-      <App />
-    </Provider>
-  </React.StrictMode>
+    <App />
+  </Provider>
+  // </React.StrictMode>
 );

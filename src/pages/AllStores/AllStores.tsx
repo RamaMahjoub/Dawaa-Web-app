@@ -11,28 +11,56 @@ import AddStore from "./AddStore/AddStore";
 import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { getAllStores, selectData, selectStatus } from "../../redux/storeSlice";
+import {
+  getAllStores,
+  selectAddStoreStatus,
+  selectAllStoresData,
+  selectAllStoresStatus,
+} from "../../redux/storeSlice";
+import PendingDialog from "./AddStore/PendingDialog";
 
 const AllStores = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const dispatch = useAppDispatch();
-  const data = useAppSelector(selectData);
+  const data = useAppSelector(selectAllStoresData);
+  let content;
+  const status = useAppSelector(selectAllStoresStatus);
+  const addStoreStatus = useAppSelector(selectAddStoreStatus);
   const [open, setOpen] = useState<boolean>(false);
+  const [openPending, setOpenPending] = useState<boolean>(false);
   const handleOpen = useCallback(() => {
     setOpen((pre) => !pre);
   }, []);
-  console.log("data", data)
+  const handleOpenPending = useCallback(() => {
+    setOpenPending((pre) => !pre);
+  }, []);
   useEffect(() => {
     dispatch(getAllStores());
   }, [dispatch]);
-  const storesList = data.map((row: any) => (
-    <StoreCard storeData={row} key={row.id} />
-  ));
+  useEffect(() => {
+    if (addStoreStatus === "succeeded") {
+      setOpen(false);
+      setOpenPending(true);
+    }
+  }, [addStoreStatus]);
+  if (status === "loading") {
+    content = <div>loading...</div>;
+  } else if (status === "succeeded") {
+    content =
+      data.data.length > 0
+        ? data.data.map((row: any, index: number) => (
+            <StoreCard storeData={row} index={index + 1} key={row.id} />
+          ))
+        : "لا يوجد عناصر";
+  } else if (status === "idle") {
+    content = "لا يوجد عناصر";
+  }
+
   return (
     <>
-      <div className="h-screen flex flex-col">
+      <div className="flex flex-col h-screen">
         <Header
           title={title!}
           action={
@@ -63,11 +91,12 @@ const AllStores = () => {
           }
           leftSpace={HeaderTypes.DISTRIPUTE}
         />
-        <div className="flex-1 bg-greyScale-lighter overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large gap-large flex flex-col">
-          {storesList}
+        <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large gap-large">
+          {content}
         </div>
       </div>
       <AddStore open={open} handleOpen={handleOpen} />
+      <PendingDialog open={openPending} handleOpen={handleOpenPending} />
     </>
   );
 };

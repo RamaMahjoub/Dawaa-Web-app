@@ -15,7 +15,7 @@ import {
   selectNavigationStatus,
   selectStatus,
 } from "../../redux/authSlice";
-import Loading from "../../components/Loading";
+import Loading from "../../components/Loading/Clip";
 
 const Login = () => {
   const { pathname } = useLocation();

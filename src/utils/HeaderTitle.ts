@@ -18,11 +18,9 @@ export const HeaderTitle = (path: string) => {
     path.includes(`/${routes.ALL_STORES}`)
   ) {
     return "جميع المخازن";
-  } else if (
-    path === `/${routes.STORE_MEDICINES}` 
-  ) {
+  } else if (path === `/${routes.STORE_MEDICINES}`) {
     return "تخزين أدوية";
-  }else if (
+  } else if (
     path === `/${routes.ALL_MEDICINES}` ||
     path.includes(`/${routes.ALL_MEDICINES}`)
   ) {
@@ -51,6 +49,8 @@ export const HeaderTitle = (path: string) => {
     return "الطلبات الصادرة";
   } else if (path === `/${routes.EXPRESS_ORDERS}`) {
     return "الطلبات السريعة";
+  } else if (path === `/${routes.INVOICES}`) {
+    return "الفواتير";
   } else if (path === `/${routes.ANALYTICS}`) {
     return "الإحصائيات";
   } else if (path === `/${routes.REPORTS}`) {

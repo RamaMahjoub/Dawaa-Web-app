@@ -15,7 +15,10 @@ import {
 import { useFormSubmit } from "../../../hooks/useFormSubmit";
 import { RegisterStoreSchema } from "../../../Schema/request/registerStore.schema";
 import { registerStoreValidationSchema } from "../../../validations/registerStore.validation";
-import { registerStore } from "../../../redux/storeSlice";
+import { registerStore, selectAddStoreStatus } from "../../../redux/storeSlice";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import { useAppSelector } from "../../../hooks/useAppSelector";
+import Loading from "../../../components/Loading/Clip";
 
 interface Props {
   open: boolean;
@@ -23,13 +26,14 @@ interface Props {
 }
 
 const AddStore: FC<Props> = ({ open, handleOpen }) => {
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectAddStoreStatus);
   const [showPass, setShowPass] = useState<boolean>(false);
   const handleShowPassword = () => {
     setShowPass((pre) => !pre);
   };
   const initialValues: RegisterStoreSchema = {
     fullName: "",
-    phoneNumber: "",
     email: "",
     password: "",
     name: "",
@@ -37,56 +41,40 @@ const AddStore: FC<Props> = ({ open, handleOpen }) => {
     inventoryPhoneNumber: "",
   };
   const handleSubmit = (values: RegisterStoreSchema) => {
-    // dispatch(registerStore(values));
+    dispatch(registerStore(values));
   };
   const formik = useFormSubmit(
     initialValues,
     handleSubmit,
     registerStoreValidationSchema
   );
+  let buttonContent;
+  if (status === "loading") {
+    buttonContent = <Loading />;
+  } else if (status === "succeeded") {
+    buttonContent = "حفظ";
+  } else if (status === "idle") {
+    buttonContent = "حفظ";
+  } else if (status === "failed") {
+    buttonContent = "حفظ";
+  }
   return (
     <>
       {open && (
         <div className="fixed inset-0 flex items-center justify-center max-h-screen z-[999] bg-greyScale-dark/50">
           <div className="w-[435px] flex flex-col rounded-small bg-white">
-            <p className="p-x-large text-greyscale-main text-xx-large border-solid border-b border-greyScale-light flex justify-between items-center">
+            <p className="flex items-center justify-between border-b border-solid p-x-large text-greyscale-main text-xx-large border-greyScale-light">
               مخزن جديد
               <XSquareFill
-                className="text-greyScale-light hover:text-primary-main transition-colors duration-300 ease-in"
+                className="transition-colors duration-300 ease-in text-greyScale-light hover:text-primary-main"
                 onClick={handleOpen}
               />
             </p>
-            <div className="flex flex-col gap-small px-medium flex-1  py-medium overflow-auto scrollbar-thin">
-              <form className="flex flex-col gap-3">
-                <TextField
-                  id="fullName"
-                  startIcon={<Person />}
-                  label="اسم مدير المخزن"
-                  inputSize="x-large"
-                  value={formik.getFieldProps("fullName").value}
-                  onChange={formik.getFieldProps("fullName").onChange}
-                  onBlur={formik.getFieldProps("fullName").onBlur}
-                  helperText={
-                    formik.touched.fullName && Boolean(formik.errors.fullName)
-                      ? String(formik.errors.fullName)
-                      : ""
-                  }
-                />
-                <TextField
-                  id="phoneNumber"
-                  startIcon={<Telephone />}
-                  label="رقم هاتف مدير المخزن"
-                  inputSize="x-large"
-                  value={formik.getFieldProps("phoneNumber").value}
-                  onChange={formik.getFieldProps("phoneNumber").onChange}
-                  onBlur={formik.getFieldProps("phoneNumber").onBlur}
-                  helperText={
-                    formik.touched.phoneNumber &&
-                    Boolean(formik.errors.phoneNumber)
-                      ? String(formik.errors.phoneNumber)
-                      : ""
-                  }
-                />
+            <div className="flex flex-col flex-1 overflow-auto gap-small px-medium py-medium scrollbar-thin">
+              <form
+                className="flex flex-col gap-3"
+                onSubmit={formik.handleSubmit}
+              >
                 <TextField
                   id="email"
                   startIcon={<Envelope />}
@@ -137,7 +125,20 @@ const AddStore: FC<Props> = ({ open, handleOpen }) => {
                       : ""
                   }
                 />
-
+                <TextField
+                  id="fullName"
+                  startIcon={<Person />}
+                  label="اسم مدير المخزن"
+                  inputSize="x-large"
+                  value={formik.getFieldProps("fullName").value}
+                  onChange={formik.getFieldProps("fullName").onChange}
+                  onBlur={formik.getFieldProps("fullName").onBlur}
+                  helperText={
+                    formik.touched.fullName && Boolean(formik.errors.fullName)
+                      ? String(formik.errors.fullName)
+                      : ""
+                  }
+                />
                 <TextField
                   id="location"
                   startIcon={<GeoAltFill />}
@@ -169,16 +170,16 @@ const AddStore: FC<Props> = ({ open, handleOpen }) => {
                       : ""
                   }
                 />
+                <div className="flex justify-center p-medium">
+                  <Button
+                    text={buttonContent}
+                    type="submit"
+                    variant="base-blue"
+                    disabled={false}
+                    size="lg"
+                  />
+                </div>
               </form>
-            </div>
-            <div className="p-medium flex justify-center">
-              <Button
-                text="حفظ"
-                type="submit"
-                variant="base-blue"
-                disabled={false}
-                size="lg"
-              />
             </div>
           </div>
         </div>

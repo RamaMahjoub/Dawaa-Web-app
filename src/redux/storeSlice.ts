@@ -4,15 +4,21 @@ import { RegisterStoreSchema } from "../Schema/request/registerStore.schema";
 import StoreService from "../services/StoreServices";
 
 type StoreState = {
-  data: any;
-  status: string;
-  error: string | undefined;
+  allStoresData: any;
+  allStoresStatus: string;
+  allStoresError: string | undefined;
+  addStoreData: any;
+  addStoreStatus: string;
+  addStoreError: string | undefined;
 };
 
 const initialState: StoreState = {
-  data: [],
-  status: "idle",
-  error: undefined,
+  allStoresData: {},
+  allStoresStatus: "idle",
+  allStoresError: undefined,
+  addStoreData: {},
+  addStoreStatus: "idle",
+  addStoreError: undefined,
 };
 
 export const registerStore = createAsyncThunk(
@@ -38,34 +44,41 @@ export const StoreSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(registerStore.pending, (state) => {
-        state.status = "loading";
+        state.addStoreStatus = "loading";
       })
       .addCase(registerStore.fulfilled, (state, action: PayloadAction<any>) => {
-        state.status = "succeeded";
-        state.data = action.payload;
+        state.addStoreStatus = "succeeded";
+        state.addStoreData = action.payload;
       })
       .addCase(registerStore.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+        state.addStoreStatus = "failed";
+        state.addStoreError = action.error.message;
       })
       .addCase(getAllStores.pending, (state) => {
-        state.status = "loading";
+        state.allStoresStatus = "loading";
       })
       .addCase(getAllStores.fulfilled, (state, action: PayloadAction<any>) => {
-        state.status = "succeeded";
-        state.data = action.payload;
+        state.allStoresStatus = "succeeded";
+        state.allStoresData = action.payload;
       })
       .addCase(getAllStores.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+        state.allStoresStatus = "failed";
+        state.allStoresError = action.error.message;
       });
   },
 });
 
-export const selectStatus = (state: RootState) => state.store.status;
-export const selectNavigationStatus = (state: RootState) =>
-  state.auth.navigationState;
-export const selectError = (state: RootState) => state.store.error;
-export const selectData = (state: RootState) => state.store.data;
+export const selectAllStoresStatus = (state: RootState) =>
+  state.store.allStoresStatus;
+export const selectAllStoresData = (state: RootState) =>
+  state.store.allStoresData;
+export const selectAllStoresError = (state: RootState) =>
+  state.store.allStoresError;
+export const selectAddStoreError = (state: RootState) =>
+  state.store.addStoreError;
+export const selectAddStoreData = (state: RootState) =>
+  state.store.addStoreData;
+export const selectAddStoreStatus = (state: RootState) =>
+  state.store.addStoreStatus;
 
 export default StoreSlice.reducer;

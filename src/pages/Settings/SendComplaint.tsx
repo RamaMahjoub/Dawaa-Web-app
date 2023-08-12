@@ -19,15 +19,15 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
       {open && (
         <div className="fixed inset-0 flex items-center justify-center max-h-screen z-[999] bg-greyScale-dark/50">
           <div className="w-[235px] max-h-screen sm:w-[435px] flex flex-col rounded-small bg-white">
-            <p className="p-x-large   text-greyscale-main text-xx-large border-solid border-b border-greyScale-light flex justify-between items-center">
+            <p className="flex items-center justify-between border-b border-solid p-x-large text-greyscale-main text-xx-large border-greyScale-light">
               إرسال شكوى
               <XSquareFill
-                className="text-greyScale-light hover:text-primary-main transition-colors duration-300 ease-in"
+                className="transition-colors duration-300 ease-in text-greyScale-light hover:text-primary-main"
                 onClick={handleOpen}
               />
             </p>
-            <div className="flex flex-col gap-small px-x-large py-medium flex-1 overflow-auto scrollbar-thin ">
-              <div className="mid overflow-auto scrollbar-none">
+            <div className="flex flex-col flex-1 overflow-auto gap-small px-x-large py-medium scrollbar-thin ">
+              <div className="overflow-auto mid scrollbar-none">
                 {destinations.map((destination) => (
                   <Button
                     key={destination}
@@ -62,11 +62,11 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
                 <textarea
                   rows={3}
                   placeholder="ملاحظات حول السبب..."
-                  className="resize-none border px-x-large py-small border-greyScale-light text-greyScale-main rounded-small text-medium outline-none"
+                  className="border outline-none resize-none px-x-large py-small border-greyScale-light text-greyScale-main rounded-small text-medium"
                 />
               </form>
             </div>
-            <div className="p-medium flex justify-center">
+            <div className="flex justify-center p-medium">
               <Button
                 text="إرسال"
                 variant="base-blue"

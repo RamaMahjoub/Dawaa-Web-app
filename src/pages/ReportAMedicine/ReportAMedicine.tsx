@@ -4,23 +4,47 @@ import Button from "../../components/Button/Button";
 import { findMedicine } from "../../Schema/response/medicine.schema";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import Header, { HeaderTypes } from "../../components/Header/Header";
-import { data } from "../../Schema/response/storeReport";
 import Accordion from "../../components/Accordion/Accordion";
 import { findStore } from "../../Schema/response/Store.schema";
 import { getMonth } from "../../utils/Month";
 import AccordionContent from "../../components/Accordion/AccordionContent";
 import AccordionTitle from "../../components/Accordion/AccordionTitle";
 import { AccordionProvider } from "../../components/Accordion/context";
+import { useEffect, useState } from "react";
+import { PaginationState } from "@tanstack/react-table";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  findInventoriesReports,
+  selectInventoriesReportsData,
+  selectInventoriesReportsStatus,
+} from "../../redux/reportsSlice";
+import { BeatLoader } from "react-spinners";
 
 const ReportAMedicine = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
-
+  const [{ pageIndex, pageSize }, setPageIndex] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 1,
+  });
+  const dispatch = useAppDispatch();
+  const data = useAppSelector(selectInventoriesReportsData);
+  const status = useAppSelector(selectInventoriesReportsStatus);
+  console.log(data);
+  useEffect(() => {
+    dispatch(
+      findInventoriesReports({
+        limit: String(pageSize),
+        page: String(pageIndex),
+      })
+    );
+  }, [dispatch, pageIndex, pageSize]);
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
-      <div className="flex-1 flex-col gap-large flex bg-greyScale-lighter overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large ">
-        {data.map((report) => {
+      <div className="flex flex-col flex-1 overflow-auto gap-large bg-greyScale-lighter scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large ">
+        {/* {data.map((report) => {
           const store = findStore(report.storeId);
           const reportDate = `${getMonth(
             report.reportDate.getMonth() + 1
@@ -29,9 +53,8 @@ const ReportAMedicine = () => {
           return (
             <AccordionProvider>
               <Accordion>
-                {/* header */}
                 <AccordionTitle>
-                  <span className="flex flex-1 items-center justify-between">
+                  <span className="flex items-center justify-between flex-1">
                     <p className="text-x-large text-greyScale-main">
                       {store.name}
                     </p>
@@ -42,8 +65,7 @@ const ReportAMedicine = () => {
                 </AccordionTitle>
 
                 <AccordionContent>
-                  {/* content */}
-                  <div className="text-large text-greyScale-light flex flex-col gap-medium">
+                  <div className="flex flex-col text-large text-greyScale-light gap-medium">
                     <MedicineCard
                       name={medicine.name}
                       photoAlt={medicine.name}
@@ -52,7 +74,6 @@ const ReportAMedicine = () => {
                     />
                     {report.reason}
                   </div>
-                  {/* action */}
                   <div className="flex justify-end">
                     <Button
                       text="قبول الطلب"
@@ -65,7 +86,13 @@ const ReportAMedicine = () => {
               </Accordion>
             </AccordionProvider>
           );
-        })}
+        })} */}
+        <BeatLoader
+          color={"#94A3B8"}
+          size={5}
+          aria-label="Loading Spinner"
+          data-testid="loader"
+        />
       </div>
     </div>
   );

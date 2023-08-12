@@ -1,7 +1,7 @@
 export interface OStoreSchema {
   id: string;
   name: string;
-  owner: string;
+  managerName: string;
   location: string;
   phoneNumber: string;
 }

@@ -1,14 +1,14 @@
 import { ClipLoader } from "react-spinners";
 
-const Loading = () => {
+const Clip = () => {
   return (
     <ClipLoader
       color={"ffffff"}
       size={15}
-      aria-label="Loading Spinner"
+      aria-label="Clip Spinner"
       data-testid="loader"
     />
   );
 };
 
-export default Loading;
+export default Clip;

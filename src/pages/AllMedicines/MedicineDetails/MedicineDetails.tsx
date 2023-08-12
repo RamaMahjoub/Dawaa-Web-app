@@ -14,6 +14,7 @@ import { useCallback, useMemo, useState } from "react";
 import { findStore } from "../../../Schema/response/Store.schema";
 import Button from "../../../components/Button/Button";
 import DeleteMedicine from "../DeleteMedicine/DeleteMedicine";
+import EditMedicine from "../EditMedicine/EditMedicine";
 
 interface TableSchema {
   name: string;
@@ -25,8 +26,12 @@ const MedicineDetails = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const [openDelete, setOpenDelete] = useState<boolean>(false);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
   const handleOpenDelete = useCallback(() => {
     setOpenDelete((pre) => !pre);
+  }, []);
+  const handleOpenEdit = useCallback(() => {
+    setOpenEdit((pre) => !pre);
   }, []);
   const { medicineId } = useParams();
   const medicineInStores = findMedicineInStores(medicineId!);
@@ -83,7 +88,7 @@ const MedicineDetails = () => {
   });
   return (
     <>
-      <div className="h-screen flex flex-col">
+      <div className="flex flex-col h-screen">
         <Header
           title={
             <>
@@ -93,8 +98,8 @@ const MedicineDetails = () => {
           }
           leftSpace={HeaderTypes.FREE}
         />
-        <div className="flex-1 bg-greyScale-lighter flex flex-col sm:flex-row overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large gap-large">
-          <div className="bg-white flex flex-col justify-center items-center overflow-auto scrollbar-thin gap-large p-large sm:w-4/12 h-full min-h-full rounded-med">
+        <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large gap-large">
+          <div className="flex flex-col items-center justify-center h-full min-h-full overflow-auto bg-white scrollbar-thin gap-large p-large sm:w-4/12 rounded-med">
             <img
               src={medicine.photo}
               alt={medicine.name}
@@ -104,62 +109,62 @@ const MedicineDetails = () => {
             <table>
               <tbody className="flex flex-col gap-large">
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     اسم الدواء:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">
+                  <td className="break-words text-greyScale-main text-medium">
                     {medicine.name}
                   </td>
                 </tr>
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     الفئة العلاجية:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">
+                  <td className="break-words text-greyScale-main text-medium">
                     {medicine.category}
                   </td>
                 </tr>
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     سعر الشراء:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">{`${medicine.purchasingPrice} ل.س`}</td>
+                  <td className="break-words text-greyScale-main text-medium">{`${medicine.purchasingPrice} ل.س`}</td>
                 </tr>
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     سعر المبيع:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">{`${medicine.sellingPrice} ل.س`}</td>
+                  <td className="break-words text-greyScale-main text-medium">{`${medicine.sellingPrice} ل.س`}</td>
                 </tr>
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     الشركة المورّدة:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">
+                  <td className="break-words text-greyScale-main text-medium">
                     {medicine.supplier}
                   </td>
                 </tr>
                 <tr>
-                  <td className="text-greyScale-light text-medium w-24">
+                  <td className="w-24 text-greyScale-light text-medium">
                     الكمية المتوافرة:
                   </td>
-                  <td className="text-greyScale-main text-medium break-words">{`${totalQuantity} علبة`}</td>
+                  <td className="break-words text-greyScale-main text-medium">{`${totalQuantity} علبة`}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-           <div className="sm:w-8/12 w-full h-full flex flex-col">
-            <div className="bg-white p-large flex-col flex h-5/6 max-h-fit w-full rounded-med">
+          <div className="flex flex-col w-full h-full sm:w-8/12">
+            <div className="flex flex-col w-full bg-white p-large h-5/6 max-h-fit rounded-med">
               <p className="text-x-large mb-large text-greyScale-main">
                 تفصيل توزيع الكمية على المخازن
               </p>
-              <div className="bg-white overflow-auto flex-1 scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
+              <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
                 <table className="w-full min-w-max">
                   <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <tr
                         key={headerGroup.id}
-                        className="bg-greyScale-lighter sticky top-0"
+                        className="sticky top-0 bg-greyScale-lighter"
                       >
                         {headerGroup.headers.map((header) => {
                           return (
@@ -187,7 +192,7 @@ const MedicineDetails = () => {
                       return (
                         <tr
                           key={row.id}
-                          className="border-b border-greyScale-light border-opacity-50 transition-colors duration-300 ease-in hover:bg-greyScale-lighter cursor-pointer"
+                          className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
                         >
                           {row.getVisibleCells().map((cell) => {
                             return (
@@ -209,12 +214,13 @@ const MedicineDetails = () => {
                 </table>
               </div>
             </div>
-            <div className="flex flex-1 gap-small justify-end items-end">
+            <div className="flex items-end justify-end flex-1 gap-small">
               <Button
-                text="تعديل معلومات الدواء"
+                text="تعديل"
                 variant="base-blue"
                 disabled={false}
                 size="med"
+                onClick={handleOpenEdit}
               />
               <Button
                 text="حذف"
@@ -224,10 +230,11 @@ const MedicineDetails = () => {
                 onClick={handleOpenDelete}
               />
             </div>
-          </div> 
+          </div>
         </div>
       </div>
       <DeleteMedicine open={openDelete} handleOpen={handleOpenDelete} />
+      <EditMedicine open={openEdit} handleOpen={handleOpenEdit} />
     </>
   );
 };

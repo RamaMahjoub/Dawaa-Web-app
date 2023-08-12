@@ -32,9 +32,9 @@ const TransferMedicines = () => {
     }
   };
   return (
-    <div className="w-full h-screen bg-greyScale-lighter flex items-center justify-center">
-      <div className="bg-white py-large px-x-large flex flex-col gap-1 w-64 sm:w-96 rounded-med m-medium">
-        <p className="flex justify-center text-greyScale-main text-large my-medium font-semibold">
+    <div className="flex items-center justify-center w-full h-screen bg-greyScale-lighter">
+      <div className="flex flex-col w-64 gap-1 bg-white py-large px-x-large sm:w-96 rounded-med m-medium">
+        <p className="flex justify-center font-semibold text-greyScale-main text-large my-medium">
           {title}
         </p>
         <form
@@ -79,14 +79,14 @@ const TransferMedicines = () => {
       {open && (
         <div className="fixed inset-0 flex items-center justify-center max-h-screen z-[999] bg-greyScale-dark/50">
           <div className="w-[235px] sm:w-[435px] h-[435px] flex flex-col rounded-small bg-white">
-            <p className="p-x-large flex items-center justify-between  text-greyscale-main text-xx-large border-solid border-b border-greyScale-light">
+            <p className="flex items-center justify-between border-b border-solid p-x-large text-greyscale-main text-xx-large border-greyScale-light">
               اختيار الأدوية لنقلها
               <XSquareFill
-                className="text-greyScale-light hover:text-primary-main transition-colors duration-300 ease-in"
+                className="transition-colors duration-300 ease-in text-greyScale-light hover:text-primary-main"
                 onClick={handleOpen}
               />
             </p>
-            <div className="flex flex-col gap-small px-medium flex-1  overflow-auto scrollbar-thin">
+            <div className="flex flex-col flex-1 overflow-auto gap-small px-medium scrollbar-thin">
               {storesMedicinesData.map((med) => {
                 const medicine = findMedicine(med.medicineId);
                 return (
@@ -107,7 +107,7 @@ const TransferMedicines = () => {
                 );
               })}
             </div>
-            <div className="p-medium flex justify-center">
+            <div className="flex justify-center p-medium">
               <Button text="حفظ" variant="base-blue" disabled={false} size="lg" />
             </div>
           </div>

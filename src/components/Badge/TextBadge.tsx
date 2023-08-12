@@ -7,6 +7,7 @@ export enum BadgeStatus {
   WARNING = "Warning",
   DANGER = "Danger",
   BASE = "Base",
+  DONE = "Done"
 }
 
 interface Props {
@@ -20,7 +21,7 @@ const useBadgeStyles = () => {
     badge: (status: BadgeStatus) => css`
       min-width: 100px;
 
-      ${tw`inline-flex justify-center items-center py-x-small px-x-large rounded-small text-small font-semibold`}
+      ${tw`inline-flex items-center justify-center font-semibold py-x-small px-x-large rounded-small text-small`}
       ${status === BadgeStatus.SUCCESS
         ? css`
             ${tw`bg-green-light text-green-main`};
@@ -32,8 +33,11 @@ const useBadgeStyles = () => {
         : status === BadgeStatus.DANGER
         ? css`
             ${tw`bg-red-light text-red-main`};
-          `
-        : css`${tw`bg-primary-main text-white text-medium`}`}
+          `: status === BadgeStatus.DONE
+          ? css`
+              ${tw`bg-primary-light text-primary-main`};
+            `
+        : css`${tw`text-white bg-primary-main text-medium`}`}
     `,
   };
 };

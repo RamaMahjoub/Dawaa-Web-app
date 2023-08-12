@@ -28,44 +28,44 @@ const Analytics = () => {
   const [date, setDate] = useState(new Date());
   const handleAddPayment = () => setAddPayment((pre) => !pre);
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
-      <div className="bg-greyScale-lighter p-large grid gap-large grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        <span className="flex flex-col items-center justify-center gap-small  h-fit bg-white rounded-med p-large">
+      <div className="grid grid-cols-2 bg-greyScale-lighter p-large gap-large md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <span className="flex flex-col items-center justify-center bg-white gap-small h-fit rounded-med p-large">
           <p className="text-greyScale-light text-medium">رأس المال المقبوض</p>
           <TextBadge title={`600000000 ل.س`} status={BadgeStatus.SUCCESS} />
         </span>
-        <span className="flex flex-col items-center justify-center gap-small h-fit bg-white rounded-med p-large">
+        <span className="flex flex-col items-center justify-center bg-white gap-small h-fit rounded-med p-large">
           <p className="text-greyScale-light text-medium">
             رأس المال غير المقبوض
           </p>
           <TextBadge title={`60000000 ل.س`} status={BadgeStatus.DANGER} />
         </span>
-        <span className="flex flex-col items-center justify-center gap-small h-fit bg-white rounded-med p-large">
+        <span className="flex flex-col items-center justify-center bg-white gap-small h-fit rounded-med p-large">
           <p className="text-greyScale-light text-medium">
             قيمة الأدوية المخزنة في المستودع
           </p>
           <TextBadge title={`600000000 ل.س`} status={BadgeStatus.WARNING} />
         </span>
-        <span className="flex flex-col items-center justify-center gap-small h-fit bg-white rounded-med p-large">
+        <span className="flex flex-col items-center justify-center bg-white gap-small h-fit rounded-med p-large">
           <p className="text-greyScale-light text-medium">
             المربح الصافي المقبوض
           </p>
           <TextBadge title={`600000000 ل.س`} status={BadgeStatus.SUCCESS} />
         </span>
-        <span className="flex flex-col items-center justify-center gap-small h-fit bg-white rounded-med p-large">
+        <span className="flex flex-col items-center justify-center bg-white gap-small h-fit rounded-med p-large">
           <p className="text-greyScale-light text-medium">
             المربح الصافي غير المقبوض
           </p>
           <TextBadge title={`600000000 ل.س`} status={BadgeStatus.DANGER} />
         </span>
       </div>
-      <div className="flex-1 bg-greyScale-lighter sm:flex-row flex-col gap-large flex px-large pb-large overflow-auto scrollbar-thin">
-        <div className="p-large min-w-max flex flex-1 flex-col gap-medium bg-white rounded-med overflow-auto scrollbar-none">
+      <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large px-large pb-large scrollbar-thin">
+        <div className="flex flex-col flex-1 overflow-auto bg-white p-large min-w-max gap-medium rounded-med scrollbar-none">
           <p className="text-greyScale-main">
             الطلبات الواردة غير مكتملة الدفع
           </p>
-          <div className="overflow-auto scrollbar-none divide-y flex flex-col gap-medium">
+          <div className="flex flex-col overflow-auto divide-y scrollbar-none gap-medium">
             {schema.map((item) => {
               return (
                 <div className="flex flex-col gap-2">
@@ -78,10 +78,10 @@ const Analytics = () => {
                     <p className="text-medium text-red-main">- {item.amount}</p>
                   </div>
                   {addPayment && (
-                    <div className="w-full flex flex-col gap-1 ">
+                    <div className="flex flex-col w-full gap-1 ">
                       <TextField
                         startIcon={
-                          <CurrencyDollar className="pl-x-small border-l" />
+                          <CurrencyDollar className="border-l pl-x-small" />
                         }
                         inputSize="x-large"
                       />
@@ -95,7 +95,7 @@ const Analytics = () => {
                         customInput={
                           <TextField
                             startIcon={
-                              <Calendar2Event className="pl-x-small border-l" />
+                              <Calendar2Event className="border-l pl-x-small" />
                             }
                             inputSize="x-large"
                             variant="fill"
@@ -125,11 +125,11 @@ const Analytics = () => {
             })}
           </div>
         </div>
-        <div className="p-large min-w-max flex flex-1 flex-col gap-medium bg-white rounded-med overflow-auto scrollbar-none">
+        <div className="flex flex-col flex-1 overflow-auto bg-white p-large min-w-max gap-medium rounded-med scrollbar-none">
           <p className="text-greyScale-main">
             الطلبات الصادرة غير مكتملة الدفع
           </p>
-          <div className="overflow-auto scrollbar-none divide-y flex flex-col gap-medium">
+          <div className="flex flex-col overflow-auto divide-y scrollbar-none gap-medium">
             {schema.map((item) => {
               return (
                 <div className="flex items-center justify-between">

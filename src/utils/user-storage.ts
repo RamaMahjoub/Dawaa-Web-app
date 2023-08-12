@@ -1,16 +1,21 @@
 import { Token } from "./../Schema/response/Token";
-
-const USER_KEY = 'user';
+import Cookies from "js-cookie";
+const USER_KEY = "user";
 
 export function getStoredUser(): Token | null {
-  const storedUser = localStorage.getItem(USER_KEY);
-  return storedUser ? JSON.parse(storedUser) : null;
+  const accessToken = Cookies.get(USER_KEY);
+  return { accessToken: accessToken! } || null;
 }
 
 export function setStoredUser(tokens: Token): void {
-  localStorage.setItem(USER_KEY, JSON.stringify(tokens));
+  const expirationDate = new Date();
+  expirationDate.setTime(expirationDate.getTime() + 180 * 60 * 60 * 1000);
+  Cookies.set(USER_KEY, tokens.accessToken, {
+    expires: expirationDate,
+    path: "/",
+  });
 }
 
 export function clearStoredUser(): void {
-  localStorage.removeItem(USER_KEY);
+  Cookies.remove(USER_KEY, { path: "/" });
 }

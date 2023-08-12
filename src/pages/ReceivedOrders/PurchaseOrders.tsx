@@ -169,9 +169,9 @@ const PurchaseOrders = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
-      <div className="mid overflow-auto scrollbar-none p-large">
+      <div className="overflow-auto mid scrollbar-none p-large">
         <div className="mid">
           {filterList.map((filter) => (
             <Button
@@ -231,7 +231,7 @@ const PurchaseOrders = () => {
             dateFormat="MMMM d, yyyy"
             customInput={
               <TextField
-                startIcon={<Calendar2Event className="pl-x-small border-l" />}
+                startIcon={<Calendar2Event className="border-l pl-x-small" />}
                 inputSize="x-large"
                 variant="fill"
               />
@@ -239,14 +239,14 @@ const PurchaseOrders = () => {
           />
         </div>
       </div>
-      <div className="flex-1 bg-greyScale-lighter sm:flex-row flex-col gap-large flex p-large overflow-auto scrollbar-thin">
-        <div className="p-large h-full w-full flex flex-col max-h-fit bg-white rounded-small">
-          <div className="bg-white flex-1  overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
-            <table style={{ minWidth: "max-content" }} className="w-full">
+      <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin">
+        <div className="flex flex-col w-full h-full bg-white p-large max-h-fit rounded-small">
+          <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
+            <table style={{ minWidth: "max-content" }} className="w-full h-full">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr
-                    className="bg-greyScale-lighter sticky top-0"
+                    className="sticky top-0 bg-greyScale-lighter"
                     key={headerGroup.id}
                   >
                     {headerGroup.headers.map((header) => {
@@ -270,11 +270,11 @@ const PurchaseOrders = () => {
                   </tr>
                 ))}
               </thead>
-              <tbody>
+              <tbody className="">
                 {table.getRowModel().rows.map((row) => {
                   return (
                     <tr
-                      className="border-b border-greyScale-light border-opacity-50 transition-colors duration-300 ease-in hover:bg-greyScale-lighter cursor-pointer"
+                      className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
                       key={row.id}
                       onClick={() => handleNavigate(row.original.id)}
                     >

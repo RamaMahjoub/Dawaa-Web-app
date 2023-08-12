@@ -1,18 +1,25 @@
 import Pagination from "@mui/material/Pagination";
 import PaginationItem from "@mui/material/PaginationItem";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 import { useMediaQuery } from "react-responsive";
 
 interface Props {
   count: number;
   page: number;
+  pageSize?: number;
+  onChange?: (newPageIndex: number) => void;
 }
-const CustomPagination: FC<Props> = ({ count, page, ...rest }) => {
+const CustomPagination: FC<Props> = ({
+  count,
+  pageSize,
+  page,
+  onChange,
+  ...rest
+}) => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
-  const [currentPage, setPage] = useState(page);
   const handlePageChange = (_: any, value: number) => {
-    setPage(value);
+    onChange !== undefined && onChange(value - 1);
   };
   return (
     <div>
@@ -20,9 +27,9 @@ const CustomPagination: FC<Props> = ({ count, page, ...rest }) => {
         sx={{
           marginTop: "16px",
         }}
-        page={currentPage}
+        page={page}
         onChange={handlePageChange}
-        count={count}
+        count={Math.ceil(count / pageSize!)}
         shape="rounded"
         variant="outlined"
         {...rest}
@@ -51,7 +58,6 @@ const CustomPagination: FC<Props> = ({ count, page, ...rest }) => {
               },
               fontSize: "12px",
               lineHeight: "0",
-              // fontWeight: "700",
             }}
             {...item}
           />

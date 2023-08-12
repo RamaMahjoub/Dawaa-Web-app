@@ -47,6 +47,10 @@ export const subMenus: Array<Data> = [
         name: "الطلبات السريعة",
         route: routes.EXPRESS_ORDERS,
       },
+      {
+        name: "الفواتير",
+        route: routes.INVOICES,
+      },
     ],
   },
 ];

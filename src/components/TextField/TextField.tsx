@@ -23,7 +23,7 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
 
 export const useTextFieldStyles = () => {
   const icon = css`
-    ${tw`absolute top-2/4 rounded-larg -translate-y-1/2 text-greyScale-main flex justify-center items-center transition-colors duration-300 ease-in`}
+    ${tw`absolute flex items-center justify-center transition-colors duration-300 ease-in -translate-y-1/2 top-2/4 rounded-larg text-greyScale-main`}
   `;
   return {
     field: (size: string) => css`
@@ -44,6 +44,7 @@ export const useTextFieldStyles = () => {
           css`
             width: 40px;
             height: 40px;
+            flex: 1;
           `}
     `,
     inputWrapper: css`
@@ -55,7 +56,7 @@ export const useTextFieldStyles = () => {
     `,
     iconEnd: css`
       ${icon}
-      ${tw`left-large cursor-pointer hover:bg-greyScale-lighter`}
+      ${tw`cursor-pointer left-large hover:bg-greyScale-lighter`}
     `,
     textinput: (
       startPadding: boolean,
@@ -64,12 +65,12 @@ export const useTextFieldStyles = () => {
       variant: string = "outlined",
       size: string
     ) => css`
-      ${tw`p-small w-full rounded-small outline-none text-greyScale-main`}
+      ${tw`w-full outline-none p-small rounded-small text-greyScale-main`}
       ${size === "small" && tw`text-center`}
       ${(size === "medium" || size === "large") && tw`py-x-small px-x-large`}
       ${variant === "outlined"
         ? css`
-            ${tw`transition-colors duration-300 ease-in border-solid border`}
+            ${tw`transition-colors duration-300 ease-in border border-solid`}
           `
         : variant === "fill" &&
           css`
@@ -93,7 +94,7 @@ export const useTextFieldStyles = () => {
       `}
     `,
     label: (startPadding: boolean, helperText: boolean) => css`
-      ${tw`absolute  text-greyScale-main pointer-events-none bg-white px-x-small`}
+      ${tw`absolute bg-white pointer-events-none text-greyScale-main px-x-small`}
       ${helperText
         ? css`
             top: 15%;
@@ -110,7 +111,7 @@ export const useTextFieldStyles = () => {
           `}
     `,
     labelUp: css`
-      ${tw`right-medium transition-transform duration-300 ease-in origin-top-right -translate-y-[115%] scale-[0.9]`}
+      ${tw`right-medium transition-transform duration-300 ease-in origin-top-right -translate-y-[105%] scale-[0.9]`}
     `,
     helperText: css`
       ${tw`text-red-main text-small`};

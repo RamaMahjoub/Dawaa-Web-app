@@ -16,6 +16,7 @@ export const routes = {
   PURCHASE_ORDERS: "orders/received-orders/purchase-orders",
   RETURN_ORDERS: "orders/received-orders/return-orders",
   EXPRESS_ORDERS: "orders/express-orders",
+  INVOICES: "orders/invoices",
   ANALYTICS: "analytics",
   REPORTS: "reports",
   SETTINGS: "settings",
