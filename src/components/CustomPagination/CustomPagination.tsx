@@ -8,7 +8,7 @@ interface Props {
   count: number;
   page: number;
   pageSize?: number;
-  onChange?: (newPageIndex: number) => void;
+  onChange: (newPageIndex: number) => void;
 }
 const CustomPagination: FC<Props> = ({
   count,
@@ -19,7 +19,7 @@ const CustomPagination: FC<Props> = ({
 }) => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
   const handlePageChange = (_: any, value: number) => {
-    onChange !== undefined && onChange(value - 1);
+    onChange(value - 1);
   };
   return (
     <div>

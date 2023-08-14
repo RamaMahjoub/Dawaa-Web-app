@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { ButtonHTMLAttributes, FC, ReactNode, useContext } from "react";
+import { ButtonHTMLAttributes, FC, ReactNode, useContext, useRef } from "react";
 import { ChevronDown } from "react-bootstrap-icons";
 import tw from "twin.macro";
 import { useDrawerStyles } from "../../Layout/styles";
@@ -16,15 +16,16 @@ const useDropdownStyles = () => {
       ${tw`relative`}
     `,
     dropdownButton: (open: boolean) => css`
-      ${tw`w-full border border-greyScale-main text-greyScale-main font-bold px-x-large py-small inline-flex items-center justify-between rounded-small text-medium`}
-      ${open && tw`shadow-primary-dark shadow-sm`}
+      ${tw`inline-flex items-center justify-between w-full font-bold border border-greyScale-main text-greyScale-main px-x-large py-small rounded-small text-medium`}
+      ${open && tw`shadow-sm shadow-primary-dark`}
     `,
   };
 };
 const Dropdown: FC<Props> = ({ children, ...rest }) => {
   const styles = useDropdownStyles();
   const iconStyles = useDrawerStyles();
-  const {open, handleOpen, changeableTitle} = useContext(DropdownContext);
+  const { open, handleOpen, changeableTitle } = useContext(DropdownContext);
+
   return (
     <div css={styles.dropdownWrapper}>
       <button
@@ -35,7 +36,7 @@ const Dropdown: FC<Props> = ({ children, ...rest }) => {
         <p className="mx-small">{changeableTitle}</p>
         <ChevronDown css={iconStyles.subMenuArrowIcon(open)} />
       </button>
-      {children}
+        {children}
     </div>
   );
 };

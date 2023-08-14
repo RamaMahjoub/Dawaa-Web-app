@@ -12,6 +12,12 @@ type AuthState = {
   sendedOrderDetailsData: any;
   sendedOrderDetailsStatus: string;
   sendedOrderDetailsError: string | undefined;
+  receivedOrdersData: any;
+  receivedOrdersStatus: string;
+  receivedOrdersError: string | undefined;
+  receivedOrderDetailsData: any;
+  receivedOrderDetailsStatus: string;
+  receivedOrderDetailsError: string | undefined;
   navigationState: string | null;
 };
 
@@ -26,6 +32,12 @@ const initialState: AuthState = {
   sendedOrderDetailsData: {},
   sendedOrderDetailsStatus: "idle",
   sendedOrderDetailsError: undefined,
+  receivedOrdersData: {},
+  receivedOrdersStatus: "idle",
+  receivedOrdersError: undefined,
+  receivedOrderDetailsData: {},
+  receivedOrderDetailsStatus: "idle",
+  receivedOrderDetailsError: undefined,
 };
 
 export const createOrder = createAsyncThunk(
@@ -50,6 +62,24 @@ export const findSendedOrderDetails = createAsyncThunk(
   async (params: { id: string }) => {
     const { id } = params;
     const response = await OrderService.findSendedOrderDetails(id);
+    return response.data;
+  }
+);
+
+export const findReceivedOrders = createAsyncThunk(
+  "/order/warehouse/received",
+  async (params: { limit: string; page: string }) => {
+    const { limit, page } = params;
+    const response = await OrderService.findReceivedOrders(page, limit);
+    return response.data;
+  }
+);
+
+export const findReceivedOrderDetails = createAsyncThunk(
+  "order/warehouse/received/:id",
+  async (params: { id: string }) => {
+    const { id } = params;
+    const response = await OrderService.findReceivedOrderDetails(id);
     return response.data;
   }
 );
@@ -101,6 +131,34 @@ export const orderSlice = createSlice({
       .addCase(findSendedOrderDetails.rejected, (state, action) => {
         state.sendedOrderDetailsStatus = "failed";
         state.sendedOrderDetailsError = action.error.message;
+      })
+      .addCase(findReceivedOrders.pending, (state) => {
+        state.receivedOrdersStatus = "loading";
+      })
+      .addCase(
+        findReceivedOrders.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.receivedOrdersStatus = "succeeded";
+          state.receivedOrdersData = action.payload;
+        }
+      )
+      .addCase(findReceivedOrders.rejected, (state, action) => {
+        state.receivedOrdersStatus = "failed";
+        state.receivedOrdersError = action.error.message;
+      })
+      .addCase(findReceivedOrderDetails.pending, (state) => {
+        state.receivedOrderDetailsStatus = "loading";
+      })
+      .addCase(
+        findReceivedOrderDetails.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.receivedOrderDetailsStatus = "succeeded";
+          state.receivedOrderDetailsData = action.payload;
+        }
+      )
+      .addCase(findReceivedOrderDetails.rejected, (state, action) => {
+        state.receivedOrderDetailsStatus = "failed";
+        state.receivedOrderDetailsError = action.error.message;
       });
   },
 });
@@ -122,5 +180,18 @@ export const selectSendedOrderDetailsData = (state: RootState) =>
   state.order.sendedOrderDetailsData;
 export const selectSendedOrderDetailsError = (state: RootState) =>
   state.order.sendedOrderDetailsError;
+
+export const selectReceivedOrdersStatus = (state: RootState) =>
+  state.order.receivedOrdersStatus;
+export const selectReceivedOrdersData = (state: RootState) =>
+  state.order.receivedOrdersData;
+export const selectReceivedOrdersError = (state: RootState) =>
+  state.order.receivedOrdersError;
+export const selectReceivedOrderDetailsStatus = (state: RootState) =>
+  state.order.receivedOrderDetailsStatus;
+export const selectReceivedOrderDetailsData = (state: RootState) =>
+  state.order.receivedOrderDetailsData;
+export const selectReceivedOrderDetailsError = (state: RootState) =>
+  state.order.receivedOrderDetailsError;
 
 export default orderSlice.reducer;

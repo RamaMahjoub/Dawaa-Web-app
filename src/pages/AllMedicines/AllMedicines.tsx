@@ -9,7 +9,6 @@ import IconButton from "../../components/Button/IconButton";
 import { useEffect, useRef, useState } from "react";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
-import { PaginationState } from "@tanstack/react-table";
 import { routes } from "../../router/constant";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
@@ -20,6 +19,7 @@ import {
 } from "../../redux/medicineSlice";
 import Beat from "../../components/Loading/Beat";
 import NoData from "../NoData/NoData";
+import { usePagination } from "../../hooks/usePagination";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 const AllMedicines = () => {
@@ -28,10 +28,7 @@ const AllMedicines = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const [filtered, setFiltered] = useState(catigoriesList[0]);
-  const [{ pageIndex, pageSize }, setPageIndex] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 1,
-  });
+  const { pageIndex, pageSize, handlePgination } = usePagination(10);
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectAllMedicinesData);
   const status = useAppSelector(selectAllMedicinesStatus);
@@ -48,31 +45,33 @@ const AllMedicines = () => {
     content.current = <Beat />;
   } else if (status === "succeeded") {
     data.data.length > 0 &&
-    data.data.map((row: any) => catigoriesList.push(row.category));
+      data.data.map((row: any) => catigoriesList.push(row.category));
     data.data.length > 0 &&
       data.data.map((row: any) => catigoriesList.push(row.category));
     content.current =
-      data.data.length > 0
-        ? data.data.map((row: any) => (
-            <MedicineCard
-              key={row.id}
-              name={row.name}
-              category={row.category}
-              photoAlt={row.name}
-              photoSrc={NotFound}
-              subtitle={row.price}
-              action={
-                <Button
-                  variant="secondary-light"
-                  disabled={false}
-                  text="عرض التفاصيل"
-                  size="med"
-                  onClick={() => handleNavigate(row.id)}
-                />
-              }
-            />
-          ))
-        : <NoData />;
+      data.data.length > 0 ? (
+        data.data.map((row: any) => (
+          <MedicineCard
+            key={row.id}
+            name={row.name}
+            category={row.category}
+            photoAlt={row.name}
+            photoSrc={NotFound}
+            subtitle={row.price}
+            action={
+              <Button
+                variant="secondary-light"
+                disabled={false}
+                text="عرض التفاصيل"
+                size="med"
+                onClick={() => handleNavigate(row.id)}
+              />
+            }
+          />
+        ))
+      ) : (
+        <NoData />
+      );
   } else if (status === "idle") {
     content.current = <NoData />;
   }
@@ -82,9 +81,6 @@ const AllMedicines = () => {
   };
   const handleNavigate = (medicineId: string) => {
     navigate(`/${routes.ALL_MEDICINES}/${medicineId}`);
-  };
-  const handlePgination = (newPageIndex: number) => {
-    setPageIndex((pre) => ({ ...pre, pageIndex: newPageIndex }));
   };
   return (
     <div className="flex flex-col h-screen">
@@ -133,7 +129,7 @@ const AllMedicines = () => {
           </div>
           <CustomPagination
             page={pageIndex + 1}
-            count={data?.totalRecords}
+            count={data.totalRecords}
             onChange={handlePgination}
             pageSize={pageSize}
           />

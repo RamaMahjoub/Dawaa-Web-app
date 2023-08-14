@@ -1,64 +1,44 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { routes } from "../../../router/constant";
+import { Filter } from "../../ReceivedOrders/PurchaseOrders";
+import Button from "../../../components/Button/Button";
 import { useEffect, useMemo, useState } from "react";
+import CustomPagination from "../../../components/CustomPagination/CustomPagination";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
-import { getMonth } from "../../utils/Month";
-import CustomPagination from "../../components/CustomPagination/CustomPagination";
-import { Calendar2Event, FunnelFill } from "react-bootstrap-icons";
-import Button from "../../components/Button/Button";
-import { routes } from "../../router/constant";
-import Menu, { MenuItem, SubMenu } from "../../components/Menu/Menu";
-import { SubMenuProvider } from "../../components/Menu/context";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import TextField from "../../components/TextField/TextField";
-import { addDays } from "date-fns";
-import DatepickerHeader from "../../components/Header/DatepickerHeader";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
+import NoData from "../../NoData/NoData";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import { useAppSelector } from "../../../hooks/useAppSelector";
 import {
-  findSendedOrders,
-  selectSendedOrdersData,
-  selectSendedOrdersStatus,
-} from "../../redux/orderSlice";
-import { TableSchema } from "../../Schema/tables/SendedOrders";
-import Beat from "../../components/Loading/Beat";
-import NoData from "../NoData/NoData";
-import { Filter } from "../ReceivedOrders/PurchaseOrders";
-import IconButton from "../../components/Button/IconButton";
-import { useMediaQuery } from "react-responsive";
-import { useOpenToggle } from "../../hooks/useOpenToggle";
-import { usePagination } from "../../hooks/usePagination";
+  findAllSendedReturnMedicines,
+  selectAllSendedReturnMedicinesData,
+  selectAllSendedReturnMedicinesStatus,
+} from "../../../redux/medicineSlice";
+import { SendedReturnOrders } from "../../../Schema/tables/SendedReturnOrders";
+import TextBadge, { BadgeStatus } from "../../../components/Badge/TextBadge";
+import { getMonth } from "../../../utils/Month";
+import Beat from "../../../components/Loading/Beat";
+import { usePagination } from "../../../hooks/usePagination";
 
 const filterList: Array<Filter> = [
   { name: "طلبات الشراء", route: `/${routes.OUTGOING_ORDERS}` },
   { name: "طلبات الإرجاع", route: `/${routes.OUTGOING_RETURN_ORDERS}` },
 ];
 
-const OutgoingOrders = () => {
-  const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
-  const { open, handleOpen } = useOpenToggle();
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(addDays(new Date(), 1));
-  const [filtered] = useState<string>(filterList[0].name);
-  const handleDateChange = (dates: any) => {
-    const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
-  };
-
-  const { pageIndex, pageSize, pagination, handlePgination } = usePagination(10);
+const OutgoingReturnOrders = () => {
+  const [filtered] = useState<string>(filterList[1].name);
+  const { pageIndex, pageSize, pagination, handlePgination } =
+    usePagination(10);
 
   const dispatch = useAppDispatch();
-  const data = useAppSelector(selectSendedOrdersData);
+  const data = useAppSelector(selectAllSendedReturnMedicinesData);
   let content = <NoData />;
-  const status = useAppSelector(selectSendedOrdersStatus);
-  const columns = useMemo<ColumnDef<TableSchema>[]>(
+  const status = useAppSelector(selectAllSendedReturnMedicinesStatus);
+  const columns = useMemo<ColumnDef<SendedReturnOrders>[]>(
     () => [
       {
         header: "رقم الطلب",
@@ -68,7 +48,7 @@ const OutgoingOrders = () => {
       {
         header: "تاريخ الطلب",
         cell: (row) => row.renderValue(),
-        accessorKey: "orderDate",
+        accessorKey: "returnOrderDate",
       },
       {
         header: "الجهة المستلمة",
@@ -90,25 +70,26 @@ const OutgoingOrders = () => {
   );
   useEffect(() => {
     dispatch(
-      findSendedOrders({ limit: String(pageSize), page: String(pageIndex) })
+      findAllSendedReturnMedicines({
+        limit: String(pageSize),
+        page: String(pageIndex),
+      })
     );
   }, [dispatch, pageIndex, pageSize]);
   const transformedData = useMemo(() => {
     return (
       status === "succeeded" &&
       data.data.length > 0 &&
-      data.data.map((order: TableSchema, index: number) => {
+      data.data.map((order: SendedReturnOrders) => {
         const state =
           order.status === "Pending" ? (
             <TextBadge title={"معلّق"} status={BadgeStatus.WARNING} />
           ) : order.status === "Accepted" ? (
             <TextBadge title={"تم القبول"} status={BadgeStatus.SUCCESS} />
-          ) : order.status === "Delivered" ? (
-            <TextBadge title={"تم الاستلام"} status={BadgeStatus.DONE} />
           ) : (
             <TextBadge title={"مرفوض"} status={BadgeStatus.DANGER} />
           );
-        const date = new Date(order.orderDate);
+        const date = new Date(order.returnOrderDate);
         return {
           id: `#${order.id}`,
           orderDate: `${getMonth(
@@ -133,10 +114,6 @@ const OutgoingOrders = () => {
     manualPagination: true,
     debugTable: true,
   });
-  const navigate = useNavigate();
-  const handleNavigate = (orderId: string) => {
-    navigate(`/${routes.OUTGOING_ORDERS}/${orderId.slice(1)}`);
-  };
   if (status === "loading") {
     content = <Beat />;
   } else if (status === "idle") {
@@ -159,54 +136,6 @@ const OutgoingOrders = () => {
               />
             </NavLink>
           ))}
-        </div>
-        <div className="flex gap-small">
-          <div className="flex ">
-            {isMobile ? (
-              <IconButton
-                color="light-grey"
-                icon={<FunnelFill fontSize="small" />}
-                onClick={handleOpen}
-              />
-            ) : (
-              <Button
-                variant="light-grey"
-                disabled={false}
-                text="تصنيف"
-                start={true}
-                icon={<FunnelFill fontSize="small" />}
-                size="med"
-                onClick={handleOpen}
-              />
-            )}
-
-            <Menu divide={true} open={open}>
-              <SubMenuProvider>
-                <SubMenu title="الحالة">
-                  <MenuItem content="مرفوض" />
-                  <MenuItem content="مُعلق" />
-                  <MenuItem content="تم القبول" />
-                  <MenuItem content="تم التسليم" />
-                </SubMenu>
-              </SubMenuProvider>
-            </Menu>
-          </div>
-          <DatePicker
-            renderCustomHeader={(props) => <DatepickerHeader {...props} />}
-            selected={startDate}
-            onChange={handleDateChange}
-            startDate={startDate}
-            endDate={endDate}
-            selectsRange
-            dateFormat="MMMM d, yyyy"
-            customInput={
-              <TextField
-                startIcon={<Calendar2Event className="border-l pl-x-small" />}
-                inputSize="x-large"
-                variant="fill"
-              />
-            }
-          />
         </div>
       </div>
       <div className="flex flex-1 overflow-auto bg-greyScale-lighter gap-large p-large scrollbar-thin">
@@ -247,7 +176,6 @@ const OutgoingOrders = () => {
                       <tr
                         className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
                         key={row.id}
-                        onClick={() => handleNavigate(row.original.id)}
                       >
                         {row.getVisibleCells().map((cell) => {
                           return (
@@ -285,4 +213,4 @@ const OutgoingOrders = () => {
   );
 };
 
-export default OutgoingOrders;
+export default OutgoingReturnOrders;

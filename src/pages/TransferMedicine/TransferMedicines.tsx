@@ -13,15 +13,13 @@ import { findMedicine } from "../../Schema/response/medicine.schema";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import Counter from "../../components/Counter/Counter";
 import { XSquareFill } from "react-bootstrap-icons";
+import { useOpenToggle } from "../../hooks/useOpenToggle";
 
 const TransferMedicines = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
-  const [open, setOpen] = useState<boolean>(false);
+  const { open, handleOpen } = useOpenToggle();
   const [selected, setSelected] = useState<Array<string>>([]);
-  const handleOpen = () => {
-    setOpen((pre) => !pre);
-  };
   const handleSelect = (medicineId: string) => {
     if (selected.includes(medicineId)) {
       const updatedItems = selected.filter((i) => i !== medicineId);
@@ -108,7 +106,12 @@ const TransferMedicines = () => {
               })}
             </div>
             <div className="flex justify-center p-medium">
-              <Button text="حفظ" variant="base-blue" disabled={false} size="lg" />
+              <Button
+                text="حفظ"
+                variant="base-blue"
+                disabled={false}
+                size="lg"
+              />
             </div>
           </div>
         </div>

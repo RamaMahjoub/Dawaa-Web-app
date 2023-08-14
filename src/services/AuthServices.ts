@@ -15,10 +15,15 @@ const login = (body: LoginSchema) => {
   return http.post<any>("/auth/login-warehouse", body);
 };
 
+const logout = () => {
+  // return protectedAxios.post<any>("/warehouse/create-warehouse");
+};
+
 const AuthService = {
   register,
   completeInfo,
   login,
+  logout
 };
 
 export default AuthService;

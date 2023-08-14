@@ -3,10 +3,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { HeaderTitle } from "../../../utils/HeaderTitle";
 import TextField from "../../../components/TextField/TextField";
 import Button from "../../../components/Button/Button";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MedicineCard from "../../../components/MedicineCard/MedicineCard";
 import CustomPagination from "../../../components/CustomPagination/CustomPagination";
-import { PaginationState } from "@tanstack/react-table";
 import { routes } from "../../../router/constant";
 import Header, { HeaderTypes } from "../../../components/Header/Header";
 import Review from "../Review";
@@ -18,6 +17,10 @@ import {
   selectSupplierMedicinesData,
   selectSupplierMedicinesStatus,
 } from "../../../redux/supplierSlice";
+import { useOpenToggle } from "../../../hooks/useOpenToggle";
+import { usePagination } from "../../../hooks/usePagination";
+import NoData from "../../NoData/NoData";
+import Beat from "../../../components/Loading/Beat";
 const Albuterol = require("./../../../assets/medicines/Albuterol.jpg");
 
 const SupplierDetails = () => {
@@ -26,11 +29,9 @@ const SupplierDetails = () => {
   const title = HeaderTitle(pathname);
   const { supplierId } = useParams();
   const [filtered, setFiltered] = useState(catigoriesList[0]);
-  const [open, setOpen] = useState<boolean>(false);
-  const [{ pageIndex, pageSize }, setPageIndex] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 1,
-  });
+  const { open, handleOpen } = useOpenToggle();
+  const { pageIndex, pageSize, handlePgination } = usePagination(10);
+
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSupplierMedicinesData);
   const status = useAppSelector(selectSupplierMedicinesStatus);
@@ -45,48 +46,44 @@ const SupplierDetails = () => {
     );
   }, [dispatch, pageIndex, supplierId, pageSize]);
   if (status === "loading") {
-    content = <div>loading...</div>;
+    content = <Beat />;
   } else if (status === "succeeded") {
     data.data.length > 0 &&
       data.data.map((row: any) => catigoriesList.push(row.category));
     content =
-      data.data.length > 0
-        ? data.data.map((row: any) => (
-            <MedicineCard
-              key={row.id}
-              name={row.name}
-              category={row.category}
-              photoAlt={row.name}
-              //TODO: set the image from the response
-              photoSrc={Albuterol}
-              subtitle={`${row.price} ل.س`}
-              action={
-                <Button
-                  variant="secondary-light"
-                  disabled={false}
-                  start={false}
-                  icon={<CartCheck fontSize="small" />}
-                  text="إضافة إلى السلة"
-                  size="med"
-                  onClick={() => handleAddToBasket(row.id)}
-                />
-              }
-            />
-          ))
-        : "لا يوجد عناصر";
+      data.data.length > 0 ? (
+        data.data.map((row: any) => (
+          <MedicineCard
+            key={row.id}
+            name={row.name}
+            category={row.category}
+            photoAlt={row.name}
+            //TODO: set the image from the response
+            photoSrc={Albuterol}
+            subtitle={`${row.price} ل.س`}
+            action={
+              <Button
+                variant="secondary-light"
+                disabled={false}
+                start={false}
+                icon={<CartCheck fontSize="small" />}
+                text="إضافة إلى السلة"
+                size="med"
+                onClick={() => handleAddToBasket(row.id)}
+              />
+            }
+          />
+        ))
+      ) : (
+        <NoData />
+      );
   } else if (status === "idle") {
-    content = "لا يوجد عناصر";
+    content = <NoData />;
   }
   const navigate = useNavigate();
   const handleNavigate = () => {
     navigate(`/${routes.SUPPLIERS}/${supplierId}/${routes.SEND_ORDER}`);
   };
-  const handlePgination = (newPageIndex: number) => {
-    setPageIndex((pre) => ({ ...pre, pageIndex: newPageIndex }));
-  };
-  const handleOpen = useCallback(() => {
-    setOpen((pre) => !pre);
-  }, []);
 
   const handleAddToBasket = (medicineId: number) => {
     dispatch(findBasketMedicine({ medicineId, quantity: 1 }));

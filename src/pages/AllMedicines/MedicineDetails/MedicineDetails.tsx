@@ -10,11 +10,12 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { findStore } from "../../../Schema/response/Store.schema";
 import Button from "../../../components/Button/Button";
 import DeleteMedicine from "../DeleteMedicine/DeleteMedicine";
 import EditMedicine from "../EditMedicine/EditMedicine";
+import { useOpenToggle } from "../../../hooks/useOpenToggle";
 
 interface TableSchema {
   name: string;
@@ -25,14 +26,9 @@ interface TableSchema {
 const MedicineDetails = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
-  const [openDelete, setOpenDelete] = useState<boolean>(false);
-  const [openEdit, setOpenEdit] = useState<boolean>(false);
-  const handleOpenDelete = useCallback(() => {
-    setOpenDelete((pre) => !pre);
-  }, []);
-  const handleOpenEdit = useCallback(() => {
-    setOpenEdit((pre) => !pre);
-  }, []);
+  const { open: openDelete, handleOpen: handleOpenDelete } = useOpenToggle();
+  const { open: openEdit, handleOpen: handleOpenEdit } = useOpenToggle();
+
   const { medicineId } = useParams();
   const medicineInStores = findMedicineInStores(medicineId!);
   const medicine = findMedicine(medicineId!);

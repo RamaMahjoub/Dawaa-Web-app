@@ -6,18 +6,19 @@ import { BadgeStatus } from "../../components/Badge/TextBadge";
 import TextField from "../../components/TextField/TextField";
 import Button from "../../components/Button/Button";
 import Header, { HeaderTypes } from "../../components/Header/Header";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Logout from "./Logout/Logout";
 import { RegisterDetailSchema } from "../../Schema/request/registerDetails.schema";
 import { useFormSubmit } from "../../hooks/useFormSubmit";
 import { registerDetailsValidationSchema } from "../../validations/registerDetails.validation";
 import SendComplaint from "./SendComplaint";
+import { useOpenToggle } from "../../hooks/useOpenToggle";
 
 const Settings = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
-  const [open, setOpen] = useState<boolean>(false);
-  const [openComplaint, setOpenComplaint] = useState<boolean>(false);
+  const { open: openLogout, handleOpen: handleLogout } = useOpenToggle();
+  const { open: openComplaint, handleOpen: handleComplaint } = useOpenToggle();
   const [hasInitialValuesChanged, setHasInitialValuesChanged] = useState(false);
   const initialValues: RegisterDetailSchema = {
     // ownerName: "غازي محجوب",
@@ -36,13 +37,6 @@ const Settings = () => {
     handleSubmit,
     registerDetailsValidationSchema
   );
-  const handleOpen = useCallback(() => {
-    setOpen((pre) => !pre);
-  }, []);
-
-  const handleOpenComplaint = useCallback(() => {
-    setOpenComplaint((pre) => !pre);
-  }, []);
 
   useEffect(() => {
     const hasChanged = Object.keys(initialValues).some(
@@ -54,7 +48,7 @@ const Settings = () => {
   }, [formik.values]);
   return (
     <>
-      <div className="h-screen flex flex-col">
+      <div className="flex flex-col h-screen">
         <Header
           title={title!}
           action={
@@ -63,27 +57,27 @@ const Settings = () => {
               variant="base-blue"
               disabled={false}
               size="lg"
-              onClick={handleOpenComplaint}
+              onClick={handleComplaint}
             />
           }
           leftSpace={HeaderTypes.FREE}
         />
         <div className="flex items-center justify-between w-full gap-1 p-large text-greyScale-light bg-greyScale-lighter text-x-large">
           <div
-            className="flex items-center gap-small px-large text-red-main text-x-large cursor-pointer"
-            onClick={handleOpen}
+            className="flex items-center cursor-pointer gap-small px-large text-red-main text-x-large"
+            onClick={handleLogout}
           >
             <IconBadge icon={<BoxArrowRight />} status={BadgeStatus.DANGER} />
             تسجيل الخروج
           </div>
         </div>
-        <div className="flex-1 bg-greyScale-lighter flex flex-col items-center">
-          <div className="bg-white py-large px-x-large flex flex-col gap-1 w-64 sm:w-96 rounded-med m-medium">
-            <p className="flex justify-center text-greyScale-main text-large my-medium font-semibold">
+        <div className="flex flex-col items-center flex-1 bg-greyScale-lighter">
+          <div className="flex flex-col w-64 gap-1 bg-white py-large px-x-large sm:w-96 rounded-med m-medium">
+            <p className="flex justify-center font-semibold text-greyScale-main text-large my-medium">
               المعلومات الشخصية
             </p>
             {hasInitialValuesChanged && (
-              <p className="text-greyScale-main text-small  mb-medium flex justify-center">
+              <p className="flex justify-center text-greyScale-main text-small mb-medium">
                 سيتم مراجعة المعلومات التي تقدمها من قبل فريقنا المختص وسيتم
                 الموافقة على اشتراكك بعد التحقق من صحة واكتمال المعلومات
                 المقدمة.
@@ -171,8 +165,8 @@ const Settings = () => {
           </div>
         </div>
       </div>
-      <Logout open={open} handleOpen={handleOpen} />
-      <SendComplaint open={openComplaint} handleOpen={handleOpenComplaint} />
+      <Logout open={openLogout} handleOpen={handleLogout} />
+      <SendComplaint open={openComplaint} handleOpen={handleComplaint} />
     </>
   );
 };

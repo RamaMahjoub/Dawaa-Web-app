@@ -3,11 +3,10 @@ import { HeaderTitle } from "../../utils/HeaderTitle";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import Button from "../../components/Button/Button";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
-import { PaginationState } from "@tanstack/react-table";
 import { useCallback, useEffect, useState } from "react";
 import StoreDialog from "./StoreDialog";
 import Header, { HeaderTypes } from "../../components/Header/Header";
-import ReturnRequest from "../OutgoingOrders/ReturnRequest/ReturnRequest";
+import ReturnRequest from "./ReturnRequest/ReturnRequest";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -15,24 +14,21 @@ import {
   selectWarehouseOnlyMedicinesData,
   selectWarehouseOnlyMedicinesStatus,
 } from "../../redux/medicineSlice";
+import { useOpenToggle } from "../../hooks/useOpenToggle";
+import { usePagination } from "../../hooks/usePagination";
 const Albuterol = require("./../../assets/medicines/Albuterol.jpg");
 const StoreMedicines = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
-  const [{ pageIndex, pageSize }, setPageIndex] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 1,
-  });
+  const { pageIndex, pageSize, handlePgination }= usePagination(10);
   const [medicinetoStore, setMedicineToStore] = useState<any>({});
-  const [open, setOpen] = useState<boolean>(false);
+  const { open: openStore, handleOpen: handleOpenStore } = useOpenToggle();
   const handleOpen = useCallback((medicine?: any) => {
     setMedicineToStore(medicine);
-    setOpen((pre) => !pre);
-  }, []);
-  const [openReturn, setOpenReturn] = useState<boolean>(false);
-  const handleOpenReturn = useCallback(() => {
-    setOpenReturn((pre) => !pre);
-  }, []);
+    handleOpenStore();
+  }, [handleOpenStore]);
+  const { open: openReturn, handleOpen: handleOpenReturn } = useOpenToggle();
+
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectWarehouseOnlyMedicinesData);
   const status = useAppSelector(selectWarehouseOnlyMedicinesStatus);
@@ -76,9 +72,6 @@ const StoreMedicines = () => {
     content = "لا يوجد عناصر";
   }
 
-  const handlePgination = (newPageIndex: number) => {
-    setPageIndex((pre) => ({ ...pre, pageIndex: newPageIndex }));
-  };
   return (
     <>
       <div className="flex flex-col h-screen">
@@ -110,7 +103,7 @@ const StoreMedicines = () => {
         </div>
       </div>
       <StoreDialog
-        open={open}
+        open={openStore}
         medicine={medicinetoStore}
         handleOpen={handleOpen}
       />

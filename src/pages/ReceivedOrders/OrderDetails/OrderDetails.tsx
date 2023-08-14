@@ -1,11 +1,9 @@
 import { useLocation, useParams } from "react-router-dom";
 import { HeaderTitle } from "../../../utils/HeaderTitle";
-import { findOrder } from "../../../Schema/response/purchaseOrders.schema";
 import { ChevronLeft, ReceiptCutoff } from "react-bootstrap-icons";
 import IconBadge from "../../../components/Badge/IconBadge";
 import TextBadge, { BadgeStatus } from "../../../components/Badge/TextBadge";
 import Button from "../../../components/Button/Button";
-import { useCallback, useState } from "react";
 import MedicineCard from "../../../components/MedicineCard/MedicineCard";
 import Header, { HeaderTypes } from "../../../components/Header/Header";
 import DestinationCard from "../../../components/DestinationCard/DestinationCard";
@@ -13,25 +11,71 @@ import DestinationCard from "../../../components/DestinationCard/DestinationCard
 import "react-datepicker/dist/react-datepicker.css";
 import IconButton from "../../../components/Button/IconButton";
 import OrderOverView from "./OrderOverView";
-
+import { useOpenToggle } from "../../../hooks/useOpenToggle";
+import { useEffect, useRef, useState } from "react";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import { useAppSelector } from "../../../hooks/useAppSelector";
+import {
+  findSendedOrderDetails,
+  selectSendedOrderDetailsData,
+  selectSendedOrderDetailsStatus,
+} from "../../../redux/orderSlice";
+import Beat from "../../../components/Loading/Beat";
+import NoData from "../../NoData/NoData";
+const NotFound = require("./../../../assets/medicines/not-found.png");
 const OrderDetails = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const { orderId } = useParams();
-  const order = findOrder(orderId!);
-  const [open, setOpen] = useState<boolean>(false);
-  let cost: number = order.medicines.reduce(
-    (acc, medicine) =>
-      (acc += medicine.medicine.sellingPrice * medicine.quantity),
-    0
-  );
+  const contentRef = useRef<any>();
+  const [cost, setCost] = useState<number | null>(null);
+  const [supplier, setSupplier] = useState<any>(null);
+  const dispatch = useAppDispatch();
+  const data = useAppSelector(selectSendedOrderDetailsData);
+  const status = useAppSelector(selectSendedOrderDetailsStatus);
+  useEffect(() => {
+    dispatch(findSendedOrderDetails({ id: orderId! }));
+  }, [orderId, dispatch]);
+  const { open, handleOpen } = useOpenToggle();
+  useEffect(() => {
+    if (status === "succeeded") {
+      const total = data.data.medicines.reduce(
+        (acc: number, medicine: any) =>
+          (acc += medicine.price * medicine.quantity),
+        0
+      );
+      setCost(total);
+      setSupplier(data.data.supplier);
+      contentRef.current = data.data.medicines.map((medicine: any) => (
+        <MedicineCard
+          key={medicine.name}
+          name={medicine.name}
+          photoAlt={medicine.name}
+          photoSrc={NotFound}
+          subtitle={`${medicine.price} ل.س`}
+          action={
+            <IconBadge
+              icon={
+                <p className="font-bold text-xx-large">x{medicine.quantity}</p>
+              }
+              status={BadgeStatus.WARNING}
+            />
+          }
+        />
+      ));
+    }
+  }, [status, data]);
+  if (status === "loading") {
+    contentRef.current = <Beat />;
+  } else if (status === "idle") {
+    contentRef.current = <NoData />;
+  } else if (status === "failed") {
+    contentRef.current = <div>error...</div>;
+  }
 
-  const handleOpen = useCallback(() => {
-    setOpen((pre) => !pre);
-  }, []);
   return (
     <>
-      <div className="h-screen flex flex-col">
+      <div className="flex flex-col h-screen">
         <Header
           title={
             <>
@@ -76,46 +120,36 @@ const OrderDetails = () => {
             />
           </div>
         </div>
-        <div className="flex-1 bg-greyScale-lighter sm:flex-row flex-col gap-large flex px-large pb-large overflow-auto scrollbar-thin">
-          <div className="w-full flex gap-3 sm:flex-row flex-col ">
-            <div className="sm:max-h-fit sm:w-4/12 flex flex-1 flex-col gap-large overflow-auto scrollbar-thin">
-              <DestinationCard
-                title={order.from.name}
-                subTitle={order.from.address}
-                email={order.from.email}
-                phone={order.from.phone}
-                inactive={true}
-              />
+        <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large px-large pb-large scrollbar-thin">
+          <div className="flex flex-col w-full gap-3 sm:flex-row ">
+            <div className="flex flex-col flex-1 overflow-auto sm:max-h-fit sm:w-4/12 gap-large scrollbar-thin">
+              {supplier ? (
+                <DestinationCard
+                  title={supplier.name}
+                  subTitle={supplier.address}
+                  email={supplier.email}
+                  phone={supplier.phoneNumber}
+                  inactive={true}
+                />
+              ) : (
+                <Beat />
+              )}
             </div>
-            <div className="bg-white flex-1 flex flex-col overflow-auto sm:h-full rounded-med p-large">
+            <div className="flex flex-col flex-1 overflow-auto bg-white sm:h-full rounded-med p-large">
               <p className="text-x-large text-greyScale-main">العناصر</p>
               <div className="flex-1 h-full overflow-auto scrollbar-thin ">
-                {order.medicines.map((medicine) => (
-                  <MedicineCard
-                    key={medicine.medicine.name}
-                    name={medicine.medicine.name}
-                    photoAlt={medicine.medicine.name}
-                    photoSrc={medicine.medicine.photo}
-                    subtitle={`${medicine.medicine.purchasingPrice} ل.س`}
-                    action={
-                      <IconBadge
-                        icon={
-                          <p className="font-bold text-xx-large">
-                            x{medicine.quantity}
-                          </p>
-                        }
-                        status={BadgeStatus.WARNING}
-                      />
-                    }
-                  />
-                ))}
+                {contentRef.current}
               </div>
-              <div className="w-full flex items-center justify-end">
-                <TextBadge
-                  className="mx-medium"
-                  title={`${cost} ل.س`}
-                  status={BadgeStatus.BASE}
-                />
+              <div className="flex items-center justify-end w-full">
+                {cost ? (
+                  <TextBadge
+                    className="mx-medium"
+                    title={`${cost} ل.س`}
+                    status={BadgeStatus.BASE}
+                  />
+                ) : (
+                  <Beat />
+                )}
               </div>
             </div>
           </div>

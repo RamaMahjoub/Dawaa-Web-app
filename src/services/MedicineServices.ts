@@ -1,3 +1,4 @@
+import { ReturnMedicines } from "../Schema/request/returnMedicines";
 import { SubRequest } from "../Schema/request/storeInInventory";
 import { protectedAxios } from "./axios";
 
@@ -19,10 +20,22 @@ const storeInInventory = (body: SubRequest[]) => {
   );
 };
 
+const returnMedicines = (body: ReturnMedicines) => {
+  return protectedAxios.post<any>(`/returnOrder/warehouse`, body);
+};
+
+const findAllSendedReturnMedicines = (page: string, limit: string) => {
+  return protectedAxios.get<any>(
+    `/returnOrder/warehouse?limit=${limit}&page=${page}`
+  );
+};
+
 const MedicineService = {
   findWarehouseOnlyMedicines,
   findAllMedicines,
   storeInInventory,
+  findAllSendedReturnMedicines,
+  returnMedicines,
 };
 
 export default MedicineService;

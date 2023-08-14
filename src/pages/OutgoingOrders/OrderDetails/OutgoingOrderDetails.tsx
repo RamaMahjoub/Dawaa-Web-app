@@ -65,9 +65,7 @@ const OutgoingOrderDetails = () => {
     contentRef.current = <NoData />;
   } else if (status === "failed") {
     contentRef.current = <div>error...</div>;
-  } else {
-  }
-
+  } 
   return (
     <>
       <div className="flex flex-col h-screen">

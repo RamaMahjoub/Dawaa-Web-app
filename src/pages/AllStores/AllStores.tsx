@@ -8,7 +8,7 @@ import IconButton from "../../components/Button/IconButton";
 import StoreCard from "./StoreCard";
 import Header, { HeaderTypes } from "../../components/Header/Header";
 import AddStore from "./AddStore/AddStore";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -18,6 +18,7 @@ import {
   selectAllStoresStatus,
 } from "../../redux/storeSlice";
 import PendingDialog from "./AddStore/PendingDialog";
+import { useOpenToggle } from "../../hooks/useOpenToggle";
 
 const AllStores = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
@@ -28,23 +29,19 @@ const AllStores = () => {
   let content;
   const status = useAppSelector(selectAllStoresStatus);
   const addStoreStatus = useAppSelector(selectAddStoreStatus);
-  const [open, setOpen] = useState<boolean>(false);
-  const [openPending, setOpenPending] = useState<boolean>(false);
-  const handleOpen = useCallback(() => {
-    setOpen((pre) => !pre);
-  }, []);
-  const handleOpenPending = useCallback(() => {
-    setOpenPending((pre) => !pre);
-  }, []);
+  const { open: openAddStore, handleOpen: handleOpenAddStore } =
+    useOpenToggle();
+  const { open: openPending, handleOpen: handleOpenPending } = useOpenToggle();
+
   useEffect(() => {
     dispatch(getAllStores());
   }, [dispatch]);
   useEffect(() => {
     if (addStoreStatus === "succeeded") {
-      setOpen(false);
-      setOpenPending(true);
+      handleOpenAddStore();
+      handleOpenPending();
     }
-  }, [addStoreStatus]);
+  }, [addStoreStatus, handleOpenAddStore, handleOpenPending]);
   if (status === "loading") {
     content = <div>loading...</div>;
   } else if (status === "succeeded") {
@@ -74,7 +71,7 @@ const AllStores = () => {
                 <IconButton
                   color="base-blue"
                   icon={<PlusLg style={{ fontSize: "21px" }} />}
-                  onClick={handleOpen}
+                  onClick={handleOpenAddStore}
                 />
               ) : (
                 <Button
@@ -84,7 +81,7 @@ const AllStores = () => {
                   start
                   text="مخزن جديد"
                   size="med"
-                  onClick={handleOpen}
+                  onClick={handleOpenAddStore}
                 />
               )}
             </>
@@ -95,7 +92,7 @@ const AllStores = () => {
           {content}
         </div>
       </div>
-      <AddStore open={open} handleOpen={handleOpen} />
+      <AddStore open={openAddStore} handleOpen={handleOpenAddStore} />
       <PendingDialog open={openPending} handleOpen={handleOpenPending} />
     </>
   );

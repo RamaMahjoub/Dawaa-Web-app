@@ -1,9 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
 import Button from "../../components/Button/Button";
-import { ReactNode, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Calendar2Event, FunnelFill } from "react-bootstrap-icons";
-import { data } from "../../Schema/response/purchaseOrders.schema";
 import { getMonth } from "../../utils/Month";
 import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
 import { routes } from "../../router/constant";
@@ -12,7 +11,6 @@ import {
   ColumnDef,
   getCoreRowModel,
   flexRender,
-  PaginationState,
 } from "@tanstack/react-table";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
 import Header, { HeaderTypes } from "../../components/Header/Header";
@@ -25,7 +23,19 @@ import { addDays } from "date-fns";
 import IconButton from "../../components/Button/IconButton";
 import { useMediaQuery } from "react-responsive";
 import DatepickerHeader from "../../components/Header/DatepickerHeader";
-interface Filter {
+import {
+  findReceivedOrders,
+  selectReceivedOrdersData,
+  selectReceivedOrdersStatus,
+} from "../../redux/orderSlice";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import NoData from "../NoData/NoData";
+import { TableSchema } from "../../Schema/tables/SendedOrders";
+import Beat from "../../components/Loading/Beat";
+import { useOpenToggle } from "../../hooks/useOpenToggle";
+import { usePagination } from "../../hooks/usePagination";
+export interface Filter {
   name: string;
   route: string;
 }
@@ -34,21 +44,12 @@ const filterList: Array<Filter> = [
   { name: "طلبات الإرجاع", route: `/${routes.RETURN_ORDERS}` },
 ];
 
-interface TableSchema {
-  id: string;
-  requestDate: string;
-  from: string;
-  payment: ReactNode;
-  state: ReactNode;
-  cost: string;
-}
-
 const PurchaseOrders = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const [filtered, setFiltered] = useState<string>(filterList[0].name);
-  const [open, setOpen] = useState<boolean>(false);
+  const { open, handleOpen } = useOpenToggle();
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(addDays(new Date(), 1));
 
@@ -58,18 +59,13 @@ const PurchaseOrders = () => {
     setEndDate(end);
   };
 
-  const orders = data;
-  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const pagination = useMemo(
-    () => ({
-      pageIndex,
-      pageSize,
-    }),
-    [pageIndex, pageSize]
-  );
+  const { pageIndex, pageSize, pagination, handlePgination } =
+    usePagination(10);
+
+  const dispatch = useAppDispatch();
+  const data = useAppSelector(selectReceivedOrdersData);
+  let content = <NoData />;
+  const status = useAppSelector(selectReceivedOrdersStatus);
   const columns = useMemo<ColumnDef<TableSchema>[]>(
     () => [
       {
@@ -80,94 +76,88 @@ const PurchaseOrders = () => {
       {
         header: "تاريخ الطلب",
         cell: (row) => row.renderValue(),
-        accessorKey: "requestDate",
+        accessorKey: "orderDate",
       },
       {
         header: "الجهة المرسلة",
         cell: (row) => row.renderValue(),
-        accessorKey: "from",
-      },
-      {
-        header: "الدفع",
-        cell: (row) => row.renderValue(),
-        accessorKey: "payment",
+        accessorKey: "supplierName",
       },
       {
         header: "الحالة",
         cell: (row) => row.renderValue(),
-        accessorKey: "state",
+        accessorKey: "status",
       },
       {
         header: "الكلفة",
         cell: (row) => row.renderValue(),
-        accessorKey: "cost",
+        accessorKey: "totalPrice",
       },
     ],
     []
   );
-  const tableData: Array<TableSchema> = useMemo(
-    () =>
-      orders.map((order) => {
-        let cost: number = order.medicines.reduce(
-          (acc, medicine) =>
-            (acc += medicine.medicine.sellingPrice * medicine.quantity),
-          0
-        );
+  useEffect(() => {
+    dispatch(
+      findReceivedOrders({ limit: String(pageSize), page: String(pageIndex) })
+    );
+  }, [dispatch, pageIndex, pageSize]);
+  const transformedData = useMemo(() => {
+    return (
+      status === "succeeded" &&
+      data.data.length > 0 &&
+      data.data.map((order: TableSchema, index: number) => {
         const state =
-          order.state === "تم التوصيل" ? (
-            <TextBadge title={order.state} status={BadgeStatus.SUCCESS} />
-          ) : order.state === "معلّق" ? (
-            <TextBadge title={order.state} status={BadgeStatus.WARNING} />
+          order.status === "Pending" ? (
+            <TextBadge title={"معلّق"} status={BadgeStatus.WARNING} />
+          ) : order.status === "Accepted" ? (
+            <TextBadge title={"تم القبول"} status={BadgeStatus.SUCCESS} />
+          ) : order.status === "Delivered" ? (
+            <TextBadge title={"تم الاستلام"} status={BadgeStatus.DONE} />
           ) : (
-            <TextBadge title={order.state} status={BadgeStatus.DANGER} />
+            <TextBadge title={"مرفوض"} status={BadgeStatus.DANGER} />
           );
-        let payment: number = order.paymment.reduce(
-          (acc, pay) => (acc += pay.amount),
-          0
-        );
-
+        const date = new Date(order.orderDate);
         return {
-          id: order.id,
-          requestDate: `${getMonth(
-            order.requestDate.getMonth()
-          )} ${order.requestDate.getFullYear()}، ${order.requestDate.getDate()} `,
-          payment:
-            payment !== cost ? (
-              <p className="text-red-main">غير مكتمل</p>
-            ) : (
-              <p className="text-green-main">مكتمل</p>
-            ),
-          state,
-          from: order.from.name,
-          cost: `${cost} ل.س`,
+          id: `#${order.id}`,
+          orderDate: `${getMonth(
+            date.getMonth() + 1
+          )} ${date.getFullYear()}، ${date.getDate()} `,
+          status: state,
+          supplierName: order.supplierName,
+          totalPrice: `${order.totalPrice} ل.س`,
         };
-      }),
-    []
-  );
+      })
+    );
+  }, [data.data, status]);
 
   const table = useReactTable({
-    data: tableData,
+    data: transformedData,
     columns,
-    pageCount: Math.ceil(tableData.length / pageSize),
+    pageCount: data.totalRecords,
     state: {
       pagination,
     },
-    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     debugTable: true,
   });
 
+  if (status === "loading") {
+    content = <Beat />;
+  } else if (status === "idle") {
+    content = <NoData />;
+  } else if (status === "failed") {
+    content = <div>error...</div>;
+  }
   const navigate = useNavigate();
   const handleNavigate = (orderId: string) => {
-    navigate(`/${routes.PURCHASE_ORDERS}/${orderId}`);
+    navigate(`/${routes.PURCHASE_ORDERS}/${orderId.slice(1)}`);
   };
 
   const handleFilter = (filter: Filter) => {
     setFiltered(filter.name);
     navigate(filter.route);
   };
-
   return (
     <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
@@ -191,7 +181,7 @@ const PurchaseOrders = () => {
               <IconButton
                 color="light-grey"
                 icon={<FunnelFill fontSize="small" />}
-                onClick={() => setOpen((pre) => !pre)}
+                onClick={handleOpen}
               />
             ) : (
               <Button
@@ -201,22 +191,17 @@ const PurchaseOrders = () => {
                 start={true}
                 icon={<FunnelFill fontSize="small" />}
                 size="med"
-                onClick={() => setOpen((pre) => !pre)}
+                onClick={handleOpen}
               />
             )}
 
             <Menu divide={true} open={open}>
               <SubMenuProvider>
-                <SubMenu title="الدفع">
-                  <MenuItem content="مكتمل" />
-                  <MenuItem content="غير مكتمل" />
-                </SubMenu>
-              </SubMenuProvider>
-              <SubMenuProvider>
                 <SubMenu title="الحالة">
-                  <MenuItem content="مُلغى" />
+                  <MenuItem content="مرفوض" />
                   <MenuItem content="مُعلق" />
-                  <MenuItem content="تم الاستلام" />
+                  <MenuItem content="تم القبول" />
+                  <MenuItem content="تم التسليم" />
                 </SubMenu>
               </SubMenuProvider>
             </Menu>
@@ -242,7 +227,10 @@ const PurchaseOrders = () => {
       <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin">
         <div className="flex flex-col w-full h-full bg-white p-large max-h-fit rounded-small">
           <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
-            <table style={{ minWidth: "max-content" }} className="w-full h-full">
+            <table
+              style={{ minWidth: "max-content" }}
+              className="w-full h-full"
+            >
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr
@@ -271,33 +259,44 @@ const PurchaseOrders = () => {
                 ))}
               </thead>
               <tbody className="">
-                {table.getRowModel().rows.map((row) => {
-                  return (
-                    <tr
-                      className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
-                      key={row.id}
-                      onClick={() => handleNavigate(row.original.id)}
-                    >
-                      {row.getVisibleCells().map((cell) => {
-                        return (
-                          <td
-                            className="py-medium px-small text-center min-w-[150px] max-w-[150px] font-semibold text-medium text-greyScale-main overflow-hidden text-ellipsis whitespace-nowrap"
-                            key={cell.id}
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
+                {table.getRowModel().rows.length > 0 ? (
+                  table.getRowModel().rows.map((row) => {
+                    return (
+                      <tr
+                        className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
+                        key={row.id}
+                        onClick={() => handleNavigate(row.original.id)}
+                      >
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <td
+                              className="py-medium px-small text-center min-w-[150px] max-w-[150px] font-semibold text-medium text-greyScale-main overflow-hidden text-ellipsis whitespace-nowrap"
+                              key={cell.id}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={columns.length}>{content}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
-          <CustomPagination page={pageIndex} count={table.getPageCount()} />
+          <CustomPagination
+            count={table.getPageCount()}
+            page={pageIndex + 1}
+            onChange={handlePgination}
+            pageSize={pageSize}
+          />
         </div>
       </div>
     </div>

@@ -34,6 +34,12 @@ export const login = createAsyncThunk(
     return response.data;
   }
 );
+
+export const logout = createAsyncThunk("auth/logout-warehouse", async () => {
+  // const response = await AuthService.logout();
+  // return response.data;
+});
+
 export const completeInfo = createAsyncThunk(
   "warehouse/create-warehouse",
   async (body: RegisterDetailSchema) => {
@@ -87,6 +93,21 @@ export const authSlice = createSlice({
         state.navigationState = "login_succeeded";
       })
       .addCase(login.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+        state.navigationState = null;
+      })
+      .addCase(logout.pending, (state) => {
+        state.status = "loading";
+        state.navigationState = null;
+      })
+      .addCase(logout.fulfilled, (state, action: PayloadAction<any>) => {
+        state.status = "succeeded";
+        state.data = action.payload;
+        setStoredUser(action.payload);
+        state.navigationState = "logout_succeeded";
+      })
+      .addCase(logout.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
         state.navigationState = null;

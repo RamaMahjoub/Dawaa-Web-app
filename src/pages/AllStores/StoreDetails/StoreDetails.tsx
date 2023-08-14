@@ -110,7 +110,7 @@ const StoreDetails = () => {
     debugTable: true,
   });
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-screen">
       <Header
         title={
           <>
@@ -126,7 +126,7 @@ const StoreDetails = () => {
         }
         leftSpace={HeaderTypes.ALL}
       />
-      <div className="mid overflow-auto scrollbar-none p-large">
+      <div className="overflow-auto mid scrollbar-none p-large">
         {filterList.map((filter) => (
           <Button
             key={filter}
@@ -139,15 +139,15 @@ const StoreDetails = () => {
           />
         ))}
       </div>
-      <div className="flex-1 bg-greyScale-lighter sm:flex-row flex-col gap-large flex p-large overflow-auto scrollbar-thin">
-        <div className="p-large h-full w-full flex flex-col max-h-fit bg-white rounded-small">
-          <div className="bg-white flex-1  overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
+      <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin">
+        <div className="flex flex-col w-full h-full bg-white p-large max-h-fit rounded-small">
+          <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
             <table style={{ minWidth: "max-content" }}>
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr
                     key={headerGroup.id}
-                    className="bg-greyScale-lighter sticky top-0"
+                    className="sticky top-0 bg-greyScale-lighter"
                   >
                     {headerGroup.headers.map((header) => {
                       return (
@@ -175,7 +175,7 @@ const StoreDetails = () => {
                   return (
                     <tr
                       key={row.id}
-                      className="border-b border-greyScale-light border-opacity-50 transition-colors duration-300 ease-in hover:bg-greyScale-lighter cursor-pointer"
+                      className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (
@@ -196,7 +196,7 @@ const StoreDetails = () => {
               </tbody>
             </table>
           </div>
-          <CustomPagination page={pageIndex} count={table.getPageCount()} />
+          {/* <CustomPagination page={pageIndex} count={table.getPageCount()} /> */}
         </div>
       </div>
     </div>

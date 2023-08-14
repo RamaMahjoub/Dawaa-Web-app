@@ -14,28 +14,73 @@ interface Props {
   handleOpen: () => void;
 }
 const ids = [
-  { id: "ID1", expireDate: "12-3-2001" },
-  { id: "ID2", expireDate: "12-3-2001" },
-  { id: "ID3", expireDate: "12-3-2001" },
-  { id: "ID4", expireDate: "12-3-2001" },
-  { id: "ID5", expireDate: "12-3-2001" },
+  { id: 1, expireDate: "12-3-2001", max: 52 },
+  { id: 2, expireDate: "12-3-2001", max: 51 },
+  { id: 3, expireDate: "12-3-2001", max: 50 },
+  { id: 4, expireDate: "12-3-2001", max: 15 },
+  { id: 5, expireDate: "12-3-2001", max: 85 },
 ];
 const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
   const [chooseMedicines, setChooseMedicines] = useState<boolean>(false);
-  const [selected, setSelected] = useState<Array<number>>([]);
-  const handleSelect = (medicineId: number) => {
-    if (selected.includes(medicineId)) {
-      const updatedItems = selected.filter((i) => i !== medicineId);
-      setSelected(updatedItems);
-    } else {
-      const updatedItems = [...selected, medicineId];
-      setSelected(updatedItems);
-    }
-  };
+  const [reason, setReason] = useState<string>("");
   const handleChooseMedicines = () => {
     setChooseMedicines((pre) => !pre);
   };
 
+  const handleReason = (e: any) => {
+    setReason(e.target.value);
+  };
+
+  const [elements, setUiElements] = useState<any>([]);
+  const actionElement = (index: number) => {
+    if (!medicineSelected(index))
+      setUiElements((prevElements: any) => [
+        ...prevElements,
+        {
+          medicineId: index,
+          batchId: null,
+          quantity: 1,
+          max: undefined,
+        },
+      ]);
+    else {
+      const updatedItems = elements.filter((i: any) => i.medicineId !== index);
+      setUiElements(updatedItems);
+    }
+  };
+  const medicineSelected = (index: number) => {
+    return elements.some((element: any) => index === element.medicineId);
+  };
+
+  const handleCaptureBatch = (index: number, batchId: number, max: number) => {
+    setUiElements((prevElements: any) => {
+      const updatedElements = [...prevElements];
+      updatedElements[index].batchId = batchId;
+      updatedElements[index].max = max;
+      return updatedElements;
+    });
+  };
+
+  const handleQuantityChange = (index: number, newQuantity: number) => {
+    setUiElements((prevElements: any) => {
+      const updatedElements = [...prevElements];
+      updatedElements[index].quantity = newQuantity;
+
+      return updatedElements;
+    });
+  };
+
+  const handleSendRequest = () => {
+    if (elements.length > 0 && reason !== "") {
+      const request = elements.map((element: any) => {
+        return {
+          batchId: element.batchId,
+          quantity: element.quantity,
+        };
+      });
+      console.log({ returnReason: reason, batches: request });
+    }
+  };
   return (
     <>
       {open && (
@@ -50,7 +95,11 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
             </p>
             <div className="flex-col flex-1 gap-2 overflow-auto felx px-medium py-medium scrollbar-thin">
               <form
-                onSubmit={(e: any) => e.preventDefault()}
+                onSubmit={(e: any) => {
+                  e.preventDefault();
+                  handleSendRequest();
+                  handleOpen()
+                }}
                 className="flex flex-col gap-3 my-medium"
               >
                 <Button
@@ -62,18 +111,21 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
                 />
                 <textarea
                   rows={3}
+                  value={reason}
+                  onChange={handleReason}
                   placeholder="ملاحظات حول السبب..."
                   className="border outline-none resize-none px-x-large py-small border-greyScale-light text-greyScale-main rounded-small text-medium"
                 />
+                <div className="flex justify-center gap-small">
+                  <Button
+                    text="إرسال"
+                    variant="base-blue"
+                    disabled={false}
+                    size="lg"
+                    type="submit"
+                  />
+                </div>
               </form>
-            </div>
-            <div className="flex justify-center p-medium gap-small">
-              <Button
-                text="إرسال"
-                variant="base-blue"
-                disabled={false}
-                size="lg"
-              />
             </div>
           </div>
         </div>
@@ -98,15 +150,21 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
                       photoAlt={med.name}
                       photoSrc={med.photo}
                       action={
-                        Number(med.medicineId) - 1  === 0 && (
-                          <Counter quantity={1} max={51} />
+                        medicineSelected(index) && (
+                          <Counter
+                            quantity={elements[index].quantity}
+                            max={elements[index]?.max}
+                            onChange={(newQuantity) =>
+                              handleQuantityChange(index, newQuantity)
+                            }
+                          />
                         )
                       }
-                      inactive={selected.includes(index) ? false : true}
+                      inactive={medicineSelected(index) ? false : true}
                       className="cursor-pointer hover:bg-greyScale-lighter"
-                      onClick={() => handleSelect(index)}
+                      onClick={() => actionElement(index)}
                     />
-                    {selected.includes(Number(med.medicineId) - 1) && (
+                    {medicineSelected(index) && (
                       <div className="flex flex-col gap-medium">
                         <DropdownProvider title="اختيار الدفعة">
                           <Dropdown>
@@ -114,8 +172,11 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
                               {ids.map((item) => (
                                 <DropdownItem
                                   key={item.id}
-                                  title={item.id}
+                                  title={item.id.toString()}
                                   subTitle={item.expireDate}
+                                  handleSelectValue={() =>
+                                    handleCaptureBatch(index, item.id, item.max)
+                                  }
                                 />
                               ))}
                             </DropdownMenu>
@@ -133,6 +194,7 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
                 variant="base-blue"
                 disabled={false}
                 size="lg"
+                onClick={handleChooseMedicines}
               />
             </div>
           </div>

@@ -44,6 +44,7 @@ export const HeaderTitle = (path: string) => {
     return "الطلبات الواردة";
   } else if (
     path === `/${routes.OUTGOING_ORDERS}` ||
+    path === `/${routes.OUTGOING_RETURN_ORDERS}` ||
     path.includes(`/${routes.OUTGOING_ORDERS}`)
   ) {
     return "الطلبات الصادرة";

@@ -29,7 +29,6 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
   let content: any;
   const status = useAppSelector(selectAllStoresStatus);
   const [elements, setUiElements] = useState<SubRequest[]>([]);
-  console.log(elements);
   const addUiElement = () => {
     setUiElements((prevElements: any) => [
       ...prevElements,

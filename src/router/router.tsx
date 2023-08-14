@@ -6,6 +6,8 @@ import {
 import { routes } from "./constant";
 import RootLayout from "../Layout/RootLayout";
 import { lazy } from "react";
+import OutgoingReturnOrders from "../pages/OutgoingOrders/OutgoingReturnOrders/OutgoingReturnOrders";
+import OutgoingLayout from "../pages/OutgoingOrders/OutgoingLayout";
 
 const Login = lazy(() => import("../pages/Login/Login"));
 const Register = lazy(() => import("../pages/Register/Register"));
@@ -97,7 +99,13 @@ export const router = createBrowserRouter(
           path={`${routes.PURCHASE_ORDERS}/:orderId`}
           element={<OrderDetails />}
         />
-        <Route path={routes.OUTGOING_ORDERS} element={<OutgoingOrders />} />
+        <Route element={<OutgoingLayout />}>
+          <Route path={routes.OUTGOING_ORDERS} element={<OutgoingOrders />} />
+          <Route
+            path={routes.OUTGOING_RETURN_ORDERS}
+            element={<OutgoingReturnOrders />}
+          />
+        </Route>
         <Route
           path={`${routes.OUTGOING_ORDERS}/:orderId`}
           element={<OutgoingOrderDetails />}
