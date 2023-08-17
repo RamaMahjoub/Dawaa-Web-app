@@ -13,6 +13,7 @@ import Loading from "./../../../components/Loading/Clip";
 import { EditMedicineSchema } from "../../../Schema/request/editMedicine.schema";
 import { useFormSubmit } from "../../../hooks/useFormSubmit";
 import { editMedicineValidationSchema } from "../../../validations/editMedicine.validation";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
 
 interface Props {
   open: boolean;
@@ -31,18 +32,18 @@ const EditMedicine: FC<Props> = ({
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectEditMedicineStatus);
   let buttonContent;
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     buttonContent = <Loading />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     buttonContent = "حفظ";
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     buttonContent = "حفظ";
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     buttonContent = "حفظ";
   }
 
   useEffect(() => {
-    if (status === "succeeded") handleOpen();
+    if (status === ResponseStatus.SUCCEEDED) handleOpen();
   }, [status, handleOpen]);
 
   const initialValues: EditMedicineSchema = {

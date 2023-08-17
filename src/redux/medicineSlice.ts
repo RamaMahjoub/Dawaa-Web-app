@@ -4,6 +4,7 @@ import MedicineService from "../services/MedicineServices";
 import { SubRequest } from "../Schema/request/storeInInventory";
 import { ReturnMedicines } from "../Schema/request/returnMedicines";
 import { EditMedicineSchema } from "../Schema/request/editMedicine.schema";
+import { ResponseStatus } from "../enums/ResponseStatus";
 
 type AuthState = {
   warehouseOnlyMedicinesData: any;
@@ -37,32 +38,32 @@ type AuthState = {
 
 const initialState: AuthState = {
   warehouseOnlyMedicinesData: {},
-  warehouseOnlyMedicinesStatus: "idle",
+  warehouseOnlyMedicinesStatus: ResponseStatus.IDLE,
   warehouseOnlyMedicinesError: undefined,
   allMedicinesData: {},
-  allMedicinesStatus: "idle",
+  allMedicinesStatus: ResponseStatus.IDLE,
   allMedicinesError: undefined,
   medicinesToReturnData: {},
-  medicinesToReturnStatus: "idle",
+  medicinesToReturnStatus: ResponseStatus.IDLE,
   medicinesToReturnError: undefined,
   medicineDetailsData: {},
-  medicineDetailsStatus: "idle",
+  medicineDetailsStatus: ResponseStatus.IDLE,
   medicineDetailsError: undefined,
   medicineDistributionsData: {},
-  medicineDistributionsStatus: "idle",
+  medicineDistributionsStatus: ResponseStatus.IDLE,
   medicineDistributionsError: undefined,
   editMedicineData: {},
-  editMedicineStatus: "idle",
+  editMedicineStatus: ResponseStatus.IDLE,
   editMedicineError: undefined,
   storeInInventoryData: {},
   storeInInventoryError: undefined,
-  storeInInventoryStatus: "idle",
+  storeInInventoryStatus: ResponseStatus.IDLE,
   returnMedicinesData: {},
   returnMedicinesError: undefined,
-  returnMedicinesStatus: "idle",
+  returnMedicinesStatus: ResponseStatus.IDLE,
   allSendedReturnMedicinesData: {},
   allSendedReturnMedicinesError: undefined,
-  allSendedReturnMedicinesStatus: "idle",
+  allSendedReturnMedicinesStatus: ResponseStatus.IDLE,
 };
 
 export const findWarehouseOnlyMedicines = createAsyncThunk(
@@ -163,127 +164,126 @@ export const medicineSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(findWarehouseOnlyMedicines.pending, (state) => {
-        state.warehouseOnlyMedicinesStatus = "loading";
+        state.warehouseOnlyMedicinesStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findWarehouseOnlyMedicines.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.warehouseOnlyMedicinesStatus = "succeeded";
+          state.warehouseOnlyMedicinesStatus = ResponseStatus.SUCCEEDED;
           state.warehouseOnlyMedicinesData = action.payload;
         }
       )
       .addCase(findWarehouseOnlyMedicines.rejected, (state, action) => {
-        state.warehouseOnlyMedicinesStatus = "failed";
+        state.warehouseOnlyMedicinesStatus = ResponseStatus.FAILED;
         state.warehouseOnlyMedicinesError = action.error.message;
       })
       .addCase(findAllMedicines.pending, (state) => {
-        state.allMedicinesStatus = "loading";
+        state.allMedicinesStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findAllMedicines.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.allMedicinesStatus = "succeeded";
+          state.allMedicinesStatus = ResponseStatus.SUCCEEDED;
           state.allMedicinesData = action.payload;
         }
       )
       .addCase(findAllMedicines.rejected, (state, action) => {
-        state.allMedicinesStatus = "failed";
+        state.allMedicinesStatus = ResponseStatus.FAILED;
         state.allMedicinesError = action.error.message;
       })
       .addCase(findMedicineDetails.pending, (state) => {
-        state.medicineDetailsStatus = "loading";
+        state.medicineDetailsStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findMedicinesToReeturn.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.medicinesToReturnStatus = "succeeded";
+          state.medicinesToReturnStatus = ResponseStatus.SUCCEEDED;
           state.medicinesToReturnData = action.payload;
         }
       )
       .addCase(findMedicinesToReeturn.rejected, (state, action) => {
-        state.medicinesToReturnStatus = "failed";
+        state.medicinesToReturnStatus = ResponseStatus.FAILED;
         state.medicineDistributionsError = action.error.message;
       })
       .addCase(findMedicinesToReeturn.pending, (state) => {
-        state.medicinesToReturnStatus = "loading";
+        state.medicinesToReturnStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findMedicineDetails.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.medicineDetailsStatus = "succeeded";
+          state.medicineDetailsStatus = ResponseStatus.SUCCEEDED;
           state.medicineDetailsData = action.payload;
         }
       )
       .addCase(findMedicineDetails.rejected, (state, action) => {
-        state.medicineDetailsStatus = "failed";
+        state.medicineDetailsStatus = ResponseStatus.FAILED;
         state.medicineDetailsError = action.error.message;
       })
       .addCase(findMedicineDistributions.pending, (state) => {
-        state.medicineDistributionsStatus = "loading";
+        state.medicineDistributionsStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findMedicineDistributions.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.medicineDistributionsStatus = "succeeded";
+          state.medicineDistributionsStatus = ResponseStatus.SUCCEEDED;
           state.medicineDistributionsData = action.payload;
         }
       )
       .addCase(findMedicineDistributions.rejected, (state, action) => {
-        state.medicineDistributionsStatus = "failed";
+        state.medicineDistributionsStatus = ResponseStatus.FAILED;
         state.medicineDistributionsError = action.error.message;
       })
       .addCase(editMedicine.pending, (state) => {
-        state.editMedicineStatus = "loading";
+        state.editMedicineStatus = ResponseStatus.LOADING;
       })
       .addCase(editMedicine.fulfilled, (state, action: PayloadAction<any>) => {
-        state.editMedicineStatus = "succeeded";
+        state.editMedicineStatus = ResponseStatus.SUCCEEDED;
         state.editMedicineData = action.payload;
       })
       .addCase(editMedicine.rejected, (state, action) => {
-        state.editMedicineStatus = "failed";
+        state.editMedicineStatus = ResponseStatus.FAILED;
         state.editMedicineError = action.error.message;
       })
       .addCase(storeInInventory.pending, (state) => {
-        state.storeInInventoryStatus = "loading";
+        state.storeInInventoryStatus = ResponseStatus.LOADING;
       })
       .addCase(
         storeInInventory.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.storeInInventoryStatus = "succeeded";
+          state.storeInInventoryStatus = ResponseStatus.SUCCEEDED;
           state.storeInInventoryData = action.payload;
-          console.log("hiiiiii");
         }
       )
       .addCase(storeInInventory.rejected, (state, action) => {
-        state.storeInInventoryStatus = "failed";
+        state.storeInInventoryStatus = ResponseStatus.FAILED;
         state.storeInInventoryError = action.error.message;
       })
       .addCase(returnMedicines.pending, (state) => {
-        state.returnMedicinesStatus = "loading";
+        state.returnMedicinesStatus = ResponseStatus.LOADING;
       })
       .addCase(
         returnMedicines.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.returnMedicinesStatus = "succeeded";
+          state.returnMedicinesStatus = ResponseStatus.SUCCEEDED;
           state.returnMedicinesData = action.payload;
         }
       )
       .addCase(returnMedicines.rejected, (state, action) => {
-        state.returnMedicinesStatus = "failed";
+        state.returnMedicinesStatus = ResponseStatus.FAILED;
         state.returnMedicinesError = action.error.message;
       })
       .addCase(findAllSendedReturnMedicines.pending, (state) => {
-        state.allSendedReturnMedicinesStatus = "loading";
+        state.allSendedReturnMedicinesStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findAllSendedReturnMedicines.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.allSendedReturnMedicinesStatus = "succeeded";
+          state.allSendedReturnMedicinesStatus = ResponseStatus.SUCCEEDED;
           state.allSendedReturnMedicinesData = action.payload;
         }
       )
       .addCase(findAllSendedReturnMedicines.rejected, (state, action) => {
-        state.allSendedReturnMedicinesStatus = "failed";
+        state.allSendedReturnMedicinesStatus = ResponseStatus.FAILED;
         state.allSendedReturnMedicinesError = action.error.message;
       });
   },

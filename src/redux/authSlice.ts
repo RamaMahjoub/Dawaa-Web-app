@@ -5,6 +5,7 @@ import { RootState } from "./store";
 import { RegisterDetailSchema } from "../Schema/request/registerDetails.schema";
 import { LoginSchema } from "../Schema/request/login.schema";
 import { clearStoredUser, setStoredUser } from "../utils/user-storage";
+import { ResponseStatus } from "../enums/ResponseStatus";
 
 type AuthState = {
   getInfoStatus: string;
@@ -31,25 +32,25 @@ type AuthState = {
 };
 
 const initialState: AuthState = {
-  getInfoStatus: "idle",
+  getInfoStatus: ResponseStatus.IDLE,
   getInfoError: undefined,
   getInfoData: null,
-  completeInfoStatus: "idle",
+  completeInfoStatus: ResponseStatus.IDLE,
   completeInfoError: undefined,
   completeInfoData: null,
-  updateInfoStatus: "idle",
+  updateInfoStatus: ResponseStatus.IDLE,
   updateInfoError: undefined,
   updateInfoData: null,
-  logoutStatus: "idle",
+  logoutStatus: ResponseStatus.IDLE,
   logoutError: undefined,
   logoutData: {},
-  loginStatus: "idle",
+  loginStatus: ResponseStatus.IDLE,
   loginError: undefined,
   loginData: {},
-  registerStatus: "idle",
+  registerStatus: ResponseStatus.IDLE,
   registerError: undefined,
   registerData: {},
-  isAcceptedStatus: "idle",
+  isAcceptedStatus: ResponseStatus.IDLE,
   isAcceptedError: undefined,
   isAcceptedData: {},
 };
@@ -107,82 +108,82 @@ export const authSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(register.pending, (state) => {
-        state.registerStatus = "loading";
+        state.registerStatus = ResponseStatus.LOADING;
       })
       .addCase(register.fulfilled, (state, action: PayloadAction<any>) => {
-        state.registerStatus = "succeeded";
+        state.registerStatus = ResponseStatus.SUCCEEDED;
         state.registerData = action.payload;
       })
       .addCase(register.rejected, (state, action) => {
-        state.registerStatus = "failed";
+        state.registerStatus = ResponseStatus.FAILED;
         state.registerError = action.error.message;
       })
       .addCase(completeInfo.pending, (state) => {
-        state.completeInfoStatus = "loading";
+        state.completeInfoStatus = ResponseStatus.LOADING;
       })
       .addCase(completeInfo.fulfilled, (state, action: PayloadAction<any>) => {
-        state.completeInfoStatus = "succeeded";
+        state.completeInfoStatus = ResponseStatus.SUCCEEDED;
         state.completeInfoData = action.payload;
       })
       .addCase(completeInfo.rejected, (state, action) => {
-        state.completeInfoStatus = "failed";
+        state.completeInfoStatus = ResponseStatus.FAILED;
         state.completeInfoError = action.error.message;
       })
       .addCase(updateInfo.pending, (state) => {
-        state.updateInfoStatus = "loading";
+        state.updateInfoStatus = ResponseStatus.LOADING;
       })
       .addCase(updateInfo.fulfilled, (state, action: PayloadAction<any>) => {
-        state.updateInfoStatus = "succeeded";
+        state.updateInfoStatus = ResponseStatus.SUCCEEDED;
         state.updateInfoData = action.payload;
       })
       .addCase(updateInfo.rejected, (state, action) => {
-        state.updateInfoStatus = "failed";
+        state.updateInfoStatus = ResponseStatus.FAILED;
         state.updateInfoError = action.error.message;
       })
       .addCase(login.pending, (state) => {
-        state.loginStatus = "loading";
+        state.loginStatus = ResponseStatus.LOADING;
       })
       .addCase(login.fulfilled, (state, action: PayloadAction<any>) => {
-        state.loginStatus = "succeeded";
+        state.loginStatus = ResponseStatus.SUCCEEDED;
         state.loginData = action.payload;
         setStoredUser(action.payload);
       })
       .addCase(login.rejected, (state, action) => {
-        state.loginStatus = "failed";
+        state.loginStatus = ResponseStatus.FAILED;
         state.loginError = action.error.message;
       })
       .addCase(logout.pending, (state) => {
-        state.logoutStatus = "loading";
+        state.logoutStatus = ResponseStatus.LOADING;
       })
       .addCase(logout.fulfilled, (state, action: PayloadAction<any>) => {
-        state.logoutStatus = "succeeded";
+        state.logoutStatus = ResponseStatus.SUCCEEDED;
         state.logoutData = action.payload;
         clearStoredUser();
       })
       .addCase(logout.rejected, (state, action) => {
-        state.logoutStatus = "failed";
+        state.logoutStatus = ResponseStatus.FAILED;
         state.logoutError = action.error.message;
       })
       .addCase(isAccepted.pending, (state) => {
-        state.isAcceptedStatus = "loading";
+        state.isAcceptedStatus = ResponseStatus.LOADING;
       })
       .addCase(isAccepted.fulfilled, (state, action: PayloadAction<any>) => {
-        state.isAcceptedStatus = "succeeded";
+        state.isAcceptedStatus = ResponseStatus.SUCCEEDED;
         state.isAcceptedData = action.payload;
       })
       .addCase(isAccepted.rejected, (state, action) => {
-        state.isAcceptedStatus = "failed";
+        state.isAcceptedStatus = ResponseStatus.FAILED;
         state.isAcceptedError = action.error.message;
       })
       .addCase(getInfo.pending, (state) => {
-        state.getInfoStatus = "loading";
+        state.getInfoStatus = ResponseStatus.LOADING;
       })
       .addCase(getInfo.fulfilled, (state, action: PayloadAction<any>) => {
-        state.getInfoStatus = "succeeded";
+        state.getInfoStatus = ResponseStatus.SUCCEEDED;
         state.getInfoData = action.payload;
       })
       .addCase(getInfo.rejected, (state, action) => {
-        state.getInfoStatus = "failed";
+        state.getInfoStatus = ResponseStatus.FAILED;
         state.getInfoError = action.error.message;
       });
   },

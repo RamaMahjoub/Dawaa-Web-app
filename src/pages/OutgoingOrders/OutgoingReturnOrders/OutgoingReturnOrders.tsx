@@ -23,6 +23,7 @@ import TextBadge, { BadgeStatus } from "../../../components/Badge/TextBadge";
 import { getMonth } from "../../../utils/Month";
 import Beat from "../../../components/Loading/Beat";
 import { usePagination } from "../../../hooks/usePagination";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
 
 const filterList: Array<Filter> = [
   { name: "طلبات الشراء", route: `/${routes.OUTGOING_ORDERS}` },
@@ -78,7 +79,7 @@ const OutgoingReturnOrders = () => {
   }, [dispatch, pageIndex, pageSize]);
   const transformedData = useMemo(() => {
     return (
-      status === "succeeded" &&
+      status === ResponseStatus.SUCCEEDED &&
       data.data.length > 0 &&
       data.data.map((order: SendedReturnOrders) => {
         const state =
@@ -114,11 +115,11 @@ const OutgoingReturnOrders = () => {
     manualPagination: true,
     debugTable: true,
   });
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     content = <NoData />;
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     content = <div>error...</div>;
   }
   return (

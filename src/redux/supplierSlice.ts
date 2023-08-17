@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState, store } from "./store";
 import SupplierService from "../services/SupplierServices";
+import { ResponseStatus } from "../enums/ResponseStatus";
 
 export interface Basket {
   medicineId: number;
@@ -25,17 +26,17 @@ type SupplierState = {
 
 const initialState: SupplierState = {
   allSupplierData: {},
-  allSupplierStatus: "idle",
+  allSupplierStatus: ResponseStatus.IDLE,
   allSupplierError: undefined,
   supplierMedicinesData: {},
-  supplierMedicinesStatus: "idle",
+  supplierMedicinesStatus: ResponseStatus.IDLE,
   supplierMedicinesError: undefined,
   basket: [],
   supplierDetailsData: {},
-  supplierDetailsStatus: "idle",
+  supplierDetailsStatus: ResponseStatus.IDLE,
   supplierDetailsError: undefined,
   findMedicineData: [],
-  findMedicineStatus: "idle",
+  findMedicineStatus: ResponseStatus.IDLE,
   findMedicineError: undefined,
 };
 
@@ -130,52 +131,52 @@ export const SupplierSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(getAllSuppliers.pending, (state) => {
-        state.allSupplierStatus = "loading";
+        state.allSupplierStatus = ResponseStatus.LOADING;
       })
       .addCase(
         getAllSuppliers.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.allSupplierStatus = "succeeded";
+          state.allSupplierStatus = ResponseStatus.SUCCEEDED;
           state.allSupplierData = action.payload;
         }
       )
       .addCase(getAllSuppliers.rejected, (state, action) => {
-        state.allSupplierStatus = "failed";
+        state.allSupplierStatus = ResponseStatus.FAILED;
         state.allSupplierError = action.error.message;
       })
       .addCase(getSupplierDetails.pending, (state) => {
-        state.supplierDetailsStatus = "loading";
+        state.supplierDetailsStatus = ResponseStatus.LOADING;
       })
       .addCase(
         getSupplierDetails.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.supplierDetailsStatus = "succeeded";
+          state.supplierDetailsStatus = ResponseStatus.SUCCEEDED;
           state.supplierDetailsData = action.payload;
         }
       )
       .addCase(getSupplierDetails.rejected, (state, action) => {
-        state.supplierDetailsStatus = "failed";
+        state.supplierDetailsStatus = ResponseStatus.FAILED;
         state.supplierDetailsError = action.error.message;
       })
       .addCase(getSupplierMedicines.pending, (state) => {
-        state.supplierMedicinesStatus = "loading";
+        state.supplierMedicinesStatus = ResponseStatus.LOADING;
       })
       .addCase(
         getSupplierMedicines.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.supplierMedicinesStatus = "succeeded";
+          state.supplierMedicinesStatus = ResponseStatus.SUCCEEDED;
           state.supplierMedicinesData = action.payload;
         }
       )
       .addCase(getSupplierMedicines.rejected, (state, action) => {
-        state.supplierMedicinesStatus = "failed";
+        state.supplierMedicinesStatus = ResponseStatus.FAILED;
         state.supplierMedicinesError = action.error.message;
       })
       .addCase(findMedicine.pending, (state) => {
-        state.findMedicineStatus = "loading";
+        state.findMedicineStatus = ResponseStatus.LOADING;
       })
       .addCase(findMedicine.fulfilled, (state, action: PayloadAction<any>) => {
-        state.findMedicineStatus = "succeeded";
+        state.findMedicineStatus = ResponseStatus.SUCCEEDED;
         const newItem = action.payload;
 
         const existingItem = state.findMedicineData.find(
@@ -187,7 +188,7 @@ export const SupplierSlice = createSlice({
         }
       })
       .addCase(findMedicine.rejected, (state, action) => {
-        state.findMedicineStatus = "failed";
+        state.findMedicineStatus = ResponseStatus.FAILED;
         state.findMedicineError = action.error.message;
       });
   },

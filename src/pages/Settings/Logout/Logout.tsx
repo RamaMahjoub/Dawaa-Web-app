@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { routes } from "../../../router/constant";
 import Loading from "../../../components/Loading/Clip";
 import { toast } from "react-toastify";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
 
 interface Props {
   open: boolean;
@@ -24,19 +25,19 @@ const Logout: FC<Props> = ({ open, handleOpen }) => {
   };
   const navigate = useNavigate();
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.LOGIN}`);
       toast.success("تم تسجيل الخروج بنجاح");
     }
   }, [status, navigate]);
   let buttonContent;
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     buttonContent = <Loading />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     buttonContent = "تسجيل الخروج";
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.FAILED) {
     buttonContent = "تسجيل الخروج";
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.IDLE) {
     buttonContent = "تسجيل الخروج";
   }
   return (

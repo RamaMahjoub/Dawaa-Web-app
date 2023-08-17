@@ -22,6 +22,7 @@ import {
 } from "../../redux/storeSlice";
 import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 const ids = [
   { id: 1, expireDate: "12-3-2001", max: 52 },
   { id: 2, expireDate: "12-3-2001", max: 51 },
@@ -70,19 +71,19 @@ const TransferMedicines = () => {
     dispatch(getAllStores());
   }, [dispatch]);
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status === ResponseStatus.SUCCEEDED) {
       setFromInventory(invintories.data);
       setToInventory(invintories.data);
     }
   }, [status, invintories]);
   let from, to;
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     from = <Beat />;
     to = <Beat />;
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     from = <div>error...</div>;
     to = <div>error...</div>;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     if (fromInventory?.length === 0) {
       from = <NoData />;
       to = <NoData />;

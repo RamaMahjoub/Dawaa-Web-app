@@ -20,6 +20,7 @@ import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import Loading from "../../../components/Loading/Clip";
 import { toast } from "react-toastify";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
 
 interface Props {
   open: boolean;
@@ -50,14 +51,14 @@ const AddStore: FC<Props> = ({ open, handleOpen }) => {
     registerStoreValidationSchema
   );
   let buttonContent;
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     buttonContent = <Loading />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     toast.success("تم تسجيل الحساب بنجاح");
     buttonContent = "حفظ";
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     buttonContent = "حفظ";
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     buttonContent = "حفظ";
   }
   return (

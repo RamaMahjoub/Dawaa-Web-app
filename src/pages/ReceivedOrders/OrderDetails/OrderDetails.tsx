@@ -22,6 +22,7 @@ import {
 } from "../../../redux/orderSlice";
 import Beat from "../../../components/Loading/Beat";
 import NoData from "../../NoData/NoData";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 const OrderDetails = () => {
   const { pathname } = useLocation();
@@ -38,7 +39,7 @@ const OrderDetails = () => {
   }, [orderId, dispatch]);
   const { open, handleOpen } = useOpenToggle();
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status === ResponseStatus.SUCCEEDED) {
       const total = data.data.medicines.reduce(
         (acc: number, medicine: any) =>
           (acc += medicine.price * medicine.quantity),
@@ -65,11 +66,11 @@ const OrderDetails = () => {
       ));
     }
   }, [status, data]);
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     contentRef.current = <Beat />;
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     contentRef.current = <NoData />;
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     contentRef.current = <div>error...</div>;
   }
 

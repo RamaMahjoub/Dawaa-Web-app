@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import OrderService from "../services/OrderService";
+import { ResponseStatus } from "../enums/ResponseStatus";
 
 type AuthState = {
-  data: any;
-  status: string;
-  error: string | undefined;
+  createOrderData: any;
+  createOrderStatus: string;
+  createOrderError: string | undefined;
   sendedOrdersData: any;
   sendedOrdersStatus: string;
   sendedOrdersError: string | undefined;
@@ -18,25 +19,23 @@ type AuthState = {
   receivedOrderDetailsData: any;
   receivedOrderDetailsStatus: string;
   receivedOrderDetailsError: string | undefined;
-  navigationState: string | null;
 };
 
 const initialState: AuthState = {
-  data: {},
-  status: "idle",
-  error: undefined,
-  navigationState: null,
+  createOrderData: {},
+  createOrderStatus: ResponseStatus.IDLE,
+  createOrderError: undefined,
   sendedOrdersData: {},
-  sendedOrdersStatus: "idle",
+  sendedOrdersStatus: ResponseStatus.IDLE,
   sendedOrdersError: undefined,
   sendedOrderDetailsData: {},
-  sendedOrderDetailsStatus: "idle",
+  sendedOrderDetailsStatus: ResponseStatus.IDLE,
   sendedOrderDetailsError: undefined,
   receivedOrdersData: {},
-  receivedOrdersStatus: "idle",
+  receivedOrdersStatus: ResponseStatus.IDLE,
   receivedOrdersError: undefined,
   receivedOrderDetailsData: {},
-  receivedOrderDetailsStatus: "idle",
+  receivedOrderDetailsStatus: ResponseStatus.IDLE,
   receivedOrderDetailsError: undefined,
 };
 
@@ -91,82 +90,80 @@ export const orderSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(createOrder.pending, (state) => {
-        state.status = "loading";
-        state.navigationState = null;
+        state.createOrderStatus = ResponseStatus.LOADING;
       })
       .addCase(createOrder.fulfilled, (state, action: PayloadAction<any>) => {
-        state.status = "succeeded";
-        state.data = action.payload;
-        state.navigationState = "sending_succeeded";
+        state.createOrderStatus = ResponseStatus.SUCCEEDED;
+        state.createOrderData = action.payload;
       })
       .addCase(createOrder.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
-        state.navigationState = null;
+        state.createOrderStatus = ResponseStatus.FAILED;
+        state.createOrderError = action.error.message;
       })
       .addCase(findSendedOrders.pending, (state) => {
-        state.sendedOrdersStatus = "loading";
+        state.sendedOrdersStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findSendedOrders.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.sendedOrdersStatus = "succeeded";
+          state.sendedOrdersStatus = ResponseStatus.SUCCEEDED;
           state.sendedOrdersData = action.payload;
         }
       )
       .addCase(findSendedOrders.rejected, (state, action) => {
-        state.sendedOrdersStatus = "failed";
+        state.sendedOrdersStatus = ResponseStatus.FAILED;
         state.sendedOrdersError = action.error.message;
       })
       .addCase(findSendedOrderDetails.pending, (state) => {
-        state.sendedOrderDetailsStatus = "loading";
+        state.sendedOrderDetailsStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findSendedOrderDetails.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.sendedOrderDetailsStatus = "succeeded";
+          state.sendedOrderDetailsStatus = ResponseStatus.SUCCEEDED;
           state.sendedOrderDetailsData = action.payload;
         }
       )
       .addCase(findSendedOrderDetails.rejected, (state, action) => {
-        state.sendedOrderDetailsStatus = "failed";
+        state.sendedOrderDetailsStatus = ResponseStatus.FAILED;
         state.sendedOrderDetailsError = action.error.message;
       })
       .addCase(findReceivedOrders.pending, (state) => {
-        state.receivedOrdersStatus = "loading";
+        state.receivedOrdersStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findReceivedOrders.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.receivedOrdersStatus = "succeeded";
+          state.receivedOrdersStatus = ResponseStatus.SUCCEEDED;
           state.receivedOrdersData = action.payload;
         }
       )
       .addCase(findReceivedOrders.rejected, (state, action) => {
-        state.receivedOrdersStatus = "failed";
+        state.receivedOrdersStatus = ResponseStatus.FAILED;
         state.receivedOrdersError = action.error.message;
       })
       .addCase(findReceivedOrderDetails.pending, (state) => {
-        state.receivedOrderDetailsStatus = "loading";
+        state.receivedOrderDetailsStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findReceivedOrderDetails.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.receivedOrderDetailsStatus = "succeeded";
+          state.receivedOrderDetailsStatus = ResponseStatus.SUCCEEDED;
           state.receivedOrderDetailsData = action.payload;
         }
       )
       .addCase(findReceivedOrderDetails.rejected, (state, action) => {
-        state.receivedOrderDetailsStatus = "failed";
+        state.receivedOrderDetailsStatus = ResponseStatus.FAILED;
         state.receivedOrderDetailsError = action.error.message;
       });
   },
 });
 
-export const selectStatus = (state: RootState) => state.order.status;
-export const selectNavigationStatus = (state: RootState) =>
-  state.order.navigationState;
-export const selectError = (state: RootState) => state.order.error;
+export const selectCreateOrderStatus = (state: RootState) =>
+  state.order.createOrderStatus;
+
+export const selectCreateOrderError = (state: RootState) =>
+  state.order.createOrderError;
 
 export const selectSendedOrdersStatus = (state: RootState) =>
   state.order.sendedOrdersStatus;

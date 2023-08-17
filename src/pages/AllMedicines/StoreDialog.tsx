@@ -17,6 +17,7 @@ import Beat from "../../components/Loading/Beat";
 import NoData from "../NoData/NoData";
 import { v4 as uuidv4 } from "uuid";
 import { storeInInventory } from "../../redux/medicineSlice";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 interface Props {
   open: boolean;
@@ -88,11 +89,11 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
     dispatch(getAllStores());
   }, [dispatch]);
 
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     content = <NoData />;
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     content = <div>error..</div>;
   }
 
@@ -105,8 +106,8 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
         },
       };
       return dispatch(storeInInventory({ id: elements[key].inventoryId, body }))
-        .then((response) => ({ success: true, response })) // Resolve with success status and response
-        .catch((error) => ({ success: false, error })); // Reject with failure status and error
+        .then((response) => ({ success: true, response }))
+        .catch((error) => ({ success: false, error })); 
     });
 
     Promise.all(requests)
@@ -116,7 +117,6 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
           console.log("All requests succeeded");
         } else {
           console.log("Some requests failed");
-          // You can also inspect results array for individual responses or errors
         }
       })
       .catch(() => console.log("Error while processing requests"));

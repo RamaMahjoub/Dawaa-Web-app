@@ -17,8 +17,9 @@ import {
 } from "../../redux/supplierSlice";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { createOrder, selectNavigationStatus } from "../../redux/orderSlice";
+import { createOrder, selectCreateOrderStatus } from "../../redux/orderSlice";
 import { routes } from "../../router/constant";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const NotFound = require("./../../assets/medicines/not-found.png");
 
@@ -30,7 +31,6 @@ const SendOrder = () => {
   let supplier;
   const dispatch = useAppDispatch();
   const basket = useAppSelector(selectBasket);
-  console.log("basket", basket);
   const [total, setTotal] = useState<number>(0);
   const [medicineQuantities, setMedicineQuantities] = useState<{
     [key: number]: number;
@@ -65,13 +65,13 @@ const SendOrder = () => {
 
   const supplierStatus = useAppSelector(selectSupplierDetailsStatus);
   const supplierData = useAppSelector(selectSupplierDetailsData);
-  const navigationStatus = useAppSelector(selectNavigationStatus);
+  const createOrderStatus = useAppSelector(selectCreateOrderStatus);
   const navigate = useNavigate();
   useEffect(() => {
-    if (navigationStatus === "sending_succeeded") {
+    if (createOrderStatus === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.SUPPLIERS}/${supplierId}`);
     }
-  }, [navigationStatus, navigate, supplierId]);
+  }, [createOrderStatus, navigate, supplierId]);
   let medicines = basket.map((item: Basket) => {
     return (
       <MedicineCard
@@ -106,11 +106,11 @@ const SendOrder = () => {
       handleFindMedicineFulfilled(item.medicine.data.price);
     });
   }, [dispatch, supplierId, basket]);
-  if (supplierStatus === "loading") {
+  if (supplierStatus === ResponseStatus.LOADING) {
     supplier = <div>loading...</div>;
-  } else if (supplierStatus === "succeeded") {
+  } else if (supplierStatus === ResponseStatus.SUCCEEDED) {
     supplier = supplierData.data;
-  } else if (supplierStatus === "idle") {
+  } else if (supplierStatus === ResponseStatus.FAILED) {
     supplier = "";
   }
 

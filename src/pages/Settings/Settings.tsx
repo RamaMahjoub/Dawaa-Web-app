@@ -24,6 +24,7 @@ import {
 import { useAppSelector } from "../../hooks/useAppSelector";
 import PendingDialog from "../AllStores/AddStore/PendingDialog";
 import Loading from "../../components/Loading/Clip";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const Settings = () => {
   const { pathname } = useLocation();
@@ -54,7 +55,7 @@ const Settings = () => {
   };
 
   useEffect(() => {
-    if (updateStatus === "succeeded") {
+    if (updateStatus === ResponseStatus.SUCCEEDED) {
       formik.setValues({
         name: data.data.name,
         phoneNumber: data.data.phoneNumber,
@@ -62,7 +63,7 @@ const Settings = () => {
       });
       handleOpenPending();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateStatus, handleOpenPending]);
 
   const formik = useFormSubmit(
@@ -76,13 +77,13 @@ const Settings = () => {
   }, [dispatch]);
 
   let buttonContent;
-  if (updateStatus === "loading") {
+  if (updateStatus === ResponseStatus.LOADING) {
     buttonContent = <Loading />;
-  } else if (updateStatus === "succeeded") {
+  } else if (updateStatus === ResponseStatus.SUCCEEDED) {
     buttonContent = "حفظ التعديلات";
-  } else if (updateStatus === "idle") {
+  } else if (updateStatus === ResponseStatus.IDLE) {
     buttonContent = "حفظ التعديلات";
-  } else if (updateStatus === "failed") {
+  } else if (updateStatus === ResponseStatus.FAILED) {
     buttonContent = "حفظ التعديلات";
   }
   useEffect(() => {

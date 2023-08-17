@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import ReportService from "../services/ReportServices";
+import { ResponseStatus } from "../enums/ResponseStatus";
 
 type ReportsState = {
   inventoriesReportsData: any;
@@ -16,13 +17,13 @@ type ReportsState = {
 
 const initialState: ReportsState = {
   inventoriesReportsData: {},
-  inventoriesReportsStatus: "idle",
+  inventoriesReportsStatus: ResponseStatus.IDLE,
   inventoriesReportsError: undefined,
   acceptReportData: {},
-  acceptReportStatus: "idle",
+  acceptReportStatus: ResponseStatus.IDLE,
   acceptReportError: undefined,
   rejectReportData: {},
-  rejectReportStatus: "idle",
+  rejectReportStatus: ResponseStatus.IDLE,
   rejectReportError: undefined,
 };
 
@@ -59,45 +60,45 @@ export const reportsSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(findInventoriesReports.pending, (state) => {
-        state.inventoriesReportsStatus = "loading";
+        state.inventoriesReportsStatus = ResponseStatus.LOADING;
       })
       .addCase(
         findInventoriesReports.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.inventoriesReportsStatus = "succeeded";
+          state.inventoriesReportsStatus = ResponseStatus.SUCCEEDED;
           state.inventoriesReportsData = action.payload;
         }
       )
       .addCase(findInventoriesReports.rejected, (state, action) => {
-        state.inventoriesReportsStatus = "failed";
+        state.inventoriesReportsStatus = ResponseStatus.FAILED;
         state.inventoriesReportsError = action.error.message;
       })
       .addCase(acceptInventoryReport.pending, (state) => {
-        state.acceptReportStatus = "loading";
+        state.acceptReportStatus = ResponseStatus.LOADING;
       })
       .addCase(
         acceptInventoryReport.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.acceptReportStatus = "succeeded";
+          state.acceptReportStatus = ResponseStatus.SUCCEEDED;
           state.acceptReportData = action.payload;
         }
       )
       .addCase(acceptInventoryReport.rejected, (state, action) => {
-        state.acceptReportStatus = "failed";
+        state.acceptReportStatus = ResponseStatus.FAILED;
         state.acceptReportError = action.error.message;
       })
       .addCase(rejectInventoryReport.pending, (state) => {
-        state.rejectReportStatus = "loading";
+        state.rejectReportStatus = ResponseStatus.LOADING;
       })
       .addCase(
         rejectInventoryReport.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.rejectReportStatus = "succeeded";
+          state.rejectReportStatus = ResponseStatus.SUCCEEDED;
           state.rejectReportData = action.payload;
         }
       )
       .addCase(rejectInventoryReport.rejected, (state, action) => {
-        state.rejectReportStatus = "failed";
+        state.rejectReportStatus = ResponseStatus.FAILED;
         state.rejectReportError = action.error.message;
       });
   },

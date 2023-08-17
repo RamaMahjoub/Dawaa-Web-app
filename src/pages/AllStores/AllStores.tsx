@@ -21,6 +21,7 @@ import PendingDialog from "./AddStore/PendingDialog";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
 import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const AllStores = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
@@ -39,14 +40,14 @@ const AllStores = () => {
     dispatch(getAllStores());
   }, [dispatch]);
   useEffect(() => {
-    if (addStoreStatus === "succeeded") {
+    if (addStoreStatus === ResponseStatus.SUCCEEDED) {
       handleOpenAddStore();
       handleOpenPending();
     }
   }, [addStoreStatus, handleOpenAddStore, handleOpenPending]);
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     content = data.data ? (
       data.data.map((row: any, index: number) => (
         <StoreCard storeData={row} index={index + 1} key={row.id} />

@@ -19,6 +19,7 @@ import { useAppSelector } from "../../hooks/useAppSelector";
 import { login, register, selectRegisterStatus } from "../../redux/authSlice";
 import Loading from "../../components/Loading/Clip";
 import { toast } from "react-toastify";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const Register = () => {
   const { pathname } = useLocation();
@@ -37,19 +38,19 @@ const Register = () => {
   let buttonContent;
 
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.REGISTER_DETAILS}`);
       toast.success("تم إنشاء الحساب بنجاح");
     }
   }, [status, navigate]);
 
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     buttonContent = <Loading />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     buttonContent = "اشنراك";
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     buttonContent = "اشنراك";
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     buttonContent = "اشنراك";
   }
 

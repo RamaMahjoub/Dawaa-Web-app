@@ -35,6 +35,7 @@ import { TableSchema } from "../../Schema/tables/SendedOrders";
 import Beat from "../../components/Loading/Beat";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
 import { usePagination } from "../../hooks/usePagination";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 export interface Filter {
   name: string;
   route: string;
@@ -103,7 +104,7 @@ const PurchaseOrders = () => {
   }, [dispatch, pageIndex, pageSize]);
   const transformedData = useMemo(() => {
     return (
-      status === "succeeded" &&
+      status === ResponseStatus.SUCCEEDED &&
       data.data.length > 0 &&
       data.data.map((order: TableSchema, index: number) => {
         const state =
@@ -142,11 +143,11 @@ const PurchaseOrders = () => {
     debugTable: true,
   });
 
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     content = <NoData />;
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     content = <div>error...</div>;
   }
   const navigate = useNavigate();

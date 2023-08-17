@@ -14,6 +14,7 @@ import {
 import SupplierCard from "./SupplierCard";
 import Beat from "../../components/Loading/Beat";
 import NoData from "../NoData/NoData";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const Suppliers = () => {
   const { pathname } = useLocation();
@@ -25,9 +26,9 @@ const Suppliers = () => {
   useEffect(() => {
     dispatch(getAllSuppliers());
   }, [dispatch]);
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     content =
       data.data.length > 0 ? (
         data.data.map((row: any) => (
@@ -36,8 +37,6 @@ const Suppliers = () => {
       ) : (
         <NoData />
       );
-  } else if (status === "idle") {
-    content = <NoData />;
   }
   return (
     <div className="flex flex-col h-screen">

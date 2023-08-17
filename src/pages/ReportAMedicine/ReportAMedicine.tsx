@@ -22,6 +22,8 @@ import NoData from "../NoData/NoData";
 import { usePagination } from "../../hooks/usePagination";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { toast } from "react-toastify";
+import { ResponseStatus } from "../../enums/ResponseStatus";
+import Loading from "../../components/Loading/Clip";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 const ReportAMedicine = () => {
@@ -37,15 +39,34 @@ const ReportAMedicine = () => {
   const rejectStatus = useAppSelector(selectRejectReportStatus);
   let content = useRef<any>(null);
 
+  let acceptButtonContent: any, rejectButtonContent: any;
+  if (acceptStatus === ResponseStatus.LOADING) {
+    acceptButtonContent = <Loading />;
+  } else if (acceptStatus === ResponseStatus.SUCCEEDED) {
+    acceptButtonContent = "قبول الطلب";
+  } else if (acceptStatus === ResponseStatus.FAILED) {
+    acceptButtonContent = "قبول الطلب";
+  } else if (acceptStatus === ResponseStatus.IDLE) {
+    acceptButtonContent = "قبول الطلب";
+  }
+  if (rejectStatus === ResponseStatus.LOADING) {
+    rejectButtonContent = <Loading />;
+  } else if (rejectStatus === ResponseStatus.SUCCEEDED) {
+    rejectButtonContent = "رفض الطلب";
+  } else if (rejectStatus === ResponseStatus.FAILED) {
+    rejectButtonContent = "رفض الطلب";
+  } else if (rejectStatus === ResponseStatus.IDLE) {
+    rejectButtonContent = "رفض الطلب";
+  }
   useEffect(() => {
-    if (acceptStatus === "succeeded") {
+    if (acceptStatus === ResponseStatus.SUCCEEDED) {
       setReports([]);
       handlePgination(0);
       setIsFetching(false);
       setHasMore(true);
       toast.success("تم قبول طلب الإبلاغ بنجاح");
     }
-    if (rejectStatus === "succeeded") {
+    if (rejectStatus === ResponseStatus.SUCCEEDED) {
       setReports([]);
       handlePgination(0);
       setIsFetching(false);
@@ -145,7 +166,7 @@ const ReportAMedicine = () => {
                       </div>
                       <div className="flex justify-end gap-small">
                         <Button
-                          text="قبول الطلب"
+                          text={acceptButtonContent}
                           variant="base-blue"
                           disabled={false}
                           size="lg"
@@ -154,7 +175,7 @@ const ReportAMedicine = () => {
                           }
                         />
                         <Button
-                          text="رفض الطلب"
+                          text={rejectButtonContent}
                           variant="red"
                           disabled={false}
                           size="lg"

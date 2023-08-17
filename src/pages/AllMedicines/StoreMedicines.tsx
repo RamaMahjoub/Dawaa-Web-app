@@ -18,6 +18,7 @@ import { useOpenToggle } from "../../hooks/useOpenToggle";
 import { usePagination } from "../../hooks/usePagination";
 import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 const NotFound = require("./../../assets/medicines/not-found.png");
 const StoreMedicines = () => {
   const { pathname } = useLocation();
@@ -47,9 +48,9 @@ const StoreMedicines = () => {
       })
     );
   }, [dispatch, pageIndex, pageSize]);
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     totalCount = data.totalRecords;
     content =
       data.data.length > 0 ? (
@@ -75,7 +76,7 @@ const StoreMedicines = () => {
       ) : (
         <NoData />
       );
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     content = <div>error..</div>;
   }
 

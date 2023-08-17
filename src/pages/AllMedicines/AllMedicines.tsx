@@ -20,6 +20,7 @@ import {
 import Beat from "../../components/Loading/Beat";
 import NoData from "../NoData/NoData";
 import { usePagination } from "../../hooks/usePagination";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 const AllMedicines = () => {
@@ -41,11 +42,11 @@ const AllMedicines = () => {
       })
     );
   }, [dispatch, pageIndex, pageSize]);
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content.current = <Beat />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     data.data.length > 0 &&
-      data.data.map((row: any) => {
+      data.data.forEach((row: any) => {
         if (!catigoriesList.includes(row.category))
           catigoriesList.push(row.category);
       });
@@ -73,7 +74,7 @@ const AllMedicines = () => {
       ) : (
         <NoData />
       );
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     content.current = <NoData />;
   }
   const navigate = useNavigate();

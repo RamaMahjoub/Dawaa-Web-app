@@ -13,6 +13,7 @@ import { useAppSelector } from "../../hooks/useAppSelector";
 import { login, selectLoginStatus } from "../../redux/authSlice";
 import Loading from "../../components/Loading/Clip";
 import { toast } from "react-toastify";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const Login = () => {
   const { pathname } = useLocation();
@@ -27,19 +28,19 @@ const Login = () => {
   let buttonContent;
 
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.ALL_STORES}`);
       toast.success("تم تسجيل الدخول بنجاح");
     }
   }, [status, navigate]);
 
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     buttonContent = <Loading />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     buttonContent = "تسجيل الدخول";
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     buttonContent = "تسجيل الدخول";
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     buttonContent = "تسجيل الدخول";
   }
   const initialValues: LoginSchema = {

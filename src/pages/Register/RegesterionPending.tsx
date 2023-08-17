@@ -10,15 +10,15 @@ import { useAppSelector } from "../../hooks/useAppSelector";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/constant";
 import { toast } from "react-toastify";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const RegesterionPending = () => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectIsAcceptedStatus);
   const data = useAppSelector(selectIsAcceptedData);
   const navigata = useNavigate();
-  console.log(data);
   useEffect(() => {
-    if (status === "succeeded" && data === true) {
+    if (status === ResponseStatus.SUCCEEDED && data === true) {
       navigata(`/${routes.LOGIN}`);
       toast.success("تم قبول اشتراكك في النظام");
     }

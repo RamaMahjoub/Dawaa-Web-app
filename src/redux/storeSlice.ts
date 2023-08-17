@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { RegisterStoreSchema } from "../Schema/request/registerStore.schema";
 import StoreService from "../services/StoreServices";
+import { ResponseStatus } from "../enums/ResponseStatus";
 
 type StoreState = {
   allStoresData: any;
@@ -14,10 +15,10 @@ type StoreState = {
 
 const initialState: StoreState = {
   allStoresData: {},
-  allStoresStatus: "idle",
+  allStoresStatus: ResponseStatus.IDLE,
   allStoresError: undefined,
   addStoreData: {},
-  addStoreStatus: "idle",
+  addStoreStatus: ResponseStatus.IDLE,
   addStoreError: undefined,
 };
 
@@ -44,25 +45,25 @@ export const StoreSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(registerStore.pending, (state) => {
-        state.addStoreStatus = "loading";
+        state.addStoreStatus = ResponseStatus.LOADING;
       })
       .addCase(registerStore.fulfilled, (state, action: PayloadAction<any>) => {
-        state.addStoreStatus = "succeeded";
+        state.addStoreStatus = ResponseStatus.SUCCEEDED;
         state.addStoreData = action.payload;
       })
       .addCase(registerStore.rejected, (state, action) => {
-        state.addStoreStatus = "failed";
+        state.addStoreStatus = ResponseStatus.FAILED;
         state.addStoreError = action.error.message;
       })
       .addCase(getAllStores.pending, (state) => {
-        state.allStoresStatus = "loading";
+        state.allStoresStatus = ResponseStatus.LOADING;
       })
       .addCase(getAllStores.fulfilled, (state, action: PayloadAction<any>) => {
-        state.allStoresStatus = "succeeded";
+        state.allStoresStatus = ResponseStatus.SUCCEEDED;
         state.allStoresData = action.payload;
       })
       .addCase(getAllStores.rejected, (state, action) => {
-        state.allStoresStatus = "failed";
+        state.allStoresStatus = ResponseStatus.FAILED;
         state.allStoresError = action.error.message;
       });
   },

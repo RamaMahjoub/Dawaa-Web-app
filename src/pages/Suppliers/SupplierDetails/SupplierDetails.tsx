@@ -21,6 +21,7 @@ import { useOpenToggle } from "../../../hooks/useOpenToggle";
 import { usePagination } from "../../../hooks/usePagination";
 import NoData from "../../NoData/NoData";
 import Beat from "../../../components/Loading/Beat";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 
 const SupplierDetails = () => {
@@ -45,11 +46,11 @@ const SupplierDetails = () => {
       })
     );
   }, [dispatch, pageIndex, supplierId, pageSize]);
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     data.data.length > 0 &&
-      data.data.map((row: any) => {
+      data.data.forEach((row: any) => {
         if (!catigoriesList.includes(row.category))
           catigoriesList.push(row.category);
       });
@@ -80,8 +81,6 @@ const SupplierDetails = () => {
       ) : (
         <NoData />
       );
-  } else if (status === "idle") {
-    content = <NoData />;
   }
   const navigate = useNavigate();
   const handleNavigate = () => {

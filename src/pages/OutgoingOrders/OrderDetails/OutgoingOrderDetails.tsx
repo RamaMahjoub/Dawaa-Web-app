@@ -16,6 +16,7 @@ import {
   selectSendedOrderDetailsStatus,
 } from "../../../redux/orderSlice";
 import Beat from "../../../components/Loading/Beat";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 
 const OutgoingOrderDetails = () => {
@@ -32,7 +33,7 @@ const OutgoingOrderDetails = () => {
     dispatch(findSendedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status === ResponseStatus.SUCCEEDED) {
       const total = data.data.medicines.reduce(
         (acc: number, medicine: any) =>
           (acc += medicine.price * medicine.quantity),
@@ -59,11 +60,11 @@ const OutgoingOrderDetails = () => {
       ));
     }
   }, [status, data]);
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     contentRef.current = <Beat />;
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     contentRef.current = <NoData />;
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     contentRef.current = <div>error...</div>;
   } 
   return (

@@ -34,6 +34,7 @@ import IconButton from "../../components/Button/IconButton";
 import { useMediaQuery } from "react-responsive";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
 import { usePagination } from "../../hooks/usePagination";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const filterList: Array<Filter> = [
   { name: "طلبات الشراء", route: `/${routes.OUTGOING_ORDERS}` },
@@ -52,7 +53,8 @@ const OutgoingOrders = () => {
     setEndDate(end);
   };
 
-  const { pageIndex, pageSize, pagination, handlePgination } = usePagination(10);
+  const { pageIndex, pageSize, pagination, handlePgination } =
+    usePagination(10);
 
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSendedOrdersData);
@@ -95,7 +97,7 @@ const OutgoingOrders = () => {
   }, [dispatch, pageIndex, pageSize]);
   const transformedData = useMemo(() => {
     return (
-      status === "succeeded" &&
+      status === ResponseStatus.SUCCEEDED &&
       data.data.length > 0 &&
       data.data.map((order: TableSchema, index: number) => {
         const state =
@@ -137,11 +139,11 @@ const OutgoingOrders = () => {
   const handleNavigate = (orderId: string) => {
     navigate(`/${routes.OUTGOING_ORDERS}/${orderId.slice(1)}`);
   };
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     content = <NoData />;
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     content = <div>error...</div>;
   }
   return (

@@ -12,6 +12,7 @@ import { completeInfo, selectCompleteInfoStatus } from "../../redux/authSlice";
 import Loading from "../../components/Loading/Clip";
 import { routes } from "../../router/constant";
 import { toast } from "react-toastify";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 const RegisterDetails = () => {
   const { pathname } = useLocation();
@@ -22,19 +23,19 @@ const RegisterDetails = () => {
   let buttonContent;
 
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.REGISTERION_PENDING}`);
       toast.success("تم إرسال المعلومات إلى مشرف النظام بنجاح");
     }
   }, [status, navigate]);
 
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     buttonContent = <Loading />;
-  } else if (status === "succeeded") {
+  } else if (status === ResponseStatus.SUCCEEDED) {
     buttonContent = "إرسال";
-  } else if (status === "idle") {
+  } else if (status === ResponseStatus.IDLE) {
     buttonContent = "إرسال";
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     buttonContent = "إرسال";
   }
   const initialValues: RegisterDetailSchema = {

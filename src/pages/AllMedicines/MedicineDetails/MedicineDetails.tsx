@@ -25,6 +25,7 @@ import {
 } from "../../../redux/medicineSlice";
 import Beat from "../../../components/Loading/Beat";
 import NoData from "../../NoData/NoData";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
 
 const NotFound = require("./../../../assets/medicines/not-found.png");
 interface TableSchema {
@@ -64,20 +65,20 @@ const MedicineDetails = () => {
   let content = <NoData />,
     distributionsContent = <NoData />;
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status ===ResponseStatus.SUCCEEDED) {
       setMed(data.data);
     }
   }, [status, data]);
 
-  if (status === "loading") {
+  if (status === ResponseStatus.LOADING) {
     content = <Beat />;
-  } else if (status === "failed") {
+  } else if (status === ResponseStatus.FAILED) {
     content = <div>error...</div>;
   }
 
-  if (distributionsStatus === "loading") {
+  if (distributionsStatus === ResponseStatus.LOADING) {
     distributionsContent = <Beat />;
-  } else if (distributionsStatus === "failed") {
+  } else if (distributionsStatus === ResponseStatus.FAILED) {
     distributionsContent = <div>error...</div>;
   }
 
@@ -131,7 +132,7 @@ const MedicineDetails = () => {
   console.log(distributionsData.data);
   const transformedData: Array<TableSchema> = useMemo(() => {
     return (
-      distributionsStatus === "succeeded" &&
+      distributionsStatus === ResponseStatus.SUCCEEDED &&
       distributionsData.data &&
       distributionsData.data.map((item: TableSchema) => {
         return {
