@@ -16,9 +16,9 @@ import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import {
-  findSendedOrderDetails,
-  selectSendedOrderDetailsData,
-  selectSendedOrderDetailsStatus,
+  findReceivedOrderDetails,
+  selectReceivedOrderDetailsData,
+  selectReceivedOrderDetailsStatus,
 } from "../../../redux/orderSlice";
 import Beat from "../../../components/Loading/Beat";
 import NoData from "../../NoData/NoData";
@@ -30,12 +30,12 @@ const OrderDetails = () => {
   const { orderId } = useParams();
   const contentRef = useRef<any>();
   const [cost, setCost] = useState<number | null>(null);
-  const [supplier, setSupplier] = useState<any>(null);
+  const [pharmacy, setPharmacy] = useState<any>(null);
   const dispatch = useAppDispatch();
-  const data = useAppSelector(selectSendedOrderDetailsData);
-  const status = useAppSelector(selectSendedOrderDetailsStatus);
+  const data = useAppSelector(selectReceivedOrderDetailsData);
+  const status = useAppSelector(selectReceivedOrderDetailsStatus);
   useEffect(() => {
-    dispatch(findSendedOrderDetails({ id: orderId! }));
+    dispatch(findReceivedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
   const { open, handleOpen } = useOpenToggle();
   useEffect(() => {
@@ -46,7 +46,7 @@ const OrderDetails = () => {
         0
       );
       setCost(total);
-      setSupplier(data.data.supplier);
+      setPharmacy(data.data.pharmacy);
       contentRef.current = data.data.medicines.map((medicine: any) => (
         <MedicineCard
           key={medicine.name}
@@ -124,12 +124,12 @@ const OrderDetails = () => {
         <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large px-large pb-large scrollbar-thin">
           <div className="flex flex-col w-full gap-3 sm:flex-row ">
             <div className="flex flex-col flex-1 overflow-auto sm:max-h-fit sm:w-4/12 gap-large scrollbar-thin">
-              {supplier ? (
+              {pharmacy ? (
                 <DestinationCard
-                  title={supplier.name}
-                  subTitle={supplier.address}
-                  email={supplier.email}
-                  phone={supplier.phoneNumber}
+                  title={pharmacy.name}
+                  subTitle={pharmacy.location}
+                  email={pharmacy.email}
+                  phone={pharmacy.phoneNumber}
                   inactive={true}
                 />
               ) : (

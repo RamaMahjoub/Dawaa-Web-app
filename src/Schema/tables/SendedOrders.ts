@@ -7,3 +7,11 @@ export interface TableSchema {
   status: ReactNode;
   totalPrice: string;
 }
+
+export interface ReceivedTableSchema {
+  id: string;
+  date: string;
+  pharmacy: string;
+  status: ReactNode;
+  totalPrice: string;
+}

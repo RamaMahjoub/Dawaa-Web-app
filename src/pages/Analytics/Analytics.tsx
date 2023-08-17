@@ -30,7 +30,7 @@ const Analytics = () => {
   return (
     <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
-      <div className="grid grid-cols-2 bg-greyScale-lighter p-large gap-large md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid grid-cols-2 bg-greyScale-lighter px-xx-large py-large gap-large md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <span className="flex flex-col items-center justify-center bg-white gap-small h-fit rounded-med p-large">
           <p className="text-greyScale-light text-medium">رأس المال المقبوض</p>
           <TextBadge title={`600000000 ل.س`} status={BadgeStatus.SUCCESS} />
@@ -60,7 +60,7 @@ const Analytics = () => {
           <TextBadge title={`600000000 ل.س`} status={BadgeStatus.DANGER} />
         </span>
       </div>
-      <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large px-large pb-large scrollbar-thin">
+      <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large px-xx-large pb-large scrollbar-thin">
         <div className="flex flex-col flex-1 overflow-auto bg-white p-large min-w-max gap-medium rounded-med scrollbar-none">
           <p className="text-greyScale-main">
             الطلبات الواردة غير مكتملة الدفع
@@ -111,7 +111,7 @@ const Analytics = () => {
                       />
                     </div>
                   )}
-                  {!addPayment && (
+                  {/* {!addPayment && (
                     <Button
                       variant="outlined"
                       disabled={false}
@@ -119,7 +119,7 @@ const Analytics = () => {
                       size="xlg"
                       onClick={handleAddPayment}
                     />
-                  )}
+                  )} */}
                 </div>
               );
             })}

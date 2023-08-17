@@ -31,7 +31,7 @@ import {
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import NoData from "../NoData/NoData";
-import { TableSchema } from "../../Schema/tables/SendedOrders";
+import { ReceivedTableSchema } from "../../Schema/tables/SendedOrders";
 import Beat from "../../components/Loading/Beat";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
 import { usePagination } from "../../hooks/usePagination";
@@ -67,7 +67,7 @@ const PurchaseOrders = () => {
   const data = useAppSelector(selectReceivedOrdersData);
   let content = <NoData />;
   const status = useAppSelector(selectReceivedOrdersStatus);
-  const columns = useMemo<ColumnDef<TableSchema>[]>(
+  const columns = useMemo<ColumnDef<ReceivedTableSchema>[]>(
     () => [
       {
         header: "رقم الطلب",
@@ -77,12 +77,12 @@ const PurchaseOrders = () => {
       {
         header: "تاريخ الطلب",
         cell: (row) => row.renderValue(),
-        accessorKey: "orderDate",
+        accessorKey: "date",
       },
       {
         header: "الجهة المرسلة",
         cell: (row) => row.renderValue(),
-        accessorKey: "supplierName",
+        accessorKey: "pharmacy",
       },
       {
         header: "الحالة",
@@ -106,25 +106,25 @@ const PurchaseOrders = () => {
     return (
       status === ResponseStatus.SUCCEEDED &&
       data.data.length > 0 &&
-      data.data.map((order: TableSchema, index: number) => {
+      data.data.map((order: ReceivedTableSchema) => {
         const state =
           order.status === "Pending" ? (
             <TextBadge title={"معلّق"} status={BadgeStatus.WARNING} />
           ) : order.status === "Accepted" ? (
             <TextBadge title={"تم القبول"} status={BadgeStatus.SUCCESS} />
           ) : order.status === "Delivered" ? (
-            <TextBadge title={"تم الاستلام"} status={BadgeStatus.DONE} />
+            <TextBadge title={"تم التسليم"} status={BadgeStatus.DONE} />
           ) : (
             <TextBadge title={"مرفوض"} status={BadgeStatus.DANGER} />
           );
-        const date = new Date(order.orderDate);
+        const date = new Date(order.date);
         return {
           id: `#${order.id}`,
-          orderDate: `${getMonth(
+          date: `${getMonth(
             date.getMonth() + 1
           )} ${date.getFullYear()}، ${date.getDate()} `,
           status: state,
-          supplierName: order.supplierName,
+          pharmacy: order.pharmacy,
           totalPrice: `${order.totalPrice} ل.س`,
         };
       })

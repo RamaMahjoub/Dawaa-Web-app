@@ -7,6 +7,12 @@ type AuthState = {
   createOrderData: any;
   createOrderStatus: string;
   createOrderError: string | undefined;
+  acceptOrderData: any;
+  acceptOrderStatus: string;
+  acceptOrderError: undefined | string;
+  deliverOrderData: any;
+  deliverOrderStatus: string;
+  deliverOrderError: undefined | string;
   sendedOrdersData: any;
   sendedOrdersStatus: string;
   sendedOrdersError: string | undefined;
@@ -25,6 +31,12 @@ const initialState: AuthState = {
   createOrderData: {},
   createOrderStatus: ResponseStatus.IDLE,
   createOrderError: undefined,
+  acceptOrderData: {},
+  acceptOrderStatus: ResponseStatus.IDLE,
+  acceptOrderError: undefined,
+  deliverOrderData: {},
+  deliverOrderStatus: ResponseStatus.IDLE,
+  deliverOrderError: undefined,
   sendedOrdersData: {},
   sendedOrdersStatus: ResponseStatus.IDLE,
   sendedOrdersError: undefined,
@@ -83,6 +95,24 @@ export const findReceivedOrderDetails = createAsyncThunk(
   }
 );
 
+export const acceptOrder = createAsyncThunk(
+  "/order/warehouse/accept/:id",
+  async (params: { id: string }) => {
+    const { id } = params;
+    const response = await OrderService.acceptOrder(id);
+    return response.data;
+  }
+);
+
+export const deliverOrder = createAsyncThunk(
+  "/order/warehouse/deliver/:id",
+  async (params: { id: string }) => {
+    const { id } = params;
+    const response = await OrderService.deliverOrder(id);
+    return response.data;
+  }
+);
+
 export const orderSlice = createSlice({
   name: "order",
   initialState,
@@ -99,6 +129,28 @@ export const orderSlice = createSlice({
       .addCase(createOrder.rejected, (state, action) => {
         state.createOrderStatus = ResponseStatus.FAILED;
         state.createOrderError = action.error.message;
+      })
+      .addCase(acceptOrder.pending, (state) => {
+        state.acceptOrderStatus = ResponseStatus.LOADING;
+      })
+      .addCase(acceptOrder.fulfilled, (state, action: PayloadAction<any>) => {
+        state.acceptOrderStatus = ResponseStatus.SUCCEEDED;
+        state.acceptOrderData = action.payload;
+      })
+      .addCase(acceptOrder.rejected, (state, action) => {
+        state.acceptOrderStatus = ResponseStatus.FAILED;
+        state.acceptOrderError = action.error.message;
+      })
+      .addCase(deliverOrder.pending, (state) => {
+        state.deliverOrderStatus = ResponseStatus.LOADING;
+      })
+      .addCase(deliverOrder.fulfilled, (state, action: PayloadAction<any>) => {
+        state.deliverOrderStatus = ResponseStatus.SUCCEEDED;
+        state.deliverOrderData = action.payload;
+      })
+      .addCase(deliverOrder.rejected, (state, action) => {
+        state.deliverOrderStatus = ResponseStatus.FAILED;
+        state.deliverOrderError = action.error.message;
       })
       .addCase(findSendedOrders.pending, (state) => {
         state.sendedOrdersStatus = ResponseStatus.LOADING;
@@ -190,5 +242,19 @@ export const selectReceivedOrderDetailsData = (state: RootState) =>
   state.order.receivedOrderDetailsData;
 export const selectReceivedOrderDetailsError = (state: RootState) =>
   state.order.receivedOrderDetailsError;
+
+export const selectAcceptOrderStatus = (state: RootState) =>
+  state.order.acceptOrderStatus;
+export const selectAcceptOrderData = (state: RootState) =>
+  state.order.acceptOrderData;
+export const selectAcceptOrderError = (state: RootState) =>
+  state.order.acceptOrderError;
+
+export const selectDeliverOrderStatus = (state: RootState) =>
+  state.order.deliverOrderStatus;
+export const selectDeliverOrderData = (state: RootState) =>
+  state.order.deliverOrderData;
+export const selectDeliverOrderError = (state: RootState) =>
+  state.order.deliverOrderError;
 
 export default orderSlice.reducer;

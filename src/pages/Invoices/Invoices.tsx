@@ -7,6 +7,7 @@ import { AccordionProvider } from "../../components/Accordion/context";
 import Accordion from "../../components/Accordion/Accordion";
 import AccordionTitle from "../../components/Accordion/AccordionTitle";
 import AccordionContent from "../../components/Accordion/AccordionContent";
+import Button from "../../components/Button/Button";
 
 const Invoices = () => {
   const { pathname } = useLocation();
@@ -14,7 +15,7 @@ const Invoices = () => {
   return (
     <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
-      <div className="flex flex-col flex-1 overflow-auto gap-large bg-greyScale-lighter scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large ">
+      <div className="flex flex-col flex-1 overflow-auto gap-large bg-greyScale-lighter scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter py-large px-xx-large ">
         {data.map((invoice) => {
           return (
             <AccordionProvider>
@@ -31,6 +32,15 @@ const Invoices = () => {
                 <AccordionContent>
                   {/* content */}
                   <div className="flex flex-col text-large text-greyScale-light gap-medium">
+                    <div className="flex justify-end ">
+                      <Button
+                        text="دفعة جديدة"
+                        variant="base-blue"
+                        disabled={false}
+                        size={"lg"}
+                        // onClick={handleOpen}
+                      />
+                    </div>
                     {invoice.bills.map((bill) => {
                       const invoiceDate = `${getMonth(
                         bill.payDate.getMonth() + 1
