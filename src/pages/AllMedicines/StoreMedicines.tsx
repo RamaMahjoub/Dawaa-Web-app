@@ -16,17 +16,22 @@ import {
 } from "../../redux/medicineSlice";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
 import { usePagination } from "../../hooks/usePagination";
-const Albuterol = require("./../../assets/medicines/Albuterol.jpg");
+import NoData from "../NoData/NoData";
+import Beat from "../../components/Loading/Beat";
+const NotFound = require("./../../assets/medicines/not-found.png");
 const StoreMedicines = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
-  const { pageIndex, pageSize, handlePgination }= usePagination(10);
+  const { pageIndex, pageSize, handlePgination } = usePagination(10);
   const [medicinetoStore, setMedicineToStore] = useState<any>({});
   const { open: openStore, handleOpen: handleOpenStore } = useOpenToggle();
-  const handleOpen = useCallback((medicine?: any) => {
-    setMedicineToStore(medicine);
-    handleOpenStore();
-  }, [handleOpenStore]);
+  const handleOpen = useCallback(
+    (medicine?: any) => {
+      setMedicineToStore(medicine);
+      handleOpenStore();
+    },
+    [handleOpenStore]
+  );
   const { open: openReturn, handleOpen: handleOpenReturn } = useOpenToggle();
 
   const dispatch = useAppDispatch();
@@ -43,33 +48,35 @@ const StoreMedicines = () => {
     );
   }, [dispatch, pageIndex, pageSize]);
   if (status === "loading") {
-    content = <div>loading...</div>;
+    content = <Beat />;
   } else if (status === "succeeded") {
     totalCount = data.totalRecords;
     content =
-      data.data.length > 0
-        ? data.data.map((row: any) => (
-            <MedicineCard
-              key={row.id}
-              name={row.name}
-              category={"any"}
-              photoAlt={row.name}
-              photoSrc={Albuterol}
-              subtitle={"any"}
-              action={
-                <Button
-                  variant="secondary-light"
-                  disabled={false}
-                  text="تخزين"
-                  size="med"
-                  onClick={() => handleOpen(row)}
-                />
-              }
-            />
-          ))
-        : "لا يوجد عناصر";
-  } else if (status === "idle") {
-    content = "لا يوجد عناصر";
+      data.data.length > 0 ? (
+        data.data.map((row: any) => (
+          <MedicineCard
+            key={row.id}
+            name={row.name}
+            category={row.medicineCategory}
+            photoAlt={row.name}
+            photoSrc={NotFound}
+            subtitle={row.medicineSupplier}
+            action={
+              <Button
+                variant="secondary-light"
+                disabled={false}
+                text="تخزين"
+                size="med"
+                onClick={() => handleOpen(row)}
+              />
+            }
+          />
+        ))
+      ) : (
+        <NoData />
+      );
+  } else if (status === "failed") {
+    content = <div>error..</div>;
   }
 
   return (
@@ -102,12 +109,16 @@ const StoreMedicines = () => {
           </div>
         </div>
       </div>
-      <StoreDialog
-        open={openStore}
-        medicine={medicinetoStore}
-        handleOpen={handleOpen}
-      />
-      <ReturnRequest open={openReturn} handleOpen={handleOpenReturn} />
+      {openStore && (
+        <StoreDialog
+          open={openStore}
+          medicine={medicinetoStore}
+          handleOpen={handleOpen}
+        />
+      )}
+      {openReturn && (
+        <ReturnRequest open={openReturn} handleOpen={handleOpenReturn} />
+      )}
     </>
   );
 };

@@ -16,13 +16,9 @@ import { useEffect, useState } from "react";
 import { routes } from "../../router/constant";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import {
-  login,
-  register,
-  selectNavigationStatus,
-  selectStatus,
-} from "../../redux/authSlice";
+import { login, register, selectRegisterStatus } from "../../redux/authSlice";
 import Loading from "../../components/Loading/Clip";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const { pathname } = useLocation();
@@ -37,15 +33,15 @@ const Register = () => {
     setShowConfirmPass((pre) => !pre);
   };
   const dispatch = useAppDispatch();
-  const navigationStatus = useAppSelector(selectNavigationStatus);
-  const status = useAppSelector(selectStatus);
+  const status = useAppSelector(selectRegisterStatus);
   let buttonContent;
 
   useEffect(() => {
-    if (navigationStatus === "register_succeeded") {
+    if (status === "succeeded") {
       navigate(`/${routes.REGISTER_DETAILS}`);
+      toast.success("تم إنشاء الحساب بنجاح");
     }
-  }, [navigationStatus, navigate]);
+  }, [status, navigate]);
 
   if (status === "loading") {
     buttonContent = <Loading />;
@@ -77,9 +73,9 @@ const Register = () => {
   );
 
   return (
-    <div className="w-screen h-screen bg-greyScale-lighter flex items-center justify-center">
-      <div className="bg-white py-large px-x-large flex flex-col gap-1 w-64 sm:w-96 rounded-med m-medium">
-        <p className="flex justify-center text-greyScale-main text-large my-medium font-semibold">
+    <div className="flex items-center justify-center w-screen h-screen bg-greyScale-lighter">
+      <div className="flex flex-col w-64 gap-1 bg-white py-large px-x-large sm:w-96 rounded-med m-medium">
+        <p className="flex justify-center font-semibold text-greyScale-main text-large my-medium">
           {title}
         </p>
         <form
@@ -167,7 +163,7 @@ const Register = () => {
             type="submit"
           />
         </form>
-        <p className="text-greyScale-main text-medium flex gap-xx-small justify-center items-center">
+        <p className="flex items-center justify-center text-greyScale-main text-medium gap-xx-small">
           لديك حساب بالفعل؟
           <a href={`${routes.LOGIN}`} className="text-primary-main text-medium">
             تسجيل الدخول

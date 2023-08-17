@@ -12,6 +12,8 @@ import {
   selectAllSuppliersStatus,
 } from "../../redux/supplierSlice";
 import SupplierCard from "./SupplierCard";
+import Beat from "../../components/Loading/Beat";
+import NoData from "../NoData/NoData";
 
 const Suppliers = () => {
   const { pathname } = useLocation();
@@ -24,16 +26,18 @@ const Suppliers = () => {
     dispatch(getAllSuppliers());
   }, [dispatch]);
   if (status === "loading") {
-    content = <div>loading...</div>;
+    content = <Beat />;
   } else if (status === "succeeded") {
     content =
-      data.data.length > 0
-        ? data.data.map((row: any) => (
-            <SupplierCard supplierData={row} key={row.id} />
-          ))
-        : "لا يوجد عناصر";
+      data.data.length > 0 ? (
+        data.data.map((row: any) => (
+          <SupplierCard supplierData={row} key={row.id} />
+        ))
+      ) : (
+        <NoData />
+      );
   } else if (status === "idle") {
-    content = "لا يوجد عناصر";
+    content = <NoData />;
   }
   return (
     <div className="flex flex-col h-screen">

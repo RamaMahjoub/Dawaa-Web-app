@@ -8,28 +8,25 @@ import { useFormSubmit } from "../../hooks/useFormSubmit";
 import { registerDetailsValidationSchema } from "../../validations/registerDetails.validation";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import {
-  completeInfo,
-  selectNavigationStatus,
-  selectStatus,
-} from "../../redux/authSlice";
+import { completeInfo, selectCompleteInfoStatus } from "../../redux/authSlice";
 import Loading from "../../components/Loading/Clip";
 import { routes } from "../../router/constant";
+import { toast } from "react-toastify";
 
 const RegisterDetails = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const navigationStatus = useAppSelector(selectNavigationStatus);
-  const status = useAppSelector(selectStatus);
+  const status = useAppSelector(selectCompleteInfoStatus);
   let buttonContent;
 
   useEffect(() => {
-    if (navigationStatus === "completeInfo_succeeded") {
+    if (status === "succeeded") {
       navigate(`/${routes.REGISTERION_PENDING}`);
+      toast.success("تم إرسال المعلومات إلى مشرف النظام بنجاح");
     }
-  }, [navigationStatus, navigate]);
+  }, [status, navigate]);
 
   if (status === "loading") {
     buttonContent = <Loading />;
@@ -56,12 +53,12 @@ const RegisterDetails = () => {
     registerDetailsValidationSchema
   );
   return (
-    <div className="w-screen h-screen bg-greyScale-lighter flex items-center justify-center">
-      <div className="bg-white py-large px-x-large flex flex-col gap-1 w-64 sm:w-96 rounded-med m-medium">
-        <p className="flex justify-center text-greyScale-main text-large my-medium font-semibold">
+    <div className="flex items-center justify-center w-screen h-screen bg-greyScale-lighter">
+      <div className="flex flex-col w-64 gap-1 bg-white py-large px-x-large sm:w-96 rounded-med m-medium">
+        <p className="flex justify-center font-semibold text-greyScale-main text-large my-medium">
           {title}
         </p>
-        <p className="text-greyScale-main text-small  mb-medium flex justify-center">
+        <p className="flex justify-center text-greyScale-main text-small mb-medium">
           سيتم مراجعة المعلومات التي تقدمها من قبل فريقنا المختص وسيتم الموافقة
           على اشتراكك بعد التحقق من صحة واكتمال المعلومات المقدمة.
         </p>

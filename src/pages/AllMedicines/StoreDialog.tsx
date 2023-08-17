@@ -13,9 +13,10 @@ import {
   selectAllStoresData,
   selectAllStoresStatus,
 } from "../../redux/storeSlice";
-import { SubRequest } from "../../Schema/request/storeInInventory";
+import Beat from "../../components/Loading/Beat";
+import NoData from "../NoData/NoData";
+import { v4 as uuidv4 } from "uuid";
 import { storeInInventory } from "../../redux/medicineSlice";
-import { BeatLoader } from "react-spinners";
 
 interface Props {
   open: boolean;
@@ -26,71 +27,100 @@ interface Props {
 const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectAllStoresData);
+
   let content: any;
   const status = useAppSelector(selectAllStoresStatus);
-  const [elements, setUiElements] = useState<SubRequest[]>([]);
+  const [elements, setUiElements] = useState<Array<{ [key: string]: any }>>([]);
   const addUiElement = () => {
-    setUiElements((prevElements: any) => [
+    const isValid =
+      Object.keys(elements).length > 0
+        ? Object.keys(elements).every((key: any) => {
+            const element = elements[key];
+            if (element.batchId === null || element.inventoryId === null)
+              return false;
+            return true;
+          })
+        : true;
+    if (isValid) {
+      const uniqueKey = uuidv4();
+      setUiElements((prevElements) => ({
+        ...prevElements,
+        [uniqueKey]: {
+          inventoryId: null,
+          batchId: null,
+          quantity: 1,
+          max: undefined,
+        },
+      }));
+    }
+  };
+
+  const handleCaptureInventory = (key: string, inventoryId: number) => {
+    setUiElements((prevElements: any) => ({
       ...prevElements,
-      {
-        inventoryId: null,
-        batchId: null,
-        quantity: 1,
-        max: undefined,
+      [key]: {
+        ...prevElements[key],
+        inventoryId,
       },
-    ]);
+    }));
   };
-  const handleCaptureInventory = (index: number, inventoryId: number) => {
-    setUiElements((prevElements: any) => {
-      const updatedElements = [...prevElements];
-      updatedElements[index].inventoryId = inventoryId;
-      return updatedElements;
-    });
-  };
-  const handleCaptureBatch = (index: number, batchId: number, max: number) => {
-    setUiElements((prevElements: any) => {
-      const updatedElements = [...prevElements];
-      updatedElements[index].batchId = batchId;
-      updatedElements[index].max = max;
-      return updatedElements;
-    });
+  const handleCaptureBatch = (key: string, batchId: number, max: number) => {
+    setUiElements((prevElements: any) => ({
+      ...prevElements,
+      [key]: {
+        ...prevElements[key],
+        batchId,
+        max,
+      },
+    }));
   };
 
-  const handleQuantityChange = (index: number, newQuantity: number) => {
-    setUiElements((prevElements: any) => {
-      const updatedElements = [...prevElements];
-      updatedElements[index].quantity = newQuantity;
-
-      return updatedElements;
-    });
+  const handleQuantityChange = (key: string, newQuantity: number) => {
+    setUiElements((prevElements: any) => ({
+      ...prevElements,
+      [key]: {
+        ...prevElements[key],
+        quantity: newQuantity,
+      },
+    }));
   };
   useEffect(() => {
     dispatch(getAllStores());
   }, [dispatch]);
+
   if (status === "loading") {
-    content = (
-      <BeatLoader
-        color={"#94A3B8"}
-        size={5}
-        aria-label="Loading Spinner"
-        data-testid="loader"
-      />
-    );
+    content = <Beat />;
   } else if (status === "succeeded") {
-    content =
-      data.data.length > 0
-        ? data.data.map((store: any, index: number) => (
-            <DropdownItem
-              key={store.id}
-              title={store.name}
-              handleSelectValue={() => handleCaptureInventory(index, store.id)}
-            />
-          ))
-        : "لا يوجد عناصر";
-  } else if (status === "idle") {
-    content = "لا يوجد عناصر";
+    content = <NoData />;
+  } else if (status === "failed") {
+    content = <div>error..</div>;
   }
 
+  const handleSendRequest = () => {
+    const requests = Object.keys(elements).map((key: any) => {
+      const body = {
+        batch: {
+          batchId: elements[key].batchId,
+          quantity: elements[key].quantity,
+        },
+      };
+      return dispatch(storeInInventory({ id: elements[key].inventoryId, body }))
+        .then((response) => ({ success: true, response })) // Resolve with success status and response
+        .catch((error) => ({ success: false, error })); // Reject with failure status and error
+    });
+
+    Promise.all(requests)
+      .then((results) => {
+        const allSucceeded = results.every((result) => result.success);
+        if (allSucceeded) {
+          console.log("All requests succeeded");
+        } else {
+          console.log("Some requests failed");
+          // You can also inspect results array for individual responses or errors
+        }
+      })
+      .catch(() => console.log("Error while processing requests"));
+  };
   return (
     <>
       {open && (
@@ -111,41 +141,59 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
                 />
               </div>
               <div className="flex flex-col w-full divide-y">
-                {elements.map((element: any, index: number) => (
-                  <span key={index} className="flex flex-col gap-2 py-x-small">
-                    <DropdownProvider title="المخزن">
-                      <Dropdown>
-                        <DropdownMenu>{content}</DropdownMenu>
-                      </Dropdown>
-                    </DropdownProvider>
-                    <DropdownProvider title="اختيار الدفعة">
-                      <Dropdown>
-                        <DropdownMenu>
-                          {medicine.batches.map((batch: any) => (
-                            <DropdownItem
-                              key={batch.id}
-                              title={batch.id}
-                              handleSelectValue={() =>
-                                handleCaptureBatch(
-                                  index,
-                                  batch.id,
-                                  batch.quantity
-                                )
-                              }
-                            />
-                          ))}
-                        </DropdownMenu>
-                      </Dropdown>
-                    </DropdownProvider>
-                    <Counter
-                      quantity={element.quantity}
-                      onChange={(newQuantity) =>
-                        handleQuantityChange(index, newQuantity)
-                      }
-                      max={element?.max}
-                    />
-                  </span>
-                ))}
+                {Object.keys(elements).map((key: any) => {
+                  const element = elements[key];
+                  return (
+                    <span
+                      key={`${key}${key}`}
+                      className="flex flex-col gap-2 py-x-small"
+                    >
+                      <DropdownProvider title="المخزن">
+                        <Dropdown error={element.inventoryId === null}>
+                          <DropdownMenu>
+                            {status === "succeeded" && data.data.length > 0
+                              ? data.data.map((store: any) => (
+                                  <DropdownItem
+                                    key={`${store.id}${key}`}
+                                    title={store.name}
+                                    handleSelectValue={() =>
+                                      handleCaptureInventory(key, store.id)
+                                    }
+                                  />
+                                ))
+                              : content}
+                          </DropdownMenu>
+                        </Dropdown>
+                      </DropdownProvider>
+                      <DropdownProvider title="اختيار الدفعة">
+                        <Dropdown error={element.batchId === null}>
+                          <DropdownMenu>
+                            {medicine.batches.map((batch: any) => (
+                              <DropdownItem
+                                key={key}
+                                title={batch.id}
+                                handleSelectValue={() =>
+                                  handleCaptureBatch(
+                                    key,
+                                    batch.id,
+                                    batch.quantity
+                                  )
+                                }
+                              />
+                            ))}
+                          </DropdownMenu>
+                        </Dropdown>
+                      </DropdownProvider>
+                      <Counter
+                        quantity={element.quantity}
+                        onChange={(newQuantity) =>
+                          handleQuantityChange(key, newQuantity)
+                        }
+                        max={element?.max}
+                      />
+                    </span>
+                  );
+                })}
               </div>
             </div>
             <div className="flex justify-center p-medium">
@@ -154,7 +202,7 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
                 variant="base-blue"
                 disabled={false}
                 size="lg"
-                onClick={() => dispatch(storeInInventory(elements))}
+                onClick={handleSendRequest}
               />
             </div>
           </div>

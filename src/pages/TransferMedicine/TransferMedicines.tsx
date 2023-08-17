@@ -2,31 +2,160 @@
 import { useLocation } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
 import Button from "../../components/Button/Button";
-import { rows } from "../../Schema/response/Store.schema";
 import DropdownItem from "../../components/Dropdown/DropdownItem";
 import DropdownMenu from "../../components/Dropdown/DropdownMenu";
 import Dropdown from "../../components/Dropdown/Dropdown";
 import { DropdownProvider } from "../../components/Dropdown/context";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { storesMedicinesData } from "../../Schema/response/medicineInStore.schema";
 import { findMedicine } from "../../Schema/response/medicine.schema";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import Counter from "../../components/Counter/Counter";
 import { XSquareFill } from "react-bootstrap-icons";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
-
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  getAllStores,
+  selectAllStoresData,
+  selectAllStoresStatus,
+} from "../../redux/storeSlice";
+import NoData from "../NoData/NoData";
+import Beat from "../../components/Loading/Beat";
+const ids = [
+  { id: 1, expireDate: "12-3-2001", max: 52 },
+  { id: 2, expireDate: "12-3-2001", max: 51 },
+  { id: 3, expireDate: "12-3-2001", max: 50 },
+  { id: 4, expireDate: "12-3-2001", max: 15 },
+  { id: 5, expireDate: "12-3-2001", max: 85 },
+];
+interface Req {
+  fromInventory: number | undefined;
+  toInventory: number | undefined;
+  batches: { batchId: number | undefined; quantity: number }[];
+}
 const TransferMedicines = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const { open, handleOpen } = useOpenToggle();
-  const [selected, setSelected] = useState<Array<string>>([]);
-  const handleSelect = (medicineId: string) => {
-    if (selected.includes(medicineId)) {
-      const updatedItems = selected.filter((i) => i !== medicineId);
-      setSelected(updatedItems);
+  const [toInventory, setToInventory] = useState<any>();
+  const [fromInventory, setFromInventory] = useState<any>();
+
+  const dispatch = useAppDispatch();
+  const invintories = useAppSelector(selectAllStoresData);
+  let request: Req = useMemo(
+    () => ({
+      fromInventory: undefined,
+      toInventory: undefined,
+      batches: [],
+    }),
+    []
+  );
+
+  const handleCaptureFromInventory = (id: number) => {
+    request.fromInventory = id;
+    let updated = toInventory.filter((inventory: any) => inventory.id !== id);
+
+    setToInventory(updated);
+  };
+
+  const handleCaptureToInventory = (id: number) => {
+    request.toInventory = id;
+    let updated = fromInventory.filter((inventory: any) => inventory.id !== id);
+
+    setFromInventory(updated);
+  };
+  const status = useAppSelector(selectAllStoresStatus);
+  useEffect(() => {
+    dispatch(getAllStores());
+  }, [dispatch]);
+  useEffect(() => {
+    if (status === "succeeded") {
+      setFromInventory(invintories.data);
+      setToInventory(invintories.data);
+    }
+  }, [status, invintories]);
+  let from, to;
+  if (status === "loading") {
+    from = <Beat />;
+    to = <Beat />;
+  } else if (status === "failed") {
+    from = <div>error...</div>;
+    to = <div>error...</div>;
+  } else if (status === "succeeded") {
+    if (fromInventory?.length === 0) {
+      from = <NoData />;
+      to = <NoData />;
     } else {
-      const updatedItems = [...selected, medicineId];
-      setSelected(updatedItems);
+      from = fromInventory?.map((inventory: any) => (
+        <DropdownItem
+          key={inventory.id}
+          title={inventory.name}
+          handleSelectValue={() => handleCaptureFromInventory(inventory.id)}
+        />
+      ));
+      to = toInventory?.map((inventory: any) => (
+        <DropdownItem
+          key={inventory.id}
+          title={inventory.name}
+          handleSelectValue={() => handleCaptureToInventory(inventory.id)}
+        />
+      ));
+    }
+  }
+  const [elements, setUiElements] = useState<any>([]);
+
+  const medicineSelected = (index: number) => {
+    return elements.some((element: any) => index === element.medicineId);
+  };
+
+  const actionElement = (index: number) => {
+    if (!medicineSelected(index))
+      setUiElements((prevElements: any) => [
+        ...prevElements,
+        {
+          medicineId: index,
+          batchId: null,
+          quantity: 1,
+          max: undefined,
+        },
+      ]);
+    else {
+      const updatedItems = elements.filter((i: any) => i.medicineId !== index);
+      setUiElements(updatedItems);
+    }
+  };
+  const handleCaptureBatch = (index: number, batchId: number, max: number) => {
+    setUiElements((prevElements: any) => {
+      const updatedElements = [...prevElements];
+      updatedElements[index].batchId = batchId;
+      updatedElements[index].max = max;
+      return updatedElements;
+    });
+  };
+
+  const handleQuantityChange = (index: number, newQuantity: number) => {
+    setUiElements((prevElements: any) => {
+      const updatedElements = [...prevElements];
+      updatedElements[index].quantity = newQuantity;
+
+      return updatedElements;
+    });
+  };
+
+  const handleSendRequest = () => {
+    if (
+      elements.length > 0 &&
+      request.fromInventory !== undefined &&
+      request.toInventory !== undefined
+    ) {
+      request.batches = elements.map((element: any) => {
+        return {
+          batchId: element.batchId,
+          quantity: element.quantity,
+        };
+      });
+      console.log(request);
     }
   };
   return (
@@ -41,20 +170,12 @@ const TransferMedicines = () => {
         >
           <DropdownProvider title="من المخزن">
             <Dropdown>
-              <DropdownMenu>
-                {rows.map((store) => (
-                  <DropdownItem key={store.id} title={store.name} />
-                ))}
-              </DropdownMenu>
+              <DropdownMenu>{from}</DropdownMenu>
             </Dropdown>
           </DropdownProvider>
           <DropdownProvider title="إلى المخزن">
             <Dropdown>
-              <DropdownMenu>
-                {rows.map((store) => (
-                  <DropdownItem key={store.id} title={store.name} />
-                ))}
-              </DropdownMenu>
+              <DropdownMenu>{to}</DropdownMenu>
             </Dropdown>
           </DropdownProvider>
           <Button
@@ -70,6 +191,7 @@ const TransferMedicines = () => {
               disabled={false}
               text="إرسال"
               size="lg"
+              onClick={handleSendRequest}
             />
           </div>
         </form>
@@ -85,23 +207,51 @@ const TransferMedicines = () => {
               />
             </p>
             <div className="flex flex-col flex-1 overflow-auto gap-small px-medium scrollbar-thin">
-              {storesMedicinesData.map((med) => {
+              {storesMedicinesData.map((med, index: number) => {
                 const medicine = findMedicine(med.medicineId);
                 return (
-                  <MedicineCard
-                    key={med.id}
-                    name={medicine.name}
-                    photoAlt={medicine.name}
-                    photoSrc={medicine.photo}
-                    action={
-                      selected.includes(med.id) && (
-                        <Counter max={med.quantity} />
-                      )
-                    }
-                    inactive={selected.includes(med.id) ? false : true}
-                    className="cursor-pointer"
-                    onClick={() => handleSelect(med.id)}
-                  />
+                  <div>
+                    <MedicineCard
+                      key={med.id}
+                      name={medicine.name}
+                      photoAlt={medicine.name}
+                      photoSrc={medicine.photo}
+                      action={
+                        medicineSelected(index) && (
+                          <Counter
+                            quantity={elements[index].quantity}
+                            max={elements[index]?.max}
+                            onChange={(newQuantity) =>
+                              handleQuantityChange(index, newQuantity)
+                            }
+                          />
+                        )
+                      }
+                      inactive={medicineSelected(index) ? false : true}
+                      className="cursor-pointer hover:bg-greyScale-lighter"
+                      onClick={() => actionElement(index)}
+                    />
+                    {medicineSelected(index) && (
+                      <div className="flex flex-col gap-medium">
+                        <DropdownProvider title="اختيار الدفعة">
+                          <Dropdown>
+                            <DropdownMenu>
+                              {ids.map((item) => (
+                                <DropdownItem
+                                  key={item.id}
+                                  title={item.id.toString()}
+                                  subTitle={item.expireDate}
+                                  handleSelectValue={() =>
+                                    handleCaptureBatch(index, item.id, item.max)
+                                  }
+                                />
+                              ))}
+                            </DropdownMenu>
+                          </Dropdown>
+                        </DropdownProvider>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>

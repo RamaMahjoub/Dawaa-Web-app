@@ -3,6 +3,7 @@ import { RootState } from "./store";
 import MedicineService from "../services/MedicineServices";
 import { SubRequest } from "../Schema/request/storeInInventory";
 import { ReturnMedicines } from "../Schema/request/returnMedicines";
+import { EditMedicineSchema } from "../Schema/request/editMedicine.schema";
 
 type AuthState = {
   warehouseOnlyMedicinesData: any;
@@ -11,6 +12,18 @@ type AuthState = {
   allMedicinesData: any;
   allMedicinesStatus: string;
   allMedicinesError: string | undefined;
+  medicinesToReturnData: any;
+  medicinesToReturnStatus: string;
+  medicinesToReturnError: undefined | string;
+  medicineDetailsData: any;
+  medicineDetailsStatus: string;
+  medicineDetailsError: string | undefined;
+  medicineDistributionsData: any;
+  medicineDistributionsStatus: string;
+  medicineDistributionsError: string | undefined;
+  editMedicineData: any;
+  editMedicineStatus: string;
+  editMedicineError: string | undefined;
   storeInInventoryData: any;
   storeInInventoryError: string | undefined;
   storeInInventoryStatus: string;
@@ -29,6 +42,18 @@ const initialState: AuthState = {
   allMedicinesData: {},
   allMedicinesStatus: "idle",
   allMedicinesError: undefined,
+  medicinesToReturnData: {},
+  medicinesToReturnStatus: "idle",
+  medicinesToReturnError: undefined,
+  medicineDetailsData: {},
+  medicineDetailsStatus: "idle",
+  medicineDetailsError: undefined,
+  medicineDistributionsData: {},
+  medicineDistributionsStatus: "idle",
+  medicineDistributionsError: undefined,
+  editMedicineData: {},
+  editMedicineStatus: "idle",
+  editMedicineError: undefined,
   storeInInventoryData: {},
   storeInInventoryError: undefined,
   storeInInventoryStatus: "idle",
@@ -44,6 +69,20 @@ export const findWarehouseOnlyMedicines = createAsyncThunk(
   "/medicine/warehouse/all",
   async (params: { page: string; limit: string }) => {
     const { page, limit } = params;
+    console.log("page", page, "limit", limit);
+    const response = await MedicineService.findWarehouseOnlyMedicines(
+      page,
+      limit
+    );
+    return response.data;
+  }
+);
+
+export const findMedicinesToReeturn = createAsyncThunk(
+  "/medicine/warehouse/all/return",
+  async (params: { page: string; limit: string }) => {
+    const { page, limit } = params;
+    console.log("page", page, "limit", limit);
     const response = await MedicineService.findWarehouseOnlyMedicines(
       page,
       limit
@@ -60,20 +99,46 @@ export const findAllMedicines = createAsyncThunk(
     return response.data;
   }
 );
+export const findMedicineDetails = createAsyncThunk(
+  "/medicine/warehouse/:id",
+  async (params: { id: string }) => {
+    const { id } = params;
+    const response = await MedicineService.findMedicinDetails(id);
+    return response.data;
+  }
+);
+
+export const findMedicineDistributions = createAsyncThunk(
+  "/medicine/warehouse/get-inventory-distributions/:id",
+  async (params: { id: string }) => {
+    const { id } = params;
+    const response = await MedicineService.findMedicinDistributions(id);
+    return response.data;
+  }
+);
+
+export const editMedicine = createAsyncThunk(
+  "/medicine/warehouse/edit/:id",
+  async (params: { id: string; body: EditMedicineSchema }) => {
+    const { id, body } = params;
+    const response = await MedicineService.editMedicin(id, body);
+    return response.data;
+  }
+);
 
 export const storeInInventory = createAsyncThunk(
   "/medicine/warehouse/transfer-to-inventory",
-  async (body: SubRequest[]) => {
-    console.log("body", body);
-    // const response = await MedicineService.storeInInventory(body);
-    // return response.data;
+  async (params: { id: string; body: SubRequest }) => {
+    const { id, body } = params;
+    console.log(id, body);
+    const response = await MedicineService.storeInInventory(id, body);
+    return response.data;
   }
 );
 
 export const returnMedicines = createAsyncThunk(
   "/returnOrder/warehouse",
   async (body: ReturnMedicines) => {
-    console.log("body", body);
     const response = await MedicineService.returnMedicines(body);
     return response.data;
   }
@@ -125,6 +190,59 @@ export const medicineSlice = createSlice({
         state.allMedicinesStatus = "failed";
         state.allMedicinesError = action.error.message;
       })
+      .addCase(findMedicineDetails.pending, (state) => {
+        state.medicineDetailsStatus = "loading";
+      })
+      .addCase(
+        findMedicinesToReeturn.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.medicinesToReturnStatus = "succeeded";
+          state.medicinesToReturnData = action.payload;
+        }
+      )
+      .addCase(findMedicinesToReeturn.rejected, (state, action) => {
+        state.medicinesToReturnStatus = "failed";
+        state.medicineDistributionsError = action.error.message;
+      })
+      .addCase(findMedicinesToReeturn.pending, (state) => {
+        state.medicinesToReturnStatus = "loading";
+      })
+      .addCase(
+        findMedicineDetails.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.medicineDetailsStatus = "succeeded";
+          state.medicineDetailsData = action.payload;
+        }
+      )
+      .addCase(findMedicineDetails.rejected, (state, action) => {
+        state.medicineDetailsStatus = "failed";
+        state.medicineDetailsError = action.error.message;
+      })
+      .addCase(findMedicineDistributions.pending, (state) => {
+        state.medicineDistributionsStatus = "loading";
+      })
+      .addCase(
+        findMedicineDistributions.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.medicineDistributionsStatus = "succeeded";
+          state.medicineDistributionsData = action.payload;
+        }
+      )
+      .addCase(findMedicineDistributions.rejected, (state, action) => {
+        state.medicineDistributionsStatus = "failed";
+        state.medicineDistributionsError = action.error.message;
+      })
+      .addCase(editMedicine.pending, (state) => {
+        state.editMedicineStatus = "loading";
+      })
+      .addCase(editMedicine.fulfilled, (state, action: PayloadAction<any>) => {
+        state.editMedicineStatus = "succeeded";
+        state.editMedicineData = action.payload;
+      })
+      .addCase(editMedicine.rejected, (state, action) => {
+        state.editMedicineStatus = "failed";
+        state.editMedicineError = action.error.message;
+      })
       .addCase(storeInInventory.pending, (state) => {
         state.storeInInventoryStatus = "loading";
       })
@@ -133,6 +251,7 @@ export const medicineSlice = createSlice({
         (state, action: PayloadAction<any>) => {
           state.storeInInventoryStatus = "succeeded";
           state.storeInInventoryData = action.payload;
+          console.log("hiiiiii");
         }
       )
       .addCase(storeInInventory.rejected, (state, action) => {
@@ -177,6 +296,13 @@ export const selectWarehouseOnlyMedicinesData = (state: RootState) =>
 export const selectWarehouseOnlyMedicinesError = (state: RootState) =>
   state.medicine.warehouseOnlyMedicinesError;
 
+export const selectMedicinesToReturnStatus = (state: RootState) =>
+  state.medicine.medicinesToReturnStatus;
+export const selectMedicinesToReturnData = (state: RootState) =>
+  state.medicine.medicinesToReturnData;
+export const selectMedicinesToReturnError = (state: RootState) =>
+  state.medicine.medicinesToReturnError;
+
 export const selectAllMedicinesStatus = (state: RootState) =>
   state.medicine.allMedicinesStatus;
 export const selectAllMedicinesData = (state: RootState) =>
@@ -204,5 +330,26 @@ export const selectAllSendedReturnMedicinesData = (state: RootState) =>
   state.medicine.allSendedReturnMedicinesData;
 export const selectAllSendedReturnMedicinesError = (state: RootState) =>
   state.medicine.allSendedReturnMedicinesError;
+
+export const selectMedicineDetailsStatus = (state: RootState) =>
+  state.medicine.medicineDetailsStatus;
+export const selectMedicineDetailsData = (state: RootState) =>
+  state.medicine.medicineDetailsData;
+export const selectMedicineDetailsError = (state: RootState) =>
+  state.medicine.medicineDetailsError;
+
+export const selectMedicineDistributionsStatus = (state: RootState) =>
+  state.medicine.medicineDistributionsStatus;
+export const selectMedicineDistributionsData = (state: RootState) =>
+  state.medicine.medicineDistributionsData;
+export const selectMedicineDistributionsError = (state: RootState) =>
+  state.medicine.medicineDistributionsError;
+
+export const selectEditMedicineStatus = (state: RootState) =>
+  state.medicine.editMedicineStatus;
+export const selectEditMedicineData = (state: RootState) =>
+  state.medicine.editMedicineData;
+export const selectEditMedicineError = (state: RootState) =>
+  state.medicine.editMedicineError;
 
 export default medicineSlice.reducer;

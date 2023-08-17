@@ -1,5 +1,3 @@
 export interface SubRequest {
-  inventoryId: number;
-  batchId: number;
-  quantity: number;
+  batch: { batchId: number; quantity: number };
 }

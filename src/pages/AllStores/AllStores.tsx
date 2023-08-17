@@ -19,6 +19,8 @@ import {
 } from "../../redux/storeSlice";
 import PendingDialog from "./AddStore/PendingDialog";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
+import NoData from "../NoData/NoData";
+import Beat from "../../components/Loading/Beat";
 
 const AllStores = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
@@ -43,16 +45,15 @@ const AllStores = () => {
     }
   }, [addStoreStatus, handleOpenAddStore, handleOpenPending]);
   if (status === "loading") {
-    content = <div>loading...</div>;
+    content = <Beat />;
   } else if (status === "succeeded") {
-    content =
-      data.data.length > 0
-        ? data.data.map((row: any, index: number) => (
-            <StoreCard storeData={row} index={index + 1} key={row.id} />
-          ))
-        : "لا يوجد عناصر";
-  } else if (status === "idle") {
-    content = "لا يوجد عناصر";
+    content = data.data ? (
+      data.data.map((row: any, index: number) => (
+        <StoreCard storeData={row} index={index + 1} key={row.id} />
+      ))
+    ) : (
+      <NoData />
+    );
   }
 
   return (
@@ -92,7 +93,9 @@ const AllStores = () => {
           {content}
         </div>
       </div>
-      <AddStore open={openAddStore} handleOpen={handleOpenAddStore} />
+      {openAddStore && (
+        <AddStore open={openAddStore} handleOpen={handleOpenAddStore} />
+      )}
       <PendingDialog open={openPending} handleOpen={handleOpenPending} />
     </>
   );

@@ -7,7 +7,7 @@ const findInventoriesReports = (page: string, limit: string) => {
 };
 
 const acceptInventoryReport = (id: string) => {
-  return protectedAxios.patch<any>(`/report-medicine/warehouse/accept/${id}`);
+  return protectedAxios.patch<any>(`report-medicine/warehouse/accept/${id}`);
 };
 
 const rejectInventoryReport = (id: string) => {

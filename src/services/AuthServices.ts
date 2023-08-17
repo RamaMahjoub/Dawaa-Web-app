@@ -11,6 +11,10 @@ const completeInfo = (body: RegisterDetailSchema) => {
   return protectedAxios.post<any>("/warehouse/create-warehouse", body);
 };
 
+const updateInfo = (body: Partial<RegisterDetailSchema>) => {
+  return protectedAxios.patch<any>("/warehouse", body);
+};
+
 const login = (body: LoginSchema) => {
   return http.post<any>("/auth/login-warehouse", body);
 };
@@ -19,11 +23,22 @@ const logout = () => {
   // return protectedAxios.post<any>("/warehouse/create-warehouse");
 };
 
+const isAccepted = () => {
+  return protectedAxios.post<any>("/user/is-accepted");
+};
+
+const getInfo = () => {
+  return protectedAxios.get<any>("/warehouse/get-info");
+};
+
 const AuthService = {
   register,
   completeInfo,
+  updateInfo,
   login,
-  logout
+  logout,
+  isAccepted,
+  getInfo,
 };
 
 export default AuthService;

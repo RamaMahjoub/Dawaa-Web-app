@@ -9,63 +9,89 @@ import AccordionContent from "../../components/Accordion/AccordionContent";
 import AccordionTitle from "../../components/Accordion/AccordionTitle";
 import { AccordionProvider } from "../../components/Accordion/context";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PaginationState } from "@tanstack/react-table";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { useAppSelector } from "../../hooks/useAppSelector";
 import {
   acceptInventoryReport,
   findInventoriesReports,
   rejectInventoryReport,
-  selectInventoriesReportsData,
-  selectInventoriesReportsStatus,
+  selectAcceptReportStatus,
+  selectRejectReportStatus,
 } from "../../redux/reportsSlice";
 import Beat from "../../components/Loading/Beat";
 import NoData from "../NoData/NoData";
+import { usePagination } from "../../hooks/usePagination";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { toast } from "react-toastify";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 const ReportAMedicine = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
-  const [{ pageIndex, pageSize }, setPageIndex] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 1,
-  });
+  const { pageIndex, pageSize, handlePgination } = usePagination(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const endRef = useRef<any>(null);
-
   const dispatch = useAppDispatch();
-  const data = useAppSelector(selectInventoriesReportsData);
   const [reports, setReports] = useState<any>([]);
-  const status = useAppSelector(selectInventoriesReportsStatus);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const acceptStatus = useAppSelector(selectAcceptReportStatus);
+  const rejectStatus = useAppSelector(selectRejectReportStatus);
   let content = useRef<any>(null);
+
+  useEffect(() => {
+    if (acceptStatus === "succeeded") {
+      setReports([]);
+      handlePgination(0);
+      setIsFetching(false);
+      setHasMore(true);
+      toast.success("تم قبول طلب الإبلاغ بنجاح");
+    }
+    if (rejectStatus === "succeeded") {
+      setReports([]);
+      handlePgination(0);
+      setIsFetching(false);
+      setHasMore(true);
+      toast.success("تم رفض طلب الإبلاغ");
+    }
+  }, [acceptStatus, rejectStatus, handlePgination]);
+
+  const fetchReports = useCallback(async () => {
+    try {
+      const response = await dispatch(
+        findInventoriesReports({
+          limit: String(pageSize),
+          page: String(pageIndex),
+        })
+      );
+
+      if (response.payload && response.payload.data.length > 0) {
+        setReports((prevMedicines: any) => [
+          ...prevMedicines,
+          ...response.payload.data,
+        ]);
+        handlePgination(pageIndex + 1);
+      } else {
+        setHasMore(false);
+        if (reports.length === 0) content.current = <NoData />;
+      }
+    } catch (error) {
+      content.current = <div>error...</div>;
+    } finally {
+      setIsFetching(false);
+    }
+  }, [reports, pageIndex, pageSize, handlePgination, dispatch]);
   const onIntersection = useCallback(
     (entries: any) => {
       const firstEntry = entries[0];
-      if (firstEntry.isIntersecting && hasMore) {
-        dispatch(
-          findInventoriesReports({
-            limit: String(pageSize),
-            page: String(pageIndex),
-          })
-        );
-        if (status === "succeeded")
-          if (data.data.length === 0) {
-            setHasMore(false);
-            if (reports.length === 0) content.current = <NoData />;
-          } else {
-            setReports((pre: any) => [...pre, ...data?.data]);
-            setPageIndex((pre) => ({ ...pre, pageIndex: pre.pageIndex + 1 }));
-          }
-        else if (status === "loading") {
-          content.current = <Beat />;
-        } else if (status === "failed") {
-          content.current = <div>error...</div>;
-        }
+      if (firstEntry.isIntersecting && hasMore && !isFetching) {
+        setIsFetching(true);
+
+        fetchReports();
       }
     },
-    [pageIndex, pageSize, hasMore, dispatch, status, data, reports]
+    [hasMore, isFetching, fetchReports]
   );
   useEffect(() => {
+    console.log("from effect");
     const observer = new IntersectionObserver(onIntersection);
     if (observer && endRef.current) {
       observer.observe(endRef.current);
@@ -74,13 +100,13 @@ const ReportAMedicine = () => {
     return () => {
       if (observer) observer.disconnect();
     };
-  }, [reports, onIntersection]);
+  }, [onIntersection]);
 
-  const handleAcceptReport = (id: string) => {
+  const handleAcceptReport = async (id: string) => {
     dispatch(acceptInventoryReport({ id }));
   };
 
-  const handleRejectReport = (id: string) => {
+  const handleRejectReport = async (id: string) => {
     dispatch(rejectInventoryReport({ id }));
   };
   return (
@@ -94,7 +120,7 @@ const ReportAMedicine = () => {
                 date.getMonth() + 1
               )} ${date.getFullYear()}، ${date.getDate()} `;
               return (
-                <AccordionProvider>
+                <AccordionProvider key={report.id}>
                   <Accordion>
                     <AccordionTitle>
                       <span className="flex items-center justify-between flex-1">
@@ -117,7 +143,7 @@ const ReportAMedicine = () => {
                         />
                         {report.reason}
                       </div>
-                      <div className="flex justify-end">
+                      <div className="flex justify-end gap-small">
                         <Button
                           text="قبول الطلب"
                           variant="base-blue"

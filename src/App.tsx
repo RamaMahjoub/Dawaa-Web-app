@@ -7,6 +7,7 @@ function App() {
   return (
     <div className="flex gap-5 font-Markazi">
       <Suspense fallback={<Beat />}>
+        
         <RouterProvider router={router} />
       </Suspense>
     </div>

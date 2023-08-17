@@ -30,10 +30,10 @@ const DropdownItem: FC<Props> = ({
   };
   const styles = useStyles();
   return (
-    <p css={styles.dropdownItem} {...rest} onClick={handleClick}>
+    <span css={styles.dropdownItem} {...rest} onClick={handleClick}>
       {title}
-      <p className="text-greyScale-light">{subTitle && subTitle}</p>
-    </p>
+      {subTitle && <p className="text-greyScale-light">{subTitle}</p>}
+    </span>
   );
 };
 

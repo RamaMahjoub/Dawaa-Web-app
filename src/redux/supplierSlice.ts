@@ -79,7 +79,10 @@ export const getSupplierMedicines = createAsyncThunk(
 );
 export const findBasketMedicine = createAsyncThunk(
   "supplier/addToBasket",
-  async (basketItem: Partial<Basket>, { dispatch }) => {
+  async (
+    basketItem: { medicineId: number; quantity: number },
+    { dispatch }
+  ) => {
     const existingItem = store
       .getState()
       .supplier.basket.find(
@@ -89,12 +92,12 @@ export const findBasketMedicine = createAsyncThunk(
     if (!existingItem) {
       try {
         const response = await SupplierService.findMedicine(
-          basketItem.medicineId!.toString()
+          basketItem.medicineId.toString()
         );
         dispatch(
           addToBasket({
-            medicineId: basketItem.medicineId!,
-            quantity: basketItem.quantity!,
+            medicineId: basketItem.medicineId,
+            quantity: basketItem.quantity,
             medicine: response.data,
           })
         );

@@ -6,46 +6,103 @@ import { BadgeStatus } from "../../components/Badge/TextBadge";
 import TextField from "../../components/TextField/TextField";
 import Button from "../../components/Button/Button";
 import Header, { HeaderTypes } from "../../components/Header/Header";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Logout from "./Logout/Logout";
 import { RegisterDetailSchema } from "../../Schema/request/registerDetails.schema";
 import { useFormSubmit } from "../../hooks/useFormSubmit";
 import { registerDetailsValidationSchema } from "../../validations/registerDetails.validation";
 import SendComplaint from "./SendComplaint";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import {
+  getInfo,
+  selectGetInfoData,
+  selectGetInfoStatus,
+  selectUpdateInfoStatus,
+  updateInfo,
+} from "../../redux/authSlice";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import PendingDialog from "../AllStores/AddStore/PendingDialog";
+import Loading from "../../components/Loading/Clip";
 
 const Settings = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const { open: openLogout, handleOpen: handleLogout } = useOpenToggle();
   const { open: openComplaint, handleOpen: handleComplaint } = useOpenToggle();
+  const { open: openPending, handleOpen: handleOpenPending } = useOpenToggle();
   const [hasInitialValuesChanged, setHasInitialValuesChanged] = useState(false);
-  const initialValues: RegisterDetailSchema = {
-    // ownerName: "غازي محجوب",
-    name: "محجوب",
-    location: "ميدان مجتهد",
-    // ownerPhone: "0930591740",
-    phoneNumber: "8820530",
+  const data = useAppSelector(selectGetInfoData);
+  const status = useAppSelector(selectGetInfoStatus);
+  const updateStatus = useAppSelector(selectUpdateInfoStatus);
+  const info = useMemo(
+    () => ({
+      name: "",
+      phoneNumber: "",
+      location: "",
+    }),
+    []
+  );
+  const handleSubmit = () => {
+    let request = {};
+    Object.keys(info).forEach((key) => {
+      if (data.data[key] !== formik.values[key]) {
+        request = { ...request, [key]: formik.values[key] };
+      }
+    });
+    dispatch(updateInfo(request));
   };
 
-  const handleSubmit = (values: RegisterDetailSchema) => {
-    alert(JSON.stringify(values, null, 2));
-  };
+  useEffect(() => {
+    if (updateStatus === "succeeded") {
+      formik.setValues({
+        name: data.data.name,
+        phoneNumber: data.data.phoneNumber,
+        location: data.data.location,
+      });
+      handleOpenPending();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateStatus, handleOpenPending]);
 
   const formik = useFormSubmit(
-    initialValues,
+    info,
     handleSubmit,
     registerDetailsValidationSchema
   );
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(getInfo());
+  }, [dispatch]);
+
+  let buttonContent;
+  if (updateStatus === "loading") {
+    buttonContent = <Loading />;
+  } else if (updateStatus === "succeeded") {
+    buttonContent = "حفظ التعديلات";
+  } else if (updateStatus === "idle") {
+    buttonContent = "حفظ التعديلات";
+  } else if (updateStatus === "failed") {
+    buttonContent = "حفظ التعديلات";
+  }
+  useEffect(() => {
+    if (status === "succeeded") {
+      formik.setValues({
+        name: data.data.name,
+        phoneNumber: data.data.phoneNumber,
+        location: data.data.location,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, data]);
 
   useEffect(() => {
-    const hasChanged = Object.keys(initialValues).some(
-      (key) =>
-        initialValues[key as keyof RegisterDetailSchema] !== formik.values[key]
+    const hasChanged = Object.keys(info).some(
+      (key) => info[key as keyof RegisterDetailSchema] !== formik.values[key]
     );
 
     setHasInitialValuesChanged(hasChanged);
-  }, [formik.values]);
+  }, [formik.values, info]);
   return (
     <>
       <div className="flex flex-col h-screen">
@@ -88,76 +145,49 @@ const Settings = () => {
               onSubmit={formik.handleSubmit}
             >
               <TextField
-                id="ownerName"
-                label="الاسم الكامل"
-                inputSize="x-large"
-                value={formik.getFieldProps("ownerName").value}
-                onChange={formik.getFieldProps("ownerName").onChange}
-                onBlur={formik.getFieldProps("ownerName").onBlur}
-                helperText={
-                  formik.touched.ownerName && Boolean(formik.errors.ownerName)
-                    ? String(formik.errors.ownerName)
-                    : ""
-                }
-              />
-              <TextField
-                id="warehouseName"
+                id="name"
                 label="اسم المستودع"
                 inputSize="x-large"
-                value={formik.getFieldProps("warehouseName").value}
-                onChange={formik.getFieldProps("warehouseName").onChange}
-                onBlur={formik.getFieldProps("warehouseName").onBlur}
+                value={formik.getFieldProps("name").value}
+                onChange={formik.getFieldProps("name").onChange}
+                onBlur={formik.getFieldProps("name").onBlur}
                 helperText={
-                  formik.touched.warehouseName &&
-                  Boolean(formik.errors.warehouseName)
-                    ? String(formik.errors.warehouseName)
+                  formik.touched.name && Boolean(formik.errors.name)
+                    ? String(formik.errors.name)
                     : ""
                 }
               />
               <TextField
-                id="address"
+                id="location"
                 label="العنوان التفصيلي"
                 inputSize="x-large"
-                value={formik.getFieldProps("address").value}
-                onChange={formik.getFieldProps("address").onChange}
-                onBlur={formik.getFieldProps("address").onBlur}
+                value={formik.getFieldProps("location").value}
+                onChange={formik.getFieldProps("location").onChange}
+                onBlur={formik.getFieldProps("location").onBlur}
                 helperText={
-                  formik.touched.address && Boolean(formik.errors.address)
-                    ? String(formik.errors.address)
+                  formik.touched.location && Boolean(formik.errors.location)
+                    ? String(formik.errors.location)
                     : ""
                 }
               />
               <TextField
-                id="ownerPhone"
-                label="رقم هاتفك"
-                inputSize="x-large"
-                value={formik.getFieldProps("ownerPhone").value}
-                onChange={formik.getFieldProps("ownerPhone").onChange}
-                onBlur={formik.getFieldProps("ownerPhone").onBlur}
-                helperText={
-                  formik.touched.ownerPhone && Boolean(formik.errors.ownerPhone)
-                    ? String(formik.errors.ownerPhone)
-                    : ""
-                }
-              />
-              <TextField
-                id="warehousePhone"
+                id="phoneNumber"
                 label="رقم هاتف المستودع"
                 inputSize="x-large"
-                value={formik.getFieldProps("warehousePhone").value}
-                onChange={formik.getFieldProps("warehousePhone").onChange}
-                onBlur={formik.getFieldProps("warehousePhone").onBlur}
+                value={formik.getFieldProps("phoneNumber").value}
+                onChange={formik.getFieldProps("phoneNumber").onChange}
+                onBlur={formik.getFieldProps("phoneNumber").onBlur}
                 helperText={
-                  formik.touched.warehousePhone &&
-                  Boolean(formik.errors.warehousePhone)
-                    ? String(formik.errors.warehousePhone)
+                  formik.touched.phoneNumber &&
+                  Boolean(formik.errors.phoneNumber)
+                    ? String(formik.errors.phoneNumber)
                     : ""
                 }
               />
               <Button
                 variant="base-blue"
                 disabled={!hasInitialValuesChanged}
-                text="حفظ التعديلات"
+                text={buttonContent}
                 size="xlg"
                 type="submit"
               />
@@ -167,6 +197,7 @@ const Settings = () => {
       </div>
       <Logout open={openLogout} handleOpen={handleLogout} />
       <SendComplaint open={openComplaint} handleOpen={handleComplaint} />
+      <PendingDialog open={openPending} handleOpen={handleOpenPending} />
     </>
   );
 };

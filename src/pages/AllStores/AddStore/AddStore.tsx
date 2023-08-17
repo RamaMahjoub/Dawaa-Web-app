@@ -19,6 +19,7 @@ import { registerStore, selectAddStoreStatus } from "../../../redux/storeSlice";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import Loading from "../../../components/Loading/Clip";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -52,6 +53,7 @@ const AddStore: FC<Props> = ({ open, handleOpen }) => {
   if (status === "loading") {
     buttonContent = <Loading />;
   } else if (status === "succeeded") {
+    toast.success("تم تسجيل الحساب بنجاح");
     buttonContent = "حفظ";
   } else if (status === "idle") {
     buttonContent = "حفظ";

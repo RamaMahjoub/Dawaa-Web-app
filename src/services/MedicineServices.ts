@@ -1,3 +1,4 @@
+import { EditMedicineSchema } from "../Schema/request/editMedicine.schema";
 import { ReturnMedicines } from "../Schema/request/returnMedicines";
 import { SubRequest } from "../Schema/request/storeInInventory";
 import { protectedAxios } from "./axios";
@@ -13,9 +14,23 @@ const findAllMedicines = (page: string, limit: string) => {
   );
 };
 
-const storeInInventory = (body: SubRequest[]) => {
+const findMedicinDetails = (id: string) => {
+  return protectedAxios.get<any>(`/medicine/warehouse/${id}`);
+};
+
+const findMedicinDistributions = (id: string) => {
+  return protectedAxios.get<any>(
+    `/medicine/warehouse/get-inventory-distributions/${id}`
+  );
+};
+
+const editMedicin = (id: string, body: EditMedicineSchema) => {
+  return protectedAxios.patch<any>(`/medicine/warehouse/${id}`, body);
+};
+
+const storeInInventory = (id: string, body: SubRequest) => {
   return protectedAxios.patch<any>(
-    `/medicine/warehouse/transfer-to-inventory`,
+    `/medicine/warehouse/transfer-to-inventory/${id}`,
     body
   );
 };
@@ -33,6 +48,9 @@ const findAllSendedReturnMedicines = (page: string, limit: string) => {
 const MedicineService = {
   findWarehouseOnlyMedicines,
   findAllMedicines,
+  findMedicinDetails,
+  findMedicinDistributions,
+  editMedicin,
   storeInInventory,
   findAllSendedReturnMedicines,
   returnMedicines,

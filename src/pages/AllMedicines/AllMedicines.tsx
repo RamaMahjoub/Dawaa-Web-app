@@ -45,9 +45,10 @@ const AllMedicines = () => {
     content.current = <Beat />;
   } else if (status === "succeeded") {
     data.data.length > 0 &&
-      data.data.map((row: any) => catigoriesList.push(row.category));
-    data.data.length > 0 &&
-      data.data.map((row: any) => catigoriesList.push(row.category));
+      data.data.map((row: any) => {
+        if (!catigoriesList.includes(row.category))
+          catigoriesList.push(row.category);
+      });
     content.current =
       data.data.length > 0 ? (
         data.data.map((row: any) => (
@@ -129,7 +130,7 @@ const AllMedicines = () => {
           </div>
           <CustomPagination
             page={pageIndex + 1}
-            count={data.totalRecords}
+            count={status === "succeeded" ? data.totalRecords : 0}
             onChange={handlePgination}
             pageSize={pageSize}
           />

@@ -14,13 +14,14 @@ const root = ReactDOM.createRoot(
 root.render(
   // <React.StrictMode>
   <Provider store={store}>
-    {/* <ToastContainer
-        transition={Flip}
-        autoClose={8000}
-        hideProgressBar={true}
-        theme="colored"
-        position={toast.POSITION.BOTTOM_CENTER}
-      /> */}
+    <ToastContainer
+      transition={Flip}
+      autoClose={500000}
+      hideProgressBar={true}
+      theme="colored"
+      position={toast.POSITION.BOTTOM_LEFT}
+      bodyClassName="font-Markazi"
+    />
     <App />
   </Provider>
   // </React.StrictMode>

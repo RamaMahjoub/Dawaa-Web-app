@@ -21,7 +21,7 @@ import { useOpenToggle } from "../../../hooks/useOpenToggle";
 import { usePagination } from "../../../hooks/usePagination";
 import NoData from "../../NoData/NoData";
 import Beat from "../../../components/Loading/Beat";
-const Albuterol = require("./../../../assets/medicines/Albuterol.jpg");
+const NotFound = require("./../../../assets/medicines/not-found.png");
 
 const SupplierDetails = () => {
   let catigoriesList = ["جميع الفئات"];
@@ -49,7 +49,10 @@ const SupplierDetails = () => {
     content = <Beat />;
   } else if (status === "succeeded") {
     data.data.length > 0 &&
-      data.data.map((row: any) => catigoriesList.push(row.category));
+      data.data.map((row: any) => {
+        if (!catigoriesList.includes(row.category))
+          catigoriesList.push(row.category);
+      });
     content =
       data.data.length > 0 ? (
         data.data.map((row: any) => (
@@ -59,7 +62,7 @@ const SupplierDetails = () => {
             category={row.category}
             photoAlt={row.name}
             //TODO: set the image from the response
-            photoSrc={Albuterol}
+            photoSrc={NotFound}
             subtitle={`${row.price} ل.س`}
             action={
               <Button
@@ -85,8 +88,8 @@ const SupplierDetails = () => {
     navigate(`/${routes.SUPPLIERS}/${supplierId}/${routes.SEND_ORDER}`);
   };
 
-  const handleAddToBasket = (medicineId: number) => {
-    dispatch(findBasketMedicine({ medicineId, quantity: 1 }));
+  const handleAddToBasket = async (medicineId: number) => {
+    await dispatch(findBasketMedicine({ medicineId, quantity: 1 }));
   };
   return (
     <>
@@ -132,8 +135,7 @@ const SupplierDetails = () => {
             <div className="flex flex-col items-center justify-between sm:flex-row">
               <CustomPagination
                 page={pageIndex + 1}
-                //TODO: set the count from the response
-                count={2}
+                count={status === "succeeded" ? data.totalRecords : 0}
                 onChange={handlePgination}
                 pageSize={pageSize}
               />
