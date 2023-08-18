@@ -14,6 +14,7 @@ import { EditMedicineSchema } from "../../../Schema/request/editMedicine.schema"
 import { useFormSubmit } from "../../../hooks/useFormSubmit";
 import { editMedicineValidationSchema } from "../../../validations/editMedicine.validation";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -36,6 +37,7 @@ const EditMedicine: FC<Props> = ({
     buttonContent = <Loading />;
   } else if (status === ResponseStatus.SUCCEEDED) {
     buttonContent = "حفظ";
+    toast.success("تم تعديل سعر الدواء بنجاح");
   } else if (status === ResponseStatus.IDLE) {
     buttonContent = "حفظ";
   } else if (status === ResponseStatus.FAILED) {

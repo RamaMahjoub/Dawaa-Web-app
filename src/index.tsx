@@ -14,6 +14,7 @@ const root = ReactDOM.createRoot(
 root.render(
   // <React.StrictMode>
   <Provider store={store}>
+    
     <ToastContainer
       transition={Flip}
       autoClose={500000}

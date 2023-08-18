@@ -59,7 +59,7 @@ const AllMedicines = () => {
             category={row.category}
             photoAlt={row.name}
             photoSrc={NotFound}
-            subtitle={row.price}
+            subtitle={`${row.price} ل.س`}
             action={
               <Button
                 variant="secondary-light"

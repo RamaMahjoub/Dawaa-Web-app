@@ -119,6 +119,7 @@ const PurchaseOrders = () => {
           );
         const date = new Date(order.date);
         return {
+          key: order.status,
           id: `#${order.id}`,
           date: `${getMonth(
             date.getMonth() + 1
@@ -228,10 +229,7 @@ const PurchaseOrders = () => {
       <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin">
         <div className="flex flex-col w-full h-full bg-white p-large max-h-fit rounded-small">
           <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
-            <table
-              style={{ minWidth: "max-content" }}
-              className="w-full h-full"
-            >
+            <table className="w-full min-w-max">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr
@@ -259,9 +257,10 @@ const PurchaseOrders = () => {
                   </tr>
                 ))}
               </thead>
-              <tbody className="">
+              <tbody>
                 {table.getRowModel().rows.length > 0 ? (
                   table.getRowModel().rows.map((row) => {
+                    console.log(row.original);
                     return (
                       <tr
                         className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"

@@ -4,7 +4,11 @@ import { Suspense } from "react";
 import Beat from "./components/Loading/Beat";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme } from "@mui/material";
+import TokenExpired from "./components/TokenExpired";
+import { useAppSelector } from "./hooks/useAppSelector";
+import { isSessionExpired } from "./redux/authSlice";
 function App() {
+  const showSessionExpired = useAppSelector(isSessionExpired);
   const theme = createTheme({
     direction: "rtl",
   });
@@ -14,6 +18,7 @@ function App() {
         <Suspense fallback={<Beat />}>
           <RouterProvider router={router} />
         </Suspense>
+        {showSessionExpired && <TokenExpired />}
       </ThemeProvider>
     </div>
   );

@@ -8,6 +8,7 @@ import { clearStoredUser, setStoredUser } from "../utils/user-storage";
 import { ResponseStatus } from "../enums/ResponseStatus";
 
 type AuthState = {
+  sessionExpired: boolean;
   getInfoStatus: string;
   getInfoError: undefined | string;
   getInfoData: any;
@@ -32,6 +33,7 @@ type AuthState = {
 };
 
 const initialState: AuthState = {
+  sessionExpired: false,
   getInfoStatus: ResponseStatus.IDLE,
   getInfoError: undefined,
   getInfoData: null,
@@ -104,7 +106,11 @@ export const getInfo = createAsyncThunk("warehouse/get-info", async () => {
 export const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setSessionExpired: (state) => {
+      state.sessionExpired = true;
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(register.pending, (state) => {
@@ -188,6 +194,8 @@ export const authSlice = createSlice({
       });
   },
 });
+
+export const isSessionExpired = (state: RootState) => state.auth.sessionExpired;
 export const selectGetInfoStatus = (state: RootState) =>
   state.auth.getInfoStatus;
 export const selectGetInfoData = (state: RootState) => state.auth.getInfoData;
@@ -228,4 +236,5 @@ export const selectIsAcceptedData = (state: RootState) =>
 export const selectIsAcceptedError = (state: RootState) =>
   state.auth.isAcceptedError;
 
+export const { setSessionExpired } = authSlice.actions;
 export default authSlice.reducer;

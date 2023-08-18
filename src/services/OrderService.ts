@@ -15,7 +15,6 @@ const findSendedOrders = (page: string, limit: string) =>
 const findSendedOrderDetails = (id: string) =>
   protectedAxios.get<TableSchema[]>(`/order/warehouse/${id}`);
 
-//TODO
 const findReceivedOrders = (page: string, limit: string) =>
   protectedAxios.get<ReceivedTableSchema[]>(
     `/order/warehouse/pharmacies?limit=${limit}&page=${page}`
@@ -27,7 +26,7 @@ const findReceivedOrderDetails = (id: string) =>
   );
 
 const orderOverview = (id: string) =>
-  protectedAxios.get<any>(`/order/warehouse/${id}`);
+  protectedAxios.get<any>(`/order/warehouse/distribution/${id}`);
 
 const acceptOrder = (id: string) =>
   protectedAxios.patch<any>(`/order/warehouse/accept/${id}`);

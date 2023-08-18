@@ -7,7 +7,6 @@ import Button from "../../../components/Button/Button";
 import MedicineCard from "../../../components/MedicineCard/MedicineCard";
 import Header, { HeaderTypes } from "../../../components/Header/Header";
 import DestinationCard from "../../../components/DestinationCard/DestinationCard";
-
 import "react-datepicker/dist/react-datepicker.css";
 import IconButton from "../../../components/Button/IconButton";
 import OrderOverView from "./OrderOverView";
@@ -16,13 +15,19 @@ import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import {
+  acceptOrder,
+  deliverOrder,
   findReceivedOrderDetails,
+  selectAcceptOrderStatus,
+  selectDeliverOrderStatus,
   selectReceivedOrderDetailsData,
   selectReceivedOrderDetailsStatus,
 } from "../../../redux/orderSlice";
 import Beat from "../../../components/Loading/Beat";
+import Loading from "../../../components/Loading/Clip";
 import NoData from "../../NoData/NoData";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
+import { toast } from "react-toastify";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 const OrderDetails = () => {
   const { pathname } = useLocation();
@@ -34,6 +39,9 @@ const OrderDetails = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectReceivedOrderDetailsData);
   const status = useAppSelector(selectReceivedOrderDetailsStatus);
+  const acceptStatus = useAppSelector(selectAcceptOrderStatus);
+  const rejectStatus = useAppSelector(selectAcceptOrderStatus);
+  const delivertatus = useAppSelector(selectDeliverOrderStatus);
   useEffect(() => {
     dispatch(findReceivedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
@@ -66,12 +74,61 @@ const OrderDetails = () => {
       ));
     }
   }, [status, data]);
+  let acceptButtonContent: any,
+    rejectButtonContent: any,
+    deliverButtonContet: any;
+
   if (status === ResponseStatus.LOADING) {
     contentRef.current = <Beat />;
   } else if (status === ResponseStatus.IDLE) {
     contentRef.current = <NoData />;
   } else if (status === ResponseStatus.FAILED) {
     contentRef.current = <div>error...</div>;
+  }
+
+  const handleAccept = () => {
+    dispatch(acceptOrder({ id: orderId! }));
+  };
+
+  const handleReject = () => {
+    dispatch(acceptOrder({ id: orderId! }));
+  };
+
+  const handleDeliver = () => {
+    dispatch(deliverOrder({ id: orderId! }));
+  };
+
+  if (acceptStatus === ResponseStatus.LOADING) {
+    acceptButtonContent = <Loading />;
+  } else if (acceptStatus === ResponseStatus.SUCCEEDED) {
+    acceptButtonContent = "قبول الطلب";
+    toast.success("تم قبول الطلب بنجاح");
+  } else if (acceptStatus === ResponseStatus.IDLE) {
+    acceptButtonContent = "قبول الطلب";
+  } else if (acceptStatus === ResponseStatus.FAILED) {
+    acceptButtonContent = "قبول الطلب";
+  }
+
+  if (delivertatus === ResponseStatus.LOADING) {
+    deliverButtonContet = <Loading />;
+  } else if (delivertatus === ResponseStatus.SUCCEEDED) {
+    deliverButtonContet = "تم التسليم";
+    toast.success("تم تسليم الطلب بنجاح");
+  } else if (delivertatus === ResponseStatus.IDLE) {
+    deliverButtonContet = "تم التسليم";
+  } else if (delivertatus === ResponseStatus.FAILED) {
+    deliverButtonContet = "تم التسليم";
+  }
+
+  if (rejectStatus === ResponseStatus.LOADING) {
+    rejectButtonContent = <Loading />;
+  } else if (rejectStatus === ResponseStatus.SUCCEEDED) {
+    rejectButtonContent = "رفض الطلب";
+    toast.success("تم رفض الطلب بنجاح");
+  } else if (rejectStatus === ResponseStatus.IDLE) {
+    rejectButtonContent = "رفض الطلب";
+  } else if (rejectStatus === ResponseStatus.FAILED) {
+    rejectButtonContent = "رفض الطلب";
   }
 
   return (
@@ -96,28 +153,31 @@ const OrderDetails = () => {
           </span>
           <div className="flex gap-small">
             <Button
-              text="تم التسليم"
+              text={deliverButtonContet}
               variant="green"
               disabled={false}
               size="med"
               className="min-w-max"
               style={{ flex: "1" }}
+              onClick={handleDeliver}
             />
             <Button
-              text="قبول الطلب"
+              text={acceptButtonContent}
               variant="secondary-light"
               disabled={false}
               size="med"
               className="min-w-max"
               style={{ flex: "1" }}
+              onClick={handleAccept}
             />
             <Button
-              text="رفض الطلب"
+              text={rejectButtonContent}
               variant="red"
               disabled={false}
               size="med"
               className="min-w-max"
               style={{ flex: "1" }}
+              onClick={handleReject}
             />
           </div>
         </div>
@@ -156,7 +216,7 @@ const OrderDetails = () => {
           </div>
         </div>
       </div>
-      <OrderOverView open={open} handleOpen={handleOpen} />
+      <OrderOverView open={open} handleOpen={handleOpen} orderId={orderId!} />
     </>
   );
 };

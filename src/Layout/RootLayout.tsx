@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar";
 
 const RootLayout: FC = () => {
   return (
-    <div className="flex gap-1 w-screen">
+    <div className="flex w-screen gap-1">
       <Sidebar />
       <main className="flex-1" style={{width: "calc(100% - 260px)"}}>
         <Outlet />

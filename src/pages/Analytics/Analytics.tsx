@@ -20,6 +20,36 @@ const schema: Array<{ name: string; orderId: string; amount: number }> = [
     orderId: "ID123121",
     amount: 230000,
   },
+  {
+    name: "صيدلية القاسم",
+    orderId: "ID123120",
+    amount: 160000,
+  },
+  {
+    name: "صيدلية المنصور",
+    orderId: "ID123121",
+    amount: 230000,
+  },
+  {
+    name: "صيدلية القاسم",
+    orderId: "ID123120",
+    amount: 160000,
+  },
+  {
+    name: "صيدلية المنصور",
+    orderId: "ID123121",
+    amount: 230000,
+  },
+  {
+    name: "صيدلية القاسم",
+    orderId: "ID123120",
+    amount: 160000,
+  },
+  {
+    name: "صيدلية المنصور",
+    orderId: "ID123121",
+    amount: 230000,
+  },
 ];
 const Analytics = () => {
   const { pathname } = useLocation();

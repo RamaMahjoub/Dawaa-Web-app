@@ -8,6 +8,7 @@ import RootLayout from "../Layout/RootLayout";
 import { lazy } from "react";
 import OutgoingReturnOrders from "../pages/OutgoingOrders/OutgoingReturnOrders/OutgoingReturnOrders";
 import OutgoingLayout from "../pages/OutgoingOrders/OutgoingLayout";
+import AuthGuard from "./AuthGuard";
 
 const Login = lazy(() => import("../pages/Login/Login"));
 const Register = lazy(() => import("../pages/Register/Register"));
@@ -64,65 +65,104 @@ const AllStores = lazy(() => import("../pages/AllStores/AllStores"));
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route element={<RootLayout />}>
-        <Route path={routes.ALL_STORES} element={<AllStores />} />
+      <Route element={<AuthGuard element={<RootLayout />} />}>
+        <Route
+          path={routes.ALL_STORES}
+          element={<AuthGuard element={<AllStores />} />}
+        />
         <Route
           path={`${routes.ALL_STORES}/:storeId`}
-          element={<StoreDetails />}
+          element={<AuthGuard element={<StoreDetails />} />}
         />
         <Route
           path={routes.TRANSFER_MEDICINES}
-          element={<TransferMedicines />}
+          element={<AuthGuard element={<TransferMedicines />} />}
         />
-        <Route path={routes.ALL_MEDICINES} element={<AllMedicines />} />
-        <Route path={routes.STORE_MEDICINES} element={<StoreMedicines />} />
+        <Route
+          path={routes.ALL_MEDICINES}
+          element={<AuthGuard element={<AllMedicines />} />}
+        />
+        <Route
+          path={routes.STORE_MEDICINES}
+          element={<AuthGuard element={<StoreMedicines />} />}
+        />
         <Route
           path={`${routes.ALL_MEDICINES}/:medicineId`}
-          element={<MedicineDetails />}
+          element={<AuthGuard element={<MedicineDetails />} />}
         />
-        <Route path={routes.REPORT_MEDICINE} element={<ReportAMedicine />} />
-        <Route path={routes.SUPPLIERS} element={<Suppliers />} />
+        <Route
+          path={routes.REPORT_MEDICINE}
+          element={<AuthGuard element={<ReportAMedicine />} />}
+        />
+        <Route
+          path={routes.SUPPLIERS}
+          element={<AuthGuard element={<Suppliers />} />}
+        />
         <Route
           path={`${routes.SUPPLIERS}/:supplierId`}
-          element={<SupplierDetails />}
+          element={<AuthGuard element={<SupplierDetails />} />}
         />
         <Route
           path={`${routes.SUPPLIERS}/:supplierId/${routes.SEND_ORDER}`}
-          element={<SendOrder />}
+          element={<AuthGuard element={<SendOrder />} />}
         />
         <Route
           path={`${routes.PURCHASE_ORDERS}`}
-          element={<PurchaseOrders />}
+          element={<AuthGuard element={<PurchaseOrders />} />}
         />
-        <Route path={`${routes.RETURN_ORDERS}`} element={<ReturnOrders />} />
+        <Route
+          path={`${routes.RETURN_ORDERS}`}
+          element={<AuthGuard element={<ReturnOrders />} />}
+        />
         <Route
           path={`${routes.PURCHASE_ORDERS}/:orderId`}
-          element={<OrderDetails />}
+          element={<AuthGuard element={<OrderDetails />} />}
         />
         <Route element={<OutgoingLayout />}>
-          <Route path={routes.OUTGOING_ORDERS} element={<OutgoingOrders />} />
+          <Route
+            path={routes.OUTGOING_ORDERS}
+            element={<AuthGuard element={<OutgoingOrders />} />}
+          />
           <Route
             path={routes.OUTGOING_RETURN_ORDERS}
-            element={<OutgoingReturnOrders />}
+            element={<AuthGuard element={<OutgoingReturnOrders />} />}
           />
         </Route>
         <Route
           path={`${routes.OUTGOING_ORDERS}/:orderId`}
-          element={<OutgoingOrderDetails />}
+          element={<AuthGuard element={<OutgoingOrderDetails />} />}
         />
-        <Route path={routes.EXPRESS_ORDERS} element={<ExpressOrders />} />
-        <Route path={routes.INVOICES} element={<Invoices />} />
-        <Route path={routes.REPORTS} element={<Reports />} />
-        <Route path={routes.ANALYTICS} element={<Analytics />} />
-        <Route path={routes.SETTINGS} element={<Settings />} />
+        <Route
+          path={routes.EXPRESS_ORDERS}
+          element={<AuthGuard element={<ExpressOrders />} />}
+        />
+        <Route
+          path={routes.INVOICES}
+          element={<AuthGuard element={<Invoices />} />}
+        />
+        <Route
+          path={routes.REPORTS}
+          element={<AuthGuard element={<Reports />} />}
+        />
+        <Route
+          path={routes.ANALYTICS}
+          element={<AuthGuard element={<Analytics />} />}
+        />
+        <Route
+          path={routes.SETTINGS}
+          element={<AuthGuard element={<Settings />} />}
+        />
       </Route>
       <Route path={routes.REGISTER} element={<Register />} />
       <Route path={routes.CONFIRM} element={<ConfirmEmail />} />
       <Route
         path={routes.REGISTERION_PENDING}
-        element={<RegesterionPending />}
+        element={<AuthGuard element={<RegesterionPending />} />}
       />
-      <Route path={routes.REGISTER_DETAILS} element={<RegisterDetails />} />
+      <Route
+        path={routes.REGISTER_DETAILS}
+        element={<AuthGuard element={<RegisterDetails />} />}
+      />
       <Route path={routes.LOGIN} element={<Login />} />
       <Route path={routes.FORGOT_PASSWORD} element={<ForgotPassword />} />
       <Route path="*" element={<PageNotFound />} />
