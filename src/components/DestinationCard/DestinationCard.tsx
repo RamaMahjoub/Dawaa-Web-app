@@ -4,6 +4,7 @@ import { EnvelopeOpenFill, TelephoneFill } from "react-bootstrap-icons";
 import { BadgeStatus } from "../Badge/TextBadge";
 
 interface Props {
+  flag?: ReactNode;
   title: string;
   subTitle: string;
   date?: string;
@@ -14,6 +15,7 @@ interface Props {
   handleActive?: () => void;
 }
 const DestinationCard: FC<Props> = ({
+  flag,
   title,
   subTitle,
   email,
@@ -32,12 +34,13 @@ const DestinationCard: FC<Props> = ({
       } rounded-med`}
       onClick={handleActive && handleActive}
     >
+      {flag && <span className="flex items-center justify-end">{flag}</span>}
       <span className="flex items-center justify-between">
         <p className="text-x-large text-greyScale-main">{title}</p>
         {date && <p className="text-medium text-green-main">{date}</p>}
       </span>
-      <p className=" text-medium text-greyScale-light w-full">{subTitle}</p>
-      <span className=" flex items-center">
+      <p className="w-full text-medium text-greyScale-light">{subTitle}</p>
+      <span className="flex items-center ">
         <IconBadge icon={<EnvelopeOpenFill />} status={BadgeStatus.BASE} />
         <div className="m-small">
           <p className="text-greyScale-light text-small">الايميل</p>
@@ -52,7 +55,9 @@ const DestinationCard: FC<Props> = ({
         </div>
       </span>
       {!inactive && action && (
-        <span className="flex justify-end items-center gap-small">{action}</span>
+        <span className="flex items-center justify-end gap-small">
+          {action}
+        </span>
       )}
     </div>
   );

@@ -24,6 +24,12 @@ import { getMonth } from "../../../utils/Month";
 import Beat from "../../../components/Loading/Beat";
 import { usePagination } from "../../../hooks/usePagination";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
+import Menu, { MenuItem, SubMenu } from "../../../components/Menu/Menu";
+import { SubMenuProvider } from "../../../components/Menu/context";
+import { FunnelFill } from "react-bootstrap-icons";
+import IconButton from "../../../components/Button/IconButton";
+import { useOpenToggle } from "../../../hooks/useOpenToggle";
+import { useMediaQuery } from "react-responsive";
 
 const filterList: Array<Filter> = [
   { name: "طلبات الشراء", route: `/${routes.OUTGOING_ORDERS}` },
@@ -31,6 +37,8 @@ const filterList: Array<Filter> = [
 ];
 
 const OutgoingReturnOrders = () => {
+  const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
+  const { open, handleOpen } = useOpenToggle();
   const [filtered] = useState<string>(filterList[1].name);
   const { pageIndex, pageSize, pagination, handlePgination } =
     usePagination(10);
@@ -137,6 +145,35 @@ const OutgoingReturnOrders = () => {
               />
             </NavLink>
           ))}
+          <div>
+            {isMobile ? (
+              <IconButton
+                color="light-grey"
+                icon={<FunnelFill fontSize="small" />}
+                onClick={handleOpen}
+              />
+            ) : (
+              <Button
+                variant="light-grey"
+                disabled={false}
+                text="تصنيف"
+                start={true}
+                icon={<FunnelFill fontSize="small" />}
+                size="med"
+                onClick={handleOpen}
+              />
+            )}
+
+            <Menu divide={true} open={open}>
+              <SubMenuProvider>
+                <SubMenu title="الحالة">
+                  <MenuItem content="مرفوض" />
+                  <MenuItem content="مُعلق" />
+                  <MenuItem content="تم القبول" />
+                </SubMenu>
+              </SubMenuProvider>
+            </Menu>
+          </div>
         </div>
       </div>
       <div className="flex flex-1 overflow-auto bg-greyScale-lighter gap-large p-large scrollbar-thin">

@@ -4,24 +4,33 @@ import Button from "../../components/Button/Button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { routes } from "../../router/constant";
 import Header, { HeaderTypes } from "../../components/Header/Header";
-import { data, findReport } from "../../Schema/response/medicineReport.schema";
-
 import DestinationCard from "../../components/DestinationCard/DestinationCard";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
-import {
-  MedicineSchema,
-  findMedicine,
-} from "../../Schema/response/medicine.schema";
 import { getMonth } from "../../utils/Month";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import {
   acceptReturnOrders,
   findReceivedReturnOrders,
   rejectReturnOrders,
+  selectAcceptReturnOrdersStatus,
+  selectReceivedReturnOrdersStatus,
+  selectRejectReturnOrdersStatus,
 } from "../../redux/orderSlice";
 import { usePagination } from "../../hooks/usePagination";
 import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { ResponseStatus } from "../../enums/ResponseStatus";
+import Clip from "../../components/Loading/Clip";
+import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
+import { SubMenuProvider } from "../../components/Menu/context";
+import Menu, { MenuItem, SubMenu } from "../../components/Menu/Menu";
+import { FunnelFill } from "react-bootstrap-icons";
+import IconButton from "../../components/Button/IconButton";
+import { useMediaQuery } from "react-responsive";
+import { useOpenToggle } from "../../hooks/useOpenToggle";
+const NotFound = require("./../../assets/medicines/not-found.png");
+
 interface Filter {
   name: string;
   route: string;
@@ -32,6 +41,8 @@ const filterList: Array<Filter> = [
 ];
 
 const ReturnOrders = () => {
+  const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
+  const { open, handleOpen } = useOpenToggle();
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const [filtered, setFiltered] = useState<string>(filterList[1].name);
@@ -42,31 +53,58 @@ const ReturnOrders = () => {
     navigate(filter.route);
   };
 
+  const [orders, setOrders] = useState<any>([]);
   const [selectedReport, setselectedReport] = useState<{
     index: number;
-    reportId: string;
-    medicine: MedicineSchema;
+    medicine: any;
     reason: string;
-  }>({
-    index: 0,
-    reportId: data[0].id,
-    medicine: findMedicine(data[0].medicineId),
-    reason: data[0].reason,
-  });
-  // const handleSelectOrder = useCallback((index: number, reportId: string) => {
-  //   const report = findReport(reportId);
-  //   const medicine = findMedicine(report.medicineId);
-  //   setselectedReport({ index, reportId, medicine, reason: report.reason });
-  // }, []);
-  const { pageIndex, pageSize, pagination, handlePgination } =
-    usePagination(10);
+  }>();
+  const handleSelectOrder = (id: number, medicine: any, reason: string) => {
+    setselectedReport({
+      index: id,
+      medicine,
+      reason,
+    });
+  };
+  const { pageIndex, pageSize, handlePgination } = usePagination(1);
 
   const dispatch = useAppDispatch();
-  const [orders, setOrders] = useState<any>([]);
   const [hasMore, setHasMore] = useState<any>(true);
   const [isFetching, setIsFetching] = useState<any>(false);
   const endRef = useRef<any>(null);
   const content = useRef<any>(null);
+  const ordersStatus = useAppSelector(selectReceivedReturnOrdersStatus);
+  const acceptStatus = useAppSelector(selectAcceptReturnOrdersStatus);
+  const rejectStatus = useAppSelector(selectRejectReturnOrdersStatus);
+  let acceptButton: any, rejectButton: any;
+  if (acceptStatus === ResponseStatus.LOADING) {
+    acceptButton = <Clip />;
+  } else if (acceptStatus === ResponseStatus.SUCCEEDED) {
+    acceptButton = "قبول الطلب";
+  } else if (acceptStatus === ResponseStatus.FAILED) {
+    acceptButton = "قبول الطلب";
+  } else if (acceptStatus === ResponseStatus.IDLE) {
+    acceptButton = "قبول الطلب";
+  }
+  if (rejectStatus === ResponseStatus.LOADING) {
+    rejectButton = <Clip />;
+  } else if (rejectStatus === ResponseStatus.SUCCEEDED) {
+    rejectButton = "رفض الطلب";
+  } else if (rejectStatus === ResponseStatus.FAILED) {
+    rejectButton = "رفض الطلب";
+  } else if (rejectStatus === ResponseStatus.IDLE) {
+    rejectButton = "رفض الطلب";
+  }
+  useEffect(() => {
+    if (ordersStatus === ResponseStatus.SUCCEEDED) {
+      setselectedReport({
+        index: orders.length > 0 && orders[0].id,
+        medicine: orders.length > 0 && orders[0].medicine,
+        reason: orders.length > 0 && orders[0].reason,
+      });
+    }
+  }, [ordersStatus, orders]);
+  console.log(orders);
   const fetchReturnOrders = useCallback(async () => {
     try {
       const response = await dispatch(
@@ -138,74 +176,137 @@ const ReturnOrders = () => {
             onClick={() => handleFilter(filter)}
           />
         ))}
+        <div>
+          {isMobile ? (
+            <IconButton
+              color="light-grey"
+              icon={<FunnelFill fontSize="small" />}
+              onClick={handleOpen}
+            />
+          ) : (
+            <Button
+              variant="light-grey"
+              disabled={false}
+              text="تصنيف"
+              start={true}
+              icon={<FunnelFill fontSize="small" />}
+              size="med"
+              onClick={handleOpen}
+            />
+          )}
+
+          <Menu divide={true} open={open}>
+            <SubMenuProvider>
+              <SubMenu title="الحالة">
+                <MenuItem content="مرفوض" />
+                <MenuItem content="مُعلق" />
+                <MenuItem content="تم القبول" />
+              </SubMenu>
+            </SubMenuProvider>
+          </Menu>
+        </div>
       </div>
       <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin">
         <div className="flex overflow-auto bg-white basis-auto shrink-0 sm:h-full sm:max-h-fit sm:flex-col gap-large p-medium scrollbar-thin sm:w-1/2 rounded-med">
           {orders.length > 0
-            ? orders.data.map((order: any) => {
+            ? orders.map((order: any) => {
+                const date = new Date(order.reportDate);
                 const reportDate = `${getMonth(
-                  order.reportDate.getMonth() + 1
-                )} ${order.reportDate.getFullYear()}، ${order.reportDate.getDate()} `;
+                  date.getMonth() + 1
+                )} ${date.getFullYear()}، ${date.getDate()} `;
                 return (
                   <div
                     key={order.id}
                     className="border-l pl-large sm:border-l-0 sm:pl-0 sm:border-b sm:pb-large"
                   >
                     <DestinationCard
+                      flag={
+                        order.status === "Accepted" ? (
+                          <TextBadge
+                            title={"مقبول"}
+                            status={BadgeStatus.SUCCESS}
+                          />
+                        ) : order.status === "Pending" ? (
+                          <TextBadge
+                            title={"معلّق"}
+                            status={BadgeStatus.WARNING}
+                          />
+                        ) : (
+                          <TextBadge
+                            title={"مرفوض"}
+                            status={BadgeStatus.DANGER}
+                          />
+                        )
+                      }
                       title={order.pharmacy.name}
                       subTitle={order.pharmacy.location}
                       date={reportDate}
                       email={order.pharmacy.email}
                       phone={order.pharmacy.phoneNumber}
                       inactive={selectedReport?.index !== order.id}
-                      // handleActive={() => handleSelectOrder(order.id)}
+                      handleActive={() =>
+                        handleSelectOrder(
+                          order.id,
+                          order.medicine,
+                          order.reason
+                        )
+                      }
                       action={
-                        <div className="flex flex-1 gap-small">
-                          <Button
-                            text="قبول الطلب"
-                            variant="base-blue"
-                            disabled={false}
-                            size="med"
-                            style={{ flex: "1" }}
-                            onClick={() => handleAcceptOrder(order.id)}
-                          />
-                          <Button
-                            text="رفض الطلب"
-                            variant="red"
-                            disabled={false}
-                            style={{ flex: "1" }}
-                            size="med"
-                            onClick={() => handleRejectOrder(order.id)}
-                          />
-                        </div>
+                        order.status === "Pending" && (
+                          <div className="flex flex-1 gap-small">
+                            <Button
+                              text={acceptButton}
+                              variant="base-blue"
+                              disabled={false}
+                              size="med"
+                              style={{ flex: "1" }}
+                              onClick={() => handleAcceptOrder(order.id)}
+                            />
+                            <Button
+                              text={rejectButton}
+                              variant="red"
+                              disabled={false}
+                              style={{ flex: "1" }}
+                              size="med"
+                              onClick={() => handleRejectOrder(order.id)}
+                            />
+                          </div>
+                        )
                       }
                     />
                   </div>
                 );
               })
             : content.current}
-            {hasMore && <Beat ref={endRef} />}
+          {hasMore && <Beat ref={endRef} />}
         </div>
-        {selectedReport !== undefined && (
-          <div className="flex flex-col flex-1 bg-white sm:h-full sm:w-1/2 rounded-med p-large">
-            <div>
+        <div className="flex flex-col flex-1 bg-white sm:h-full sm:w-1/2 rounded-med p-large">
+          <div>
+            {selectedReport && (
               <MedicineCard
-                key={selectedReport.medicine.medicineId}
+                key={selectedReport.medicine.batchId}
                 name={selectedReport.medicine.name}
                 subtitle={`الدفعة: ${selectedReport.medicine.batchId}`}
                 photoAlt={selectedReport.medicine.name}
-                photoSrc={selectedReport.medicine.photo}
+                photoSrc={
+                  selectedReport.medicine.imageUrl !== null
+                    ? selectedReport.medicine.imageUrl
+                    : NotFound
+                }
               />
-            </div>
-            <div className="flex flex-col flex-1 border h-4/6 gap-small border-greyScale-light rounded-med p-large">
-              <p className="text-primary-main text-medium">السبب:</p>
-              <p className="overflow-auto text-greyScale-dark text-large scrollbar-thin">
-                {selectedReport.reason}
-                {selectedReport.reason}
-              </p>
-            </div>
+            )}
           </div>
-        )}
+          <div className="flex flex-col flex-1 border h-4/6 gap-small border-greyScale-light rounded-med p-large">
+            {selectedReport && (
+              <>
+                <p className="text-primary-main text-medium">السبب:</p>
+                <p className="overflow-auto text-greyScale-dark text-large scrollbar-thin">
+                  {selectedReport.reason}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

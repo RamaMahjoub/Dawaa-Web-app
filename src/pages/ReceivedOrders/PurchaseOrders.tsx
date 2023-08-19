@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
 import Button from "../../components/Button/Button";
 import { useEffect, useMemo, useState } from "react";
-import { Calendar2Event, FunnelFill } from "react-bootstrap-icons";
+import { FunnelFill } from "react-bootstrap-icons";
 import { getMonth } from "../../utils/Month";
 import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
 import { routes } from "../../router/constant";
@@ -16,13 +16,9 @@ import CustomPagination from "../../components/CustomPagination/CustomPagination
 import Header, { HeaderTypes } from "../../components/Header/Header";
 import Menu, { MenuItem, SubMenu } from "../../components/Menu/Menu";
 import { SubMenuProvider } from "../../components/Menu/context";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import TextField from "../../components/TextField/TextField";
-import { addDays } from "date-fns";
 import IconButton from "../../components/Button/IconButton";
 import { useMediaQuery } from "react-responsive";
-import DatepickerHeader from "../../components/Header/DatepickerHeader";
 import {
   findReceivedOrders,
   selectReceivedOrdersData,
@@ -51,14 +47,6 @@ const PurchaseOrders = () => {
   const title = HeaderTitle(pathname);
   const [filtered, setFiltered] = useState<string>(filterList[0].name);
   const { open, handleOpen } = useOpenToggle();
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(addDays(new Date(), 1));
-
-  const handleDateChange = (dates: any) => {
-    const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
-  };
 
   const { pageIndex, pageSize, pagination, handlePgination } =
     usePagination(10);
@@ -176,9 +164,7 @@ const PurchaseOrders = () => {
               onClick={() => handleFilter(filter)}
             />
           ))}
-        </div>
-        <div className="flex gap-small">
-          <div className="flex ">
+          <div>
             {isMobile ? (
               <IconButton
                 color="light-grey"
@@ -208,22 +194,6 @@ const PurchaseOrders = () => {
               </SubMenuProvider>
             </Menu>
           </div>
-          <DatePicker
-            renderCustomHeader={(props) => <DatepickerHeader {...props} />}
-            selected={startDate}
-            onChange={handleDateChange}
-            startDate={startDate}
-            endDate={endDate}
-            selectsRange
-            dateFormat="MMMM d, yyyy"
-            customInput={
-              <TextField
-                startIcon={<Calendar2Event className="border-l pl-x-small" />}
-                inputSize="x-large"
-                variant="fill"
-              />
-            }
-          />
         </div>
       </div>
       <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin">

@@ -9,16 +9,11 @@ import {
 import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
 import { getMonth } from "../../utils/Month";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
-import { Calendar2Event, FunnelFill } from "react-bootstrap-icons";
+import { FunnelFill } from "react-bootstrap-icons";
 import Button from "../../components/Button/Button";
 import { routes } from "../../router/constant";
 import Menu, { MenuItem, SubMenu } from "../../components/Menu/Menu";
 import { SubMenuProvider } from "../../components/Menu/context";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import TextField from "../../components/TextField/TextField";
-import { addDays } from "date-fns";
-import DatepickerHeader from "../../components/Header/DatepickerHeader";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -44,14 +39,7 @@ const filterList: Array<Filter> = [
 const OutgoingOrders = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
   const { open, handleOpen } = useOpenToggle();
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(addDays(new Date(), 1));
   const [filtered] = useState<string>(filterList[0].name);
-  const handleDateChange = (dates: any) => {
-    const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
-  };
 
   const { pageIndex, pageSize, pagination, handlePgination } =
     usePagination(10);
@@ -161,9 +149,7 @@ const OutgoingOrders = () => {
               />
             </NavLink>
           ))}
-        </div>
-        <div className="flex gap-small">
-          <div className="flex ">
+          <div>
             {isMobile ? (
               <IconButton
                 color="light-grey"
@@ -193,22 +179,6 @@ const OutgoingOrders = () => {
               </SubMenuProvider>
             </Menu>
           </div>
-          <DatePicker
-            renderCustomHeader={(props) => <DatepickerHeader {...props} />}
-            selected={startDate}
-            onChange={handleDateChange}
-            startDate={startDate}
-            endDate={endDate}
-            selectsRange
-            dateFormat="MMMM d, yyyy"
-            customInput={
-              <TextField
-                startIcon={<Calendar2Event className="border-l pl-x-small" />}
-                inputSize="x-large"
-                variant="fill"
-              />
-            }
-          />
         </div>
       </div>
       <div className="flex flex-1 overflow-auto bg-greyScale-lighter gap-large p-large scrollbar-thin">
