@@ -10,7 +10,11 @@ import { useEffect, useState } from "react";
 import { routes } from "../../router/constant";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { login, selectLoginStatus } from "../../redux/authSlice";
+import {
+  login,
+  resetLoginStatus,
+  selectLoginStatus,
+} from "../../redux/authSlice";
 import Loading from "../../components/Loading/Clip";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
@@ -27,6 +31,9 @@ const Login = () => {
   const status = useAppSelector(selectLoginStatus);
   let buttonContent;
 
+  useEffect(() => {
+    dispatch(resetLoginStatus());
+  }, [dispatch]);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.ALL_STORES}`);

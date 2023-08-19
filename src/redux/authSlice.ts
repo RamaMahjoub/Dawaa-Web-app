@@ -110,6 +110,9 @@ export const authSlice = createSlice({
     setSessionExpired: (state) => {
       state.sessionExpired = true;
     },
+    resetLoginStatus: (state) => {
+      state.loginStatus = ResponseStatus.IDLE;
+    },
   },
   extraReducers(builder) {
     builder
@@ -236,5 +239,5 @@ export const selectIsAcceptedData = (state: RootState) =>
 export const selectIsAcceptedError = (state: RootState) =>
   state.auth.isAcceptedError;
 
-export const { setSessionExpired } = authSlice.actions;
+export const { setSessionExpired, resetLoginStatus } = authSlice.actions;
 export default authSlice.reducer;
