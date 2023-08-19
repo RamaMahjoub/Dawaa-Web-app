@@ -17,9 +17,12 @@ export const SubMenuProvider: FC<Props> = ({ children }) => {
   // Define context state and functions
   const [selected, setselected] = useState<string>("");
 
-  const handleSelect = useCallback((val: string) => {
-    setselected(val);
-  }, []);
+  const handleSelect = useCallback(
+    (val: string) => {
+      selected === val ? setselected("") : setselected(val);
+    },
+    [selected]
+  );
 
   return (
     // Provide the context values to the children components

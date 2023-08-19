@@ -8,9 +8,9 @@ const findWarehouseOnlyMedicines = (page: string, limit: string) => {
     `/medicine/warehouse/all?limit=${limit}&page=${page}`
   );
 };
-const findAllMedicines = (page: string, limit: string) => {
+const findAllMedicines = (page: string, limit: string, category?: string) => {
   return protectedAxios.get<any>(
-    `/medicine/warehouse?limit=${limit}&page=${page}`
+    `/medicine/warehouse?limit=${limit}&page=${page}&category=${category}`
   );
 };
 

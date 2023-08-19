@@ -12,9 +12,14 @@ const findMedicine = (id: string) => {
   return protectedAxios.get<any>(`/medicine/warehouse/supplier/medicine/${id}`);
 };
 
-const getSupplierMedicines = (id: string, page: string, limit: string) => {
+const getSupplierMedicines = (
+  id: string,
+  page: string,
+  limit: string,
+  category: string
+) => {
   return protectedAxios.get<any>(
-    `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}`
+    `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}&category=${category}`
   );
 };
 

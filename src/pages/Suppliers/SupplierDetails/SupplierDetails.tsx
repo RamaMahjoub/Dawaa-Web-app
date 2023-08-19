@@ -43,9 +43,10 @@ const SupplierDetails = () => {
         id: supplierId!,
         limit: String(pageSize),
         page: String(pageIndex),
+        category: filtered === "جميع الفئات" ? "" : filtered,
       })
     );
-  }, [dispatch, pageIndex, supplierId, pageSize]);
+  }, [dispatch, pageIndex, supplierId, pageSize, filtered]);
   if (status === ResponseStatus.LOADING) {
     content = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {

@@ -42,6 +42,7 @@ const OrderDetails = () => {
   const acceptStatus = useAppSelector(selectAcceptOrderStatus);
   const rejectStatus = useAppSelector(selectAcceptOrderStatus);
   const delivertatus = useAppSelector(selectDeliverOrderStatus);
+  const [orderStatus, setOrderStatus] = useState<string>();
   useEffect(() => {
     dispatch(findReceivedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
@@ -72,6 +73,7 @@ const OrderDetails = () => {
           }
         />
       ));
+      setOrderStatus(data.data.status);
     }
   }, [status, data]);
   let acceptButtonContent: any,
@@ -131,6 +133,15 @@ const OrderDetails = () => {
     rejectButtonContent = "رفض الطلب";
   }
 
+  useEffect(() => {
+    if (acceptStatus === ResponseStatus.SUCCEEDED) setOrderStatus("Accepted");
+  }, [acceptStatus]);
+  useEffect(() => {
+    if (rejectStatus === ResponseStatus.SUCCEEDED) setOrderStatus("Rejected");
+  }, [rejectStatus]);
+  useEffect(() => {
+    if (delivertatus === ResponseStatus.SUCCEEDED) setOrderStatus("Delivered");
+  }, [delivertatus]);
   return (
     <>
       <div className="flex flex-col h-screen">
@@ -144,7 +155,7 @@ const OrderDetails = () => {
         />
         <div className="flex items-center justify-between w-full gap-1 p-large text-greyScale-light bg-greyScale-lighter text-x-large">
           <span className="flex items-center gap-medium">
-            {data.data && data.data.status === "Accepted" && (
+            {orderStatus && orderStatus === "Accepted" && (
               <IconButton
                 color="light-grey"
                 icon={<ReceiptCutoff style={{ fontSize: "21px" }} />}
@@ -154,7 +165,7 @@ const OrderDetails = () => {
             رقم الطلب: #{orderId}
           </span>
           <div className="flex gap-small">
-            {data.data && data.data.status === "Pending" && (
+            {orderStatus && orderStatus === "Pending" && (
               <>
                 <Button
                   text={acceptButtonContent}
@@ -176,7 +187,7 @@ const OrderDetails = () => {
                 />
               </>
             )}
-            {data.data && data.data.status === "Accepted" && (
+            {orderStatus && orderStatus === "Accepted" && (
               <Button
                 text={deliverButtonContet}
                 variant="green"

@@ -68,12 +68,13 @@ export const findMedicine = createAsyncThunk(
 
 export const getSupplierMedicines = createAsyncThunk(
   "/medicine/warehouse/supplier/:id",
-  async (params: { id: string; limit: string; page: string }) => {
-    const { id, limit, page } = params;
+  async (params: { id: string; limit: string; page: string, category: string }) => {
+    const { id, limit, page, category } = params;
     const response = await SupplierService.getSupplierMedicines(
       id,
       page,
-      limit
+      limit,
+      category
     );
     return response.data;
   }

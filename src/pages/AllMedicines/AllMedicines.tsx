@@ -39,9 +39,12 @@ const AllMedicines = () => {
       findAllMedicines({
         limit: String(pageSize),
         page: String(pageIndex),
+        category: filtered === "جميع الفئات" ? "" : filtered,
       })
     );
-  }, [dispatch, pageIndex, pageSize]);
+  }, [dispatch, pageIndex, pageSize, filtered]);
+
+  
   if (status === ResponseStatus.LOADING) {
     content.current = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {

@@ -30,9 +30,10 @@ const findReceivedReturnOrders = (page: string, limit: string) =>
     `/report-medicine/warehouse/pharmacy?limit=${limit}&page=${page}`
   );
 const acceptReturnOrder = (id: string) =>
-  protectedAxios.get<any>(`/report-medicine/warehouse/accept-pharmacy/${id}`);
+  protectedAxios.patch<any>(`/report-medicine/warehouse/accept-pharmacy/${id}`);
+
 const rejectReturnOrder = (id: string) =>
-  protectedAxios.get<any>(`/report-medicine/warehouse/reject-pharmacy/${id}`);
+  protectedAxios.patch<any>(`/report-medicine/warehouse/reject-pharmacy/${id}`);
 
 const orderOverview = (id: string) =>
   protectedAxios.get<any>(`/order/warehouse/distribution/${id}`);

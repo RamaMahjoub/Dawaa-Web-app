@@ -54,6 +54,7 @@ const ReturnOrders = () => {
   };
 
   const [orders, setOrders] = useState<any>([]);
+  
   const [selectedReport, setselectedReport] = useState<{
     index: number;
     medicine: any;
@@ -104,7 +105,6 @@ const ReturnOrders = () => {
       });
     }
   }, [ordersStatus, orders]);
-  console.log(orders);
   const fetchReturnOrders = useCallback(async () => {
     try {
       const response = await dispatch(
@@ -143,7 +143,6 @@ const ReturnOrders = () => {
     [hasMore, isFetching, fetchReturnOrders]
   );
   useEffect(() => {
-    console.log("from effect");
     const observer = new IntersectionObserver(onIntersection);
     if (observer && endRef.current) {
       observer.observe(endRef.current);

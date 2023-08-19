@@ -36,8 +36,8 @@ const CustomPagination: FC<Props> = ({
         renderItem={(item) => (
           <PaginationItem
             slots={{
-              previous: ChevronRight,
-              next: ChevronLeft,
+              previous: ChevronLeft,
+              next: ChevronRight,
             }}
             sx={{
               color: "#64748B",

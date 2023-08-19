@@ -100,9 +100,9 @@ export const findMedicinesToReeturn = createAsyncThunk(
 
 export const findAllMedicines = createAsyncThunk(
   "/medicine/warehouse",
-  async (params: { page: string; limit: string }) => {
-    const { page, limit } = params;
-    const response = await MedicineService.findAllMedicines(page, limit);
+  async (params: { page: string; limit: string; category: string }) => {
+    const { page, limit, category } = params;
+    const response = await MedicineService.findAllMedicines(page, limit, category);
     return response.data;
   }
 );
