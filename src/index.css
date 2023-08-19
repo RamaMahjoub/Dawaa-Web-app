@@ -26,7 +26,7 @@ body {
 }
 
 .mid {
-  @apply bg-white flex items-center w-full gap-1;
+  @apply flex items-center w-full gap-1 bg-white;
 }
 
 /* datepicker style */
@@ -35,7 +35,7 @@ body {
   @apply border-none shadow-xl font-Markazi;
 }
 .react-datepicker__input-container {
-  @apply w-full rounded-small text-greyScale-main text-medium border bg-greyScale-lighter border-none;
+  @apply w-full border border-none rounded-small text-greyScale-main text-medium bg-greyScale-lighter;
 }
 
 .react-datepicker__input-container > input {
@@ -68,7 +68,7 @@ body {
   @apply min-w-max;
 }
 .calendar-icon {
-  @apply absolute top-1/2 right-large -translate-y-1/2 text-greyScale-main;
+  @apply absolute -translate-y-1/2 top-1/2 right-large text-greyScale-main;
 }
 
 .react-datepicker__day--range-end {
@@ -97,4 +97,4 @@ body {
 .react-datepicker__day--keyboard-selected {
   @apply bg-primary-main text-primary-light;
 }
-/*  */
+

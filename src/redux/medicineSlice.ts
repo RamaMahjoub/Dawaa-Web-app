@@ -19,6 +19,9 @@ type AuthState = {
   medicineDetailsData: any;
   medicineDetailsStatus: string;
   medicineDetailsError: string | undefined;
+  medicineBatchesData: any;
+  medicineBatchesStatus: string;
+  medicineBatchesError: string | undefined;
   medicineDistributionsData: any;
   medicineDistributionsStatus: string;
   medicineDistributionsError: string | undefined;
@@ -49,6 +52,9 @@ const initialState: AuthState = {
   medicineDetailsData: {},
   medicineDetailsStatus: ResponseStatus.IDLE,
   medicineDetailsError: undefined,
+  medicineBatchesData: {},
+  medicineBatchesStatus: ResponseStatus.IDLE,
+  medicineBatchesError: undefined,
   medicineDistributionsData: {},
   medicineDistributionsStatus: ResponseStatus.IDLE,
   medicineDistributionsError: undefined,
@@ -105,6 +111,14 @@ export const findMedicineDetails = createAsyncThunk(
   async (params: { id: string }) => {
     const { id } = params;
     const response = await MedicineService.findMedicinDetails(id);
+    return response.data;
+  }
+);
+export const findMedicinnBatches = createAsyncThunk(
+  "/medicine/warehouse/details/:id",
+  async (params: { id: string }) => {
+    const { id } = params;
+    const response = await MedicineService.findMedicinBatches(id);
     return response.data;
   }
 );
@@ -195,6 +209,31 @@ export const medicineSlice = createSlice({
         state.medicineDetailsStatus = ResponseStatus.LOADING;
       })
       .addCase(
+        findMedicineDetails.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.medicineDetailsStatus = ResponseStatus.SUCCEEDED;
+          state.medicineDetailsData = action.payload;
+        }
+      )
+      .addCase(findMedicineDetails.rejected, (state, action) => {
+        state.medicineDetailsStatus = ResponseStatus.FAILED;
+        state.medicineDetailsError = action.error.message;
+      })
+      .addCase(findMedicinnBatches.pending, (state) => {
+        state.medicineBatchesStatus = ResponseStatus.LOADING;
+      })
+      .addCase(
+        findMedicinnBatches.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.medicineBatchesStatus = ResponseStatus.SUCCEEDED;
+          state.medicineBatchesData = action.payload;
+        }
+      )
+      .addCase(findMedicinnBatches.rejected, (state, action) => {
+        state.medicineBatchesStatus = ResponseStatus.FAILED;
+        state.medicineBatchesError = action.error.message;
+      })
+      .addCase(
         findMedicinesToReeturn.fulfilled,
         (state, action: PayloadAction<any>) => {
           state.medicinesToReturnStatus = ResponseStatus.SUCCEEDED;
@@ -207,17 +246,6 @@ export const medicineSlice = createSlice({
       })
       .addCase(findMedicinesToReeturn.pending, (state) => {
         state.medicinesToReturnStatus = ResponseStatus.LOADING;
-      })
-      .addCase(
-        findMedicineDetails.fulfilled,
-        (state, action: PayloadAction<any>) => {
-          state.medicineDetailsStatus = ResponseStatus.SUCCEEDED;
-          state.medicineDetailsData = action.payload;
-        }
-      )
-      .addCase(findMedicineDetails.rejected, (state, action) => {
-        state.medicineDetailsStatus = ResponseStatus.FAILED;
-        state.medicineDetailsError = action.error.message;
       })
       .addCase(findMedicineDistributions.pending, (state) => {
         state.medicineDistributionsStatus = ResponseStatus.LOADING;
@@ -337,6 +365,13 @@ export const selectMedicineDetailsData = (state: RootState) =>
   state.medicine.medicineDetailsData;
 export const selectMedicineDetailsError = (state: RootState) =>
   state.medicine.medicineDetailsError;
+
+export const selectMedicineBatchesStatus = (state: RootState) =>
+  state.medicine.medicineBatchesStatus;
+export const selectMedicineBatchesData = (state: RootState) =>
+  state.medicine.medicineBatchesData;
+export const selectMedicineBatchesError = (state: RootState) =>
+  state.medicine.medicineBatchesError;
 
 export const selectMedicineDistributionsStatus = (state: RootState) =>
   state.medicine.medicineDistributionsStatus;

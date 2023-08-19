@@ -25,6 +25,15 @@ type AuthState = {
   receivedOrdersData: any;
   receivedOrdersStatus: string;
   receivedOrdersError: string | undefined;
+  receivedReturnOrdersData: any;
+  receivedReturnOrdersStatus: string;
+  receivedReturnOrdersError: string | undefined;
+  acceptReturnOrderData: any;
+  acceptReturnOrderStatus: string;
+  acceptReturnOrderError: string | undefined;
+  rejectReturnOrderData: any;
+  rejectReturnOrderStatus: string;
+  rejectReturnOrderError: undefined | string;
   receivedOrderDetailsData: any;
   receivedOrderDetailsStatus: string;
   receivedOrderDetailsError: string | undefined;
@@ -55,6 +64,15 @@ const initialState: AuthState = {
   receivedOrdersData: {},
   receivedOrdersStatus: ResponseStatus.IDLE,
   receivedOrdersError: undefined,
+  receivedReturnOrdersData: {},
+  receivedReturnOrdersStatus: ResponseStatus.IDLE,
+  receivedReturnOrdersError: undefined,
+  acceptReturnOrderData: {},
+  acceptReturnOrderStatus: ResponseStatus.IDLE,
+  acceptReturnOrderError: undefined,
+  rejectReturnOrderData: {},
+  rejectReturnOrderStatus: ResponseStatus.IDLE,
+  rejectReturnOrderError: undefined,
   receivedOrderDetailsData: {},
   receivedOrderDetailsStatus: ResponseStatus.IDLE,
   receivedOrderDetailsError: undefined,
@@ -94,6 +112,33 @@ export const findReceivedOrders = createAsyncThunk(
   async (params: { limit: string; page: string }) => {
     const { limit, page } = params;
     const response = await OrderService.findReceivedOrders(page, limit);
+    return response.data;
+  }
+);
+
+export const findReceivedReturnOrders = createAsyncThunk(
+  "/report-medicine/warehouse/pharmacy",
+  async (params: { limit: string; page: string }) => {
+    const { limit, page } = params;
+    const response = await OrderService.findReceivedReturnOrders(page, limit);
+    return response.data;
+  }
+);
+
+export const acceptReturnOrders = createAsyncThunk(
+  "/report-medicine/warehouse/accept-pharmacy/:id",
+  async (params: { id: string }) => {
+    const { id } = params;
+    const response = await OrderService.acceptReturnOrder(id);
+    return response.data;
+  }
+);
+
+export const rejectReturnOrders = createAsyncThunk(
+  "/report-medicine/warehouse/reject-pharmacy/:id",
+  async (params: { id: string }) => {
+    const { id } = params;
+    const response = await OrderService.rejectReturnOrder(id);
     return response.data;
   }
 );
@@ -235,6 +280,48 @@ export const orderSlice = createSlice({
         state.receivedOrdersStatus = ResponseStatus.FAILED;
         state.receivedOrdersError = action.error.message;
       })
+      .addCase(findReceivedReturnOrders.pending, (state) => {
+        state.receivedReturnOrdersStatus = ResponseStatus.LOADING;
+      })
+      .addCase(
+        findReceivedReturnOrders.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.receivedReturnOrdersStatus = ResponseStatus.SUCCEEDED;
+          state.receivedReturnOrdersData = action.payload;
+        }
+      )
+      .addCase(findReceivedReturnOrders.rejected, (state, action) => {
+        state.receivedReturnOrdersStatus = ResponseStatus.FAILED;
+        state.receivedReturnOrdersError = action.error.message;
+      })
+      .addCase(acceptReturnOrders.pending, (state) => {
+        state.acceptReturnOrderStatus = ResponseStatus.LOADING;
+      })
+      .addCase(
+        acceptReturnOrders.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.acceptReturnOrderStatus = ResponseStatus.SUCCEEDED;
+          state.acceptReturnOrderData = action.payload;
+        }
+      )
+      .addCase(acceptReturnOrders.rejected, (state, action) => {
+        state.acceptReturnOrderStatus = ResponseStatus.FAILED;
+        state.acceptReturnOrderError = action.error.message;
+      })
+      .addCase(rejectReturnOrders.pending, (state) => {
+        state.rejectReturnOrderStatus = ResponseStatus.LOADING;
+      })
+      .addCase(
+        rejectReturnOrders.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.rejectReturnOrderStatus = ResponseStatus.SUCCEEDED;
+          state.rejectReturnOrderData = action.payload;
+        }
+      )
+      .addCase(rejectReturnOrders.rejected, (state, action) => {
+        state.rejectReturnOrderStatus = ResponseStatus.FAILED;
+        state.rejectReturnOrderError = action.error.message;
+      })
       .addCase(findReceivedOrderDetails.pending, (state) => {
         state.receivedOrderDetailsStatus = ResponseStatus.LOADING;
       })
@@ -267,7 +354,7 @@ export const orderSlice = createSlice({
 });
 
 export const selectCreateOrderStatus = (state: RootState) =>
-  state.order.createOrderStatus; 
+  state.order.createOrderStatus;
 
 export const selectCreateOrderError = (state: RootState) =>
   state.order.createOrderError;
@@ -291,6 +378,26 @@ export const selectReceivedOrdersData = (state: RootState) =>
   state.order.receivedOrdersData;
 export const selectReceivedOrdersError = (state: RootState) =>
   state.order.receivedOrdersError;
+export const selectReceivedReturnOrdersStatus = (state: RootState) =>
+  state.order.receivedReturnOrdersStatus;
+export const selectReceivedReturnOrdersData = (state: RootState) =>
+  state.order.receivedReturnOrdersData;
+export const selectReceivedReturnOrdersError = (state: RootState) =>
+  state.order.receivedReturnOrdersError;
+
+export const selectAcceptReturnOrdersStatus = (state: RootState) =>
+  state.order.acceptReturnOrderStatus;
+export const selectAcceptReturnOrdersData = (state: RootState) =>
+  state.order.acceptReturnOrderData;
+export const selectAcceptReturnOrdersError = (state: RootState) =>
+  state.order.acceptReturnOrderError;
+
+export const selectRejectReturnOrdersStatus = (state: RootState) =>
+  state.order.rejectReturnOrderStatus;
+export const selectRejectReturnOrdersData = (state: RootState) =>
+  state.order.rejectReturnOrderData;
+export const selectRejectReturnOrdersError = (state: RootState) =>
+  state.order.rejectReturnOrderError;
 export const selectReceivedOrderDetailsStatus = (state: RootState) =>
   state.order.receivedOrderDetailsStatus;
 export const selectReceivedOrderDetailsData = (state: RootState) =>

@@ -260,7 +260,6 @@ const PurchaseOrders = () => {
               <tbody>
                 {table.getRowModel().rows.length > 0 ? (
                   table.getRowModel().rows.map((row) => {
-                    console.log(row.original);
                     return (
                       <tr
                         className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"

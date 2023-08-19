@@ -6,9 +6,7 @@ import DropdownItem from "../../components/Dropdown/DropdownItem";
 import DropdownMenu from "../../components/Dropdown/DropdownMenu";
 import Dropdown from "../../components/Dropdown/Dropdown";
 import { DropdownProvider } from "../../components/Dropdown/context";
-import { useEffect, useMemo, useState } from "react";
-import { storesMedicinesData } from "../../Schema/response/medicineInStore.schema";
-import { findMedicine } from "../../Schema/response/medicine.schema";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import Counter from "../../components/Counter/Counter";
 import { XSquareFill } from "react-bootstrap-icons";
@@ -17,19 +15,21 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
   getAllStores,
+  getMedicinesInStore,
   selectAllStoresData,
   selectAllStoresStatus,
+  selectTransferBetweenInventoriesStatus,
+  transferBetweenInventories,
 } from "../../redux/storeSlice";
 import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
 import { ResponseStatus } from "../../enums/ResponseStatus";
-const ids = [
-  { id: 1, expireDate: "12-3-2001", max: 52 },
-  { id: 2, expireDate: "12-3-2001", max: 51 },
-  { id: 3, expireDate: "12-3-2001", max: 50 },
-  { id: 4, expireDate: "12-3-2001", max: 15 },
-  { id: 5, expireDate: "12-3-2001", max: 85 },
-];
+import { usePagination } from "../../hooks/usePagination";
+import { v4 as uuidv4 } from "uuid";
+import Clip from "../../components/Loading/Clip";
+import { toast } from "react-toastify";
+const NotFound = require("./../../assets/medicines/not-found.png");
+
 interface Req {
   fromInventory: number | undefined;
   toInventory: number | undefined;
@@ -41,7 +41,14 @@ const TransferMedicines = () => {
   const { open, handleOpen } = useOpenToggle();
   const [toInventory, setToInventory] = useState<any>();
   const [fromInventory, setFromInventory] = useState<any>();
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const { pageIndex, pageSize, handlePgination } = usePagination(1);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [medicines, setMedicines] = useState<any>([]);
+  let buttonContent;
 
+  let content = useRef<any>(null);
+  let endRef = useRef<any>(null);
   const dispatch = useAppDispatch();
   const invintories = useAppSelector(selectAllStoresData);
   let request: Req = useMemo(
@@ -52,6 +59,7 @@ const TransferMedicines = () => {
     }),
     []
   );
+  console.log(request.fromInventory, hasMore);
 
   const handleCaptureFromInventory = (id: number) => {
     request.fromInventory = id;
@@ -67,6 +75,7 @@ const TransferMedicines = () => {
     setFromInventory(updated);
   };
   const status = useAppSelector(selectAllStoresStatus);
+  const sendStatus = useAppSelector(selectTransferBetweenInventoriesStatus);
   useEffect(() => {
     dispatch(getAllStores());
   }, [dispatch]);
@@ -90,85 +99,166 @@ const TransferMedicines = () => {
     } else {
       from = fromInventory?.map((inventory: any) => (
         <DropdownItem
-          key={inventory.id}
+          key={uuidv4()}
           title={inventory.name}
           handleSelectValue={() => handleCaptureFromInventory(inventory.id)}
         />
       ));
       to = toInventory?.map((inventory: any) => (
         <DropdownItem
-          key={inventory.id}
+          key={uuidv4()}
           title={inventory.name}
           handleSelectValue={() => handleCaptureToInventory(inventory.id)}
         />
       ));
     }
   }
-  const [elements, setUiElements] = useState<any>([]);
+  const [elements, setUiElements] = useState<Array<{ [key: string]: any }>>([]);
 
   const medicineSelected = (index: number) => {
-    return elements.some((element: any) => index === element.medicineId);
+    return elements.hasOwnProperty(index);
   };
 
   const actionElement = (index: number) => {
-    if (!medicineSelected(index))
-      setUiElements((prevElements: any) => [
+    if (!medicineSelected(index)) {
+      setUiElements((prevElements) => ({
         ...prevElements,
-        {
-          medicineId: index,
+        [index]: {
           batchId: null,
           quantity: 1,
           max: undefined,
         },
-      ]);
-    else {
-      const updatedItems = elements.filter((i: any) => i.medicineId !== index);
-      setUiElements(updatedItems);
+      }));
+    } else {
+      setUiElements((prevElements) => {
+        const updatedElements: any = { ...prevElements };
+        delete updatedElements[index];
+        return updatedElements;
+      });
     }
   };
-  const handleCaptureBatch = (index: number, batchId: number, max: number) => {
-    setUiElements((prevElements: any) => {
-      const updatedElements = [...prevElements];
-      updatedElements[index].batchId = batchId;
-      updatedElements[index].max = max;
-      return updatedElements;
-    });
+  const handleCaptureBatch = (key: number, batchId: number, max: number) => {
+    setUiElements((prevElements: any) => ({
+      ...prevElements,
+      [key]: {
+        ...prevElements[key],
+        batchId,
+        max,
+      },
+    }));
   };
-
-  const handleQuantityChange = (index: number, newQuantity: number) => {
-    setUiElements((prevElements: any) => {
-      const updatedElements = [...prevElements];
-      updatedElements[index].quantity = newQuantity;
-
-      return updatedElements;
-    });
+  if (sendStatus === ResponseStatus.LOADING) {
+    buttonContent = <Clip />;
+  } else if (sendStatus === ResponseStatus.SUCCEEDED) {
+    buttonContent = "إرسال";
+    toast.success("تم نقل الأدوية بنجاح");
+  } else if (sendStatus === ResponseStatus.IDLE) {
+    buttonContent = "إرسال";
+  } else if (sendStatus === ResponseStatus.FAILED) {
+    buttonContent = "إرسال";
+  }
+  const handleQuantityChange = (key: number, newQuantity: number) => {
+    setUiElements((prevElements: any) => ({
+      ...prevElements,
+      [key]: {
+        ...prevElements[key],
+        quantity: newQuantity,
+      },
+    }));
   };
 
   const handleSendRequest = () => {
+    console.log(
+      "elements",
+      elements,
+      request.fromInventory,
+      request.toInventory
+    );
     if (
-      elements.length > 0 &&
+      Object.keys(elements).length > 0 &&
       request.fromInventory !== undefined &&
       request.toInventory !== undefined
     ) {
-      request.batches = elements.map((element: any) => {
+      request.batches = Object.keys(elements).map((key: any) => {
+        const element = elements[key];
         return {
           batchId: element.batchId,
           quantity: element.quantity,
         };
       });
-      console.log(request);
+      const req = {
+        from: request.fromInventory,
+        to: request.toInventory,
+        batches: request.batches,
+      };
+      console.log(req);
+      dispatch(transferBetweenInventories(req));
     }
   };
+
+  const onIntersection = useCallback(
+    async (entries: any) => {
+      const firstEntry = entries[0];
+
+      if (firstEntry.isIntersecting && hasMore && !isFetching) {
+        setIsFetching(true);
+
+        try {
+          const response = await dispatch(
+            getMedicinesInStore({
+              page: String(pageIndex),
+              limit: String(pageSize),
+              id: String(request.fromInventory),
+            })
+          );
+
+          if (response.payload && response.payload.data.length > 0) {
+            setMedicines((prevMedicines: any) => [
+              ...prevMedicines,
+              ...response.payload.data,
+            ]);
+            handlePgination(pageIndex + 1);
+          } else {
+            setHasMore(false);
+            if (medicines.length === 0) content.current = <NoData />;
+          }
+        } catch (error) {
+          content.current = <div>error...</div>;
+        } finally {
+          setIsFetching(false);
+        }
+      }
+    },
+    [
+      pageIndex,
+      pageSize,
+      hasMore,
+      dispatch,
+      medicines,
+      isFetching,
+      handlePgination,
+      request.fromInventory,
+    ]
+  );
+  useEffect(() => {
+    const observer = new IntersectionObserver(onIntersection);
+
+    if (observer && endRef.current && request.fromInventory && open) {
+      observer.observe(endRef.current);
+    }
+
+    return () => {
+      if (observer) observer.disconnect();
+    };
+  }, [onIntersection, request.fromInventory, open]);
+
   return (
     <div className="flex items-center justify-center w-full h-screen bg-greyScale-lighter">
       <div className="flex flex-col w-64 gap-1 bg-white py-large px-x-large sm:w-96 rounded-med m-medium">
         <p className="flex justify-center font-semibold text-greyScale-main text-large my-medium">
           {title}
         </p>
-        <form
-          onSubmit={(e: any) => e.preventDefault()}
-          className="flex flex-col gap-3 my-medium"
-        >
+        <div className="flex flex-col gap-3 my-medium">
           <DropdownProvider title="من المخزن">
             <Dropdown>
               <DropdownMenu>{from}</DropdownMenu>
@@ -190,14 +280,15 @@ const TransferMedicines = () => {
             <Button
               variant="base-blue"
               disabled={false}
-              text="إرسال"
+              text={buttonContent}
               size="lg"
+              type="submit"
               onClick={handleSendRequest}
             />
           </div>
-        </form>
+        </div>
       </div>
-      {open && (
+      {open && request.fromInventory && (
         <div className="fixed inset-0 flex items-center justify-center max-h-screen z-[999] bg-greyScale-dark/50">
           <div className="w-[235px] sm:w-[435px] h-[435px] flex flex-col rounded-small bg-white">
             <p className="flex items-center justify-between border-b border-solid p-x-large text-greyscale-main text-xx-large border-greyScale-light">
@@ -208,53 +299,68 @@ const TransferMedicines = () => {
               />
             </p>
             <div className="flex flex-col flex-1 overflow-auto gap-small px-medium scrollbar-thin">
-              {storesMedicinesData.map((med, index: number) => {
-                const medicine = findMedicine(med.medicineId);
-                return (
-                  <div>
-                    <MedicineCard
-                      key={med.id}
-                      name={medicine.name}
-                      photoAlt={medicine.name}
-                      photoSrc={medicine.photo}
-                      action={
-                        medicineSelected(index) && (
-                          <Counter
-                            quantity={elements[index].quantity}
-                            max={elements[index]?.max}
-                            onChange={(newQuantity) =>
-                              handleQuantityChange(index, newQuantity)
-                            }
-                          />
-                        )
-                      }
-                      inactive={medicineSelected(index) ? false : true}
-                      className="cursor-pointer hover:bg-greyScale-lighter"
-                      onClick={() => actionElement(index)}
-                    />
-                    {medicineSelected(index) && (
-                      <div className="flex flex-col gap-medium">
-                        <DropdownProvider title="اختيار الدفعة">
-                          <Dropdown>
-                            <DropdownMenu>
-                              {ids.map((item) => (
-                                <DropdownItem
-                                  key={item.id}
-                                  title={item.id.toString()}
-                                  subTitle={item.expireDate}
-                                  handleSelectValue={() =>
-                                    handleCaptureBatch(index, item.id, item.max)
-                                  }
-                                />
-                              ))}
-                            </DropdownMenu>
-                          </Dropdown>
-                        </DropdownProvider>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {medicines.length > 0 &&
+                medicines.map((med: any) => {
+                  return (
+                    <div key={med.id}>
+                      <MedicineCard
+                        name={"hello"}
+                        photoAlt={med.id}
+                        photoSrc={
+                          med.imageUrl === null ? NotFound : med.imageUrl
+                        }
+                        action={
+                          medicineSelected(med.id) &&
+                          elements[med.id]?.max > 0 && (
+                            <Counter
+                              quantity={elements[med.id].quantity}
+                              max={elements[med.id]?.max}
+                              onChange={(newQuantity) =>
+                                handleQuantityChange(med.id, newQuantity)
+                              }
+                            />
+                          )
+                        }
+                        inactive={medicineSelected(med.id) ? false : true}
+                        className="cursor-pointer hover:bg-greyScale-lighter"
+                        onClick={() => actionElement(med.id)}
+                      />
+                      {medicineSelected(med.id) && (
+                        <div className="flex flex-col gap-medium">
+                          <DropdownProvider title="اختيار الدفعة">
+                            <Dropdown
+                              error={
+                                medicineSelected(med.id)
+                                // elements[med.id].batchId === null
+                              }
+                            >
+                              <DropdownMenu>
+                                {med.batches.map((item: any) => {
+                                  if (item.quantity > 0)
+                                    return (
+                                      <DropdownItem
+                                        key={item.id}
+                                        title={item.id.toString()}
+                                        subTitle={item.expireDate}
+                                        handleSelectValue={() =>
+                                          handleCaptureBatch(
+                                            med.id,
+                                            item.id,
+                                            item.quantity
+                                          )
+                                        }
+                                      />
+                                    );
+                                })}
+                              </DropdownMenu>
+                            </Dropdown>
+                          </DropdownProvider>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              {hasMore && <Beat ref={endRef} />}
             </div>
             <div className="flex justify-center p-medium">
               <Button
@@ -262,6 +368,7 @@ const TransferMedicines = () => {
                 variant="base-blue"
                 disabled={false}
                 size="lg"
+                onClick={handleOpen}
               />
             </div>
           </div>

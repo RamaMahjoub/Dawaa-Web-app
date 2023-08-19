@@ -48,7 +48,6 @@ const ExpressOrders = lazy(
   () => import("../pages/ExpressOrders/ExpressOrders")
 );
 const Invoices = lazy(() => import("../pages/Invoices/Invoices"));
-const Reports = lazy(() => import("../pages/Reports/Reports"));
 const OutgoingOrders = lazy(
   () => import("../pages/OutgoingOrders/OutgoingOrders")
 );
@@ -139,10 +138,6 @@ export const router = createBrowserRouter(
         <Route
           path={routes.INVOICES}
           element={<AuthGuard element={<Invoices />} />}
-        />
-        <Route
-          path={routes.REPORTS}
-          element={<AuthGuard element={<Reports />} />}
         />
         <Route
           path={routes.ANALYTICS}

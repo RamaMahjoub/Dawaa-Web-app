@@ -1,8 +1,6 @@
 import { XSquareFill } from "react-bootstrap-icons";
 import Button from "../../../components/Button/Button";
 import { FC, useEffect } from "react";
-import { storesData } from "../../../Schema/response/Store.schema";
-import { medicines } from "../../../Schema/response/medicine.schema";
 import MedicineCard from "../../../components/MedicineCard/MedicineCard";
 import IconBadge from "../../../components/Badge/IconBadge";
 import { BadgeStatus } from "../../../components/Badge/TextBadge";
@@ -13,6 +11,10 @@ import {
   selectOrderOverviewStatus,
 } from "../../../redux/orderSlice";
 import { useAppSelector } from "../../../hooks/useAppSelector";
+import { v4 as uuidv4 } from "uuid";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
+import Beat from "../../../components/Loading/Beat";
+const NotFound = require("./../../../assets/medicines/not-found.png");
 
 interface Props {
   open: boolean;
@@ -23,12 +25,16 @@ const OrderOverView: FC<Props> = ({ open, handleOpen, orderId }) => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectOrderOverviewData);
   const status = useAppSelector(selectOrderOverviewStatus);
-
+  let content;
   useEffect(() => {
     dispatch(findOrderDistribution({ id: orderId }));
   }, [dispatch, orderId]);
 
-  
+  if (status === ResponseStatus.FAILED) {
+    content = <div>error..</div>;
+  } else if (status === ResponseStatus.LOADING) {
+    content = <Beat />;
+  }
   return (
     <>
       {open && (
@@ -42,64 +48,42 @@ const OrderOverView: FC<Props> = ({ open, handleOpen, orderId }) => {
               />
             </p>
             <div className="flex flex-col items-center flex-1 overflow-auto gap-small px-medium py-medium scrollbar-thin">
-              <div className="flex flex-col flex-1 w-full shadow-sm rounded-med p-medium">
-                <p className="text-large text-greyScale-dark">
-                  {storesData[0].name}
-                </p>
-                <MedicineCard
-                  key={1}
-                  name={medicines[0].name}
-                  photoAlt={medicines[0].name}
-                  photoSrc={medicines[0].photo}
-                  action={
-                    <IconBadge
-                      icon={<p className="font-bold text-xx-large">x5</p>}
-                      status={BadgeStatus.WARNING}
-                    />
-                  }
-                />
-              </div>
-              <div className="flex flex-col flex-1 w-full shadow-sm rounded-med p-medium">
-                <p className="text-large text-greyScale-dark">
-                  {storesData[1].name}
-                </p>
-                <MedicineCard
-                  key={1}
-                  name={medicines[0].name}
-                  photoAlt={medicines[0].name}
-                  photoSrc={medicines[0].photo}
-                  action={
-                    <IconBadge
-                      icon={<p className="font-bold text-xx-large">x5</p>}
-                      status={BadgeStatus.WARNING}
-                    />
-                  }
-                />
-                <MedicineCard
-                  key={1}
-                  name={medicines[1].name}
-                  photoAlt={medicines[1].name}
-                  photoSrc={medicines[1].photo}
-                  action={
-                    <IconBadge
-                      icon={<p className="font-bold text-xx-large">x5</p>}
-                      status={BadgeStatus.WARNING}
-                    />
-                  }
-                />
-                <MedicineCard
-                  key={1}
-                  name={medicines[0].name}
-                  photoAlt={medicines[0].name}
-                  photoSrc={medicines[0].photo}
-                  action={
-                    <IconBadge
-                      icon={<p className="font-bold text-xx-large">x5</p>}
-                      status={BadgeStatus.WARNING}
-                    />
-                  }
-                />
-              </div>
+              {data.data
+                ? data.data.map((item: any) => {
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex flex-col flex-1 w-full shadow-sm rounded-med p-medium"
+                      >
+                        <p className="text-large text-greyScale-dark">
+                          {item.name}
+                        </p>
+                        {item.medicines.map((med: any) => {
+                          return (
+                            <MedicineCard
+                              key={uuidv4()}
+                              name={med.name}
+                              photoAlt={med.name}
+                              photoSrc={
+                                med.imageUrl === null ? NotFound : med.imageUrl
+                              }
+                              action={
+                                <IconBadge
+                                  icon={
+                                    <p className="font-bold text-xx-large">
+                                      x{med.quantity}
+                                    </p>
+                                  }
+                                  status={BadgeStatus.WARNING}
+                                />
+                              }
+                            />
+                          );
+                        })}
+                      </div>
+                    );
+                  })
+                : content}
             </div>
             <div className="flex justify-center p-medium">
               <Button
@@ -107,6 +91,7 @@ const OrderOverView: FC<Props> = ({ open, handleOpen, orderId }) => {
                 variant="base-blue"
                 disabled={false}
                 size="lg"
+                onClick={handleOpen}
               />
             </div>
           </div>

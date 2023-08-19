@@ -75,12 +75,6 @@ const Sidebar = () => {
               <SubMenu data={subMenus[2]} />
             </div>
             <li>
-              <NavLink to={routes.REPORTS} className="link">
-                <ClipboardX css={styles.drawerIcon} />
-                الإبلاغات
-              </NavLink>
-            </li>
-            <li>
               <NavLink to={routes.ANALYTICS} className="link">
                 <BarChart css={styles.drawerIcon} />
                 الإحصائيات
@@ -95,7 +89,10 @@ const Sidebar = () => {
           </ul>
         </div>
       </motion.div>
-      <div className="mx-medium md:hidden h-[72.63px] flex items-center absolute" onClick={() => setOpen(true)}>
+      <div
+        className="mx-medium md:hidden h-[72.63px] flex items-center absolute"
+        onClick={() => setOpen(true)}
+      >
         <List css={styles.drawerIcon} />
       </div>
     </div>

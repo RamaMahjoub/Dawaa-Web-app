@@ -211,9 +211,8 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
               {medicines.length > 0 &&
                 medicines.map((medicien: any) => {
                   return (
-                    <div>
+                    <div key={`${medicien.id}${medicien.name}`}>
                       <MedicineCard
-                        key={`${medicien.id}${medicien.name}`}
                         name={medicien.name}
                         photoAlt={medicien.name}
                         photoSrc={NotFound}

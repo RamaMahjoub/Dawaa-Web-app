@@ -144,41 +144,49 @@ const OrderDetails = () => {
         />
         <div className="flex items-center justify-between w-full gap-1 p-large text-greyScale-light bg-greyScale-lighter text-x-large">
           <span className="flex items-center gap-medium">
-            <IconButton
-              color="light-grey"
-              icon={<ReceiptCutoff style={{ fontSize: "21px" }} />}
-              onClick={handleOpen}
-            />
+            {data.data && data.data.status === "Accepted" && (
+              <IconButton
+                color="light-grey"
+                icon={<ReceiptCutoff style={{ fontSize: "21px" }} />}
+                onClick={handleOpen}
+              />
+            )}
             رقم الطلب: #{orderId}
           </span>
           <div className="flex gap-small">
-            <Button
-              text={deliverButtonContet}
-              variant="green"
-              disabled={false}
-              size="med"
-              className="min-w-max"
-              style={{ flex: "1" }}
-              onClick={handleDeliver}
-            />
-            <Button
-              text={acceptButtonContent}
-              variant="secondary-light"
-              disabled={false}
-              size="med"
-              className="min-w-max"
-              style={{ flex: "1" }}
-              onClick={handleAccept}
-            />
-            <Button
-              text={rejectButtonContent}
-              variant="red"
-              disabled={false}
-              size="med"
-              className="min-w-max"
-              style={{ flex: "1" }}
-              onClick={handleReject}
-            />
+            {data.data && data.data.status === "Pending" && (
+              <>
+                <Button
+                  text={acceptButtonContent}
+                  variant="secondary-light"
+                  disabled={false}
+                  size="med"
+                  className="min-w-max"
+                  style={{ flex: "1" }}
+                  onClick={handleAccept}
+                />
+                <Button
+                  text={rejectButtonContent}
+                  variant="red"
+                  disabled={false}
+                  size="med"
+                  className="min-w-max"
+                  style={{ flex: "1" }}
+                  onClick={handleReject}
+                />
+              </>
+            )}
+            {data.data && data.data.status === "Accepted" && (
+              <Button
+                text={deliverButtonContet}
+                variant="green"
+                disabled={false}
+                size="med"
+                className="min-w-max"
+                style={{ flex: "1" }}
+                onClick={handleDeliver}
+              />
+            )}
           </div>
         </div>
         <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large px-large pb-large scrollbar-thin">
@@ -216,7 +224,9 @@ const OrderDetails = () => {
           </div>
         </div>
       </div>
-      <OrderOverView open={open} handleOpen={handleOpen} orderId={orderId!} />
+      {data.data && data.data.status === "Accepted" && (
+        <OrderOverView open={open} handleOpen={handleOpen} orderId={orderId!} />
+      )}
     </>
   );
 };

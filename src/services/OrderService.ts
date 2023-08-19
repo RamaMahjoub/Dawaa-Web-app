@@ -25,6 +25,15 @@ const findReceivedOrderDetails = (id: string) =>
     `/order/warehouse/pharmacies/${id}`
   );
 
+const findReceivedReturnOrders = (page: string, limit: string) =>
+  protectedAxios.get<any>(
+    `/report-medicine/warehouse/pharmacy?limit=${limit}&page=${page}`
+  );
+const acceptReturnOrder = (id: string) =>
+  protectedAxios.get<any>(`/report-medicine/warehouse/accept-pharmacy/${id}`);
+const rejectReturnOrder = (id: string) =>
+  protectedAxios.get<any>(`/report-medicine/warehouse/reject-pharmacy/${id}`);
+
 const orderOverview = (id: string) =>
   protectedAxios.get<any>(`/order/warehouse/distribution/${id}`);
 
@@ -41,6 +50,9 @@ const OrderService = {
   createOrder,
   findSendedOrders,
   findSendedOrderDetails,
+  findReceivedReturnOrders,
+  acceptReturnOrder,
+  rejectReturnOrder,
   findReceivedOrders,
   findReceivedOrderDetails,
   orderOverview,

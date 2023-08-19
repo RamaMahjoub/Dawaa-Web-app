@@ -18,10 +18,12 @@ const findMedicinDetails = (id: string) => {
   return protectedAxios.get<any>(`/medicine/warehouse/${id}`);
 };
 
+const findMedicinBatches = (id: string) => {
+  return protectedAxios.get<any>(`/medicine/warehouse/details/${id}`);
+};
+
 const findMedicinDistributions = (id: string) => {
-  return protectedAxios.get<any>(
-    `/medicine/warehouse/get-inventory-distributions/${id}`
-  );
+  return protectedAxios.get<any>(`order/warehouse/distribution/${id}`);
 };
 
 const editMedicin = (id: string, body: EditMedicineSchema) => {
@@ -49,6 +51,7 @@ const MedicineService = {
   findWarehouseOnlyMedicines,
   findAllMedicines,
   findMedicinDetails,
+  findMedicinBatches,
   findMedicinDistributions,
   editMedicin,
   storeInInventory,

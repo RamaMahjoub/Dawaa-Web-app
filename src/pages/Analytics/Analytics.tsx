@@ -2,12 +2,6 @@ import { useLocation } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
 import Header, { HeaderTypes } from "../../components/Header/Header";
 import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
-import Button from "../../components/Button/Button";
-import { useState } from "react";
-import TextField from "../../components/TextField/TextField";
-import { Calendar2Event, CurrencyDollar } from "react-bootstrap-icons";
-import DatepickerHeader from "../../components/Header/DatepickerHeader";
-import DatePicker from "react-datepicker";
 
 const schema: Array<{ name: string; orderId: string; amount: number }> = [
   {
@@ -54,9 +48,6 @@ const schema: Array<{ name: string; orderId: string; amount: number }> = [
 const Analytics = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
-  const [addPayment, setAddPayment] = useState<boolean>(false);
-  const [date, setDate] = useState(new Date());
-  const handleAddPayment = () => setAddPayment((pre) => !pre);
   return (
     <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
@@ -107,49 +98,6 @@ const Analytics = () => {
                     </span>
                     <p className="text-medium text-red-main">- {item.amount}</p>
                   </div>
-                  {addPayment && (
-                    <div className="flex flex-col w-full gap-1 ">
-                      <TextField
-                        startIcon={
-                          <CurrencyDollar className="border-l pl-x-small" />
-                        }
-                        inputSize="x-large"
-                      />
-                      <DatePicker
-                        renderCustomHeader={(props) => (
-                          <DatepickerHeader {...props} />
-                        )}
-                        selected={date}
-                        onChange={(date: Date) => setDate(date)}
-                        dateFormat="MMMM d, yyyy"
-                        customInput={
-                          <TextField
-                            startIcon={
-                              <Calendar2Event className="border-l pl-x-small" />
-                            }
-                            inputSize="x-large"
-                            variant="fill"
-                          />
-                        }
-                      />
-                      <Button
-                        variant="base-blue"
-                        disabled={false}
-                        text="إضافة"
-                        size="xlg"
-                        onClick={handleAddPayment}
-                      />
-                    </div>
-                  )}
-                  {/* {!addPayment && (
-                    <Button
-                      variant="outlined"
-                      disabled={false}
-                      text="دفعة جديدة"
-                      size="xlg"
-                      onClick={handleAddPayment}
-                    />
-                  )} */}
                 </div>
               );
             })}

@@ -8,7 +8,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Button from "../../../components/Button/Button";
 import DeleteMedicine from "../DeleteMedicine/DeleteMedicine";
 import EditMedicine from "../EditMedicine/EditMedicine";
@@ -18,6 +18,9 @@ import { useAppSelector } from "../../../hooks/useAppSelector";
 import {
   findMedicineDetails,
   findMedicineDistributions,
+  findMedicinnBatches,
+  selectMedicineBatchesData,
+  selectMedicineBatchesStatus,
   selectMedicineDetailsData,
   selectMedicineDetailsStatus,
   selectMedicineDistributionsData,
@@ -36,13 +39,10 @@ interface TableSchema {
 }
 
 interface TableSchema2 {
-  batchId: number;
-  expireDate: Date;
+  id: number;
   quantity: string;
-  status: ReactNode;
 }
 
-const mockData = [{ batchId: 2, expireDate: new Date(), quantity: 200 }];
 const MedicineDetails = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
@@ -55,17 +55,20 @@ const MedicineDetails = () => {
   const status = useAppSelector(selectMedicineDetailsStatus);
   const distributionsData = useAppSelector(selectMedicineDistributionsData);
   const distributionsStatus = useAppSelector(selectMedicineDistributionsStatus);
+  const batchesStatus = useAppSelector(selectMedicineBatchesStatus);
+  const batchesData = useAppSelector(selectMedicineBatchesData);
   const [med, setMed] = useState<any>();
   useEffect(() => {
     Promise.all([
       dispatch(findMedicineDetails({ id: medicineId! })),
       dispatch(findMedicineDistributions({ id: medicineId! })),
+      dispatch(findMedicinnBatches({ id: medicineId! })),
     ]);
   }, [dispatch, medicineId]);
   let content = <NoData />,
     distributionsContent = <NoData />;
   useEffect(() => {
-    if (status ===ResponseStatus.SUCCEEDED) {
+    if (status === ResponseStatus.SUCCEEDED) {
       setMed(data.data);
     }
   }, [status, data]);
@@ -113,17 +116,12 @@ const MedicineDetails = () => {
       {
         header: "رقم الدفعة",
         cell: (row) => row.renderValue(),
-        accessorKey: "name",
+        accessorKey: "id",
       },
       {
         header: "الكمية المتوافرة",
         cell: (row) => row.renderValue(),
         accessorKey: "quantity",
-      },
-      {
-        header: "الحالة",
-        cell: (row) => row.renderValue(),
-        accessorKey: "status",
       },
     ],
     []
@@ -145,23 +143,27 @@ const MedicineDetails = () => {
     );
   }, [distributionsData, distributionsStatus]);
 
-  // const transformedData2: Array<TableSchema2> = useMemo(() => {
-  //   return (
-  //     distributionsStatus === "succeeded" &&
-  //     distributionsData.data &&
-  //     mockData.map((item: TableSchema2) => {
-  //       const now = new Date();
-  //       return {
-  //         batchId: item.batchId,
-  //         quantity: `${item.quantity} علبة`,
-  //         status: item.expireDate ,
-  //       };
-  //     })
-  //   );
-  // }, [distributionsData, distributionsStatus]);
+  const transformedData2: Array<TableSchema2> = useMemo(() => {
+    return (
+      batchesStatus === "succeeded" &&
+      batchesData.data &&
+      batchesData.data.map((item: TableSchema2) => {
+        return {
+          id: item.id,
+          quantity: `${item.quantity} علبة`,
+        };
+      })
+    );
+  }, [batchesData, batchesStatus]);
   const table = useReactTable({
     data: transformedData,
     columns,
+    getCoreRowModel: getCoreRowModel(),
+    debugTable: true,
+  });
+  const table2 = useReactTable({
+    data: transformedData2,
+    columns: columns2,
     getCoreRowModel: getCoreRowModel(),
     debugTable: true,
   });
@@ -304,7 +306,7 @@ const MedicineDetails = () => {
               <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
                 <table className="w-full min-w-max">
                   <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
+                    {table2.getHeaderGroups().map((headerGroup) => (
                       <tr
                         key={headerGroup.id}
                         className="sticky top-0 bg-greyScale-lighter"
@@ -331,8 +333,8 @@ const MedicineDetails = () => {
                     ))}
                   </thead>
                   <tbody>
-                    {table.getRowModel().rows.length > 0 ? (
-                      table.getRowModel().rows.map((row) => {
+                    {table2.getRowModel().rows.length > 0 ? (
+                      table2.getRowModel().rows.map((row) => {
                         return (
                           <tr
                             key={row.id}

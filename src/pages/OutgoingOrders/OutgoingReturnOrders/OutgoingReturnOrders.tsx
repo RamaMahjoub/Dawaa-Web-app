@@ -93,7 +93,7 @@ const OutgoingReturnOrders = () => {
         const date = new Date(order.returnOrderDate);
         return {
           id: `#${order.id}`,
-          orderDate: `${getMonth(
+          returnOrderDate: `${getMonth(
             date.getMonth() + 1
           )} ${date.getFullYear()}، ${date.getDate()} `,
           status: state,
@@ -142,7 +142,7 @@ const OutgoingReturnOrders = () => {
       <div className="flex flex-1 overflow-auto bg-greyScale-lighter gap-large p-large scrollbar-thin">
         <div className="flex flex-col w-full h-full bg-white p-large max-h-fit rounded-small">
           <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
-            <table className="w-full h-full min-w-max">
+            <table className="w-full min-w-max">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr
