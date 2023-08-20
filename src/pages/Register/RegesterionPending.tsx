@@ -5,7 +5,6 @@ import {
   isAccepted,
   selectIsAcceptedData,
   selectIsAcceptedStatus,
-  selectLoginStatus,
 } from "../../redux/authSlice";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { useNavigate } from "react-router-dom";

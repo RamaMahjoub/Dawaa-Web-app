@@ -20,6 +20,8 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { createOrder, selectCreateOrderStatus } from "../../redux/orderSlice";
 import { routes } from "../../router/constant";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import Clip from "../../components/Loading/Clip";
+import Beat from "../../components/Loading/Beat";
 
 const NotFound = require("./../../assets/medicines/not-found.png");
 
@@ -28,9 +30,11 @@ const SendOrder = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const { supplierId } = useParams();
-  let supplier;
+  const [supplier, setSupplier] = useState<any>();
+  let supplierContent;
   const dispatch = useAppDispatch();
   const basket = useAppSelector(selectBasket);
+  console.log(basket);
   const [total, setTotal] = useState<number>(0);
   const [medicineQuantities, setMedicineQuantities] = useState<{
     [key: number]: number;
@@ -106,12 +110,15 @@ const SendOrder = () => {
       handleFindMedicineFulfilled(item.medicine.data.price);
     });
   }, [dispatch, supplierId, basket]);
+
+  useEffect(() => {
+    supplierStatus === ResponseStatus.SUCCEEDED &&
+      setSupplier(supplierData.data);
+  }, [supplierStatus, supplierData.data]);
   if (supplierStatus === ResponseStatus.LOADING) {
-    supplier = <div>loading...</div>;
-  } else if (supplierStatus === ResponseStatus.SUCCEEDED) {
-    supplier = supplierData.data;
+    supplierContent = <Beat />;
   } else if (supplierStatus === ResponseStatus.FAILED) {
-    supplier = "";
+    supplierContent = <div>error...</div>;
   }
 
   const handleSend = () => {
@@ -151,7 +158,7 @@ const SendOrder = () => {
                     الجهة المستقبلة:
                   </td>
                   <td className="break-words text-greyScale-main text-medium">
-                    {supplier.name}
+                    {supplier !== undefined ? supplier.name : supplierContent}
                   </td>
                 </tr>
                 <tr>
@@ -167,7 +174,9 @@ const SendOrder = () => {
                     مكان التوصيل:
                   </td>
                   <td className="break-words text-greyScale-main text-medium">
-                    {supplier.location}
+                    {supplier !== undefined
+                      ? supplier.location
+                      : supplierContent}
                   </td>
                 </tr>
               </tbody>

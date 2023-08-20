@@ -16,11 +16,17 @@ const getSupplierMedicines = (
   id: string,
   page: string,
   limit: string,
-  category: string
+  category?: string
 ) => {
-  return protectedAxios.get<any>(
-    `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}&category=${category}`
-  );
+  let url;
+  category
+    ? (url = protectedAxios.get<any>(
+        `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}&category=${category}`
+      ))
+    : (url = protectedAxios.get<any>(
+        `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}`
+      ));
+  return url;
 };
 
 const SupplierService = {

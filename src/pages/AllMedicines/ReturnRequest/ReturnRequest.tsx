@@ -208,61 +208,64 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
               />
             </p>
             <div className="flex-col flex-1 gap-2 overflow-auto felx px-medium scrollbar-thin">
-              {medicines.length > 0 &&
-                medicines.map((medicien: any) => {
-                  return (
-                    <div key={`${medicien.id}${medicien.name}`}>
-                      <MedicineCard
-                        name={medicien.name}
-                        photoAlt={medicien.name}
-                        photoSrc={NotFound}
-                        action={
-                          medicineSelected(medicien.id) && (
-                            <Counter
-                              quantity={elements[medicien.id].quantity}
-                              max={elements[medicien.id]?.max}
-                              onChange={(newQuantity) =>
-                                handleQuantityChange(medicien.id, newQuantity)
-                              }
-                            />
-                          )
-                        }
-                        inactive={medicineSelected(medicien.id) ? false : true}
-                        className="cursor-pointer hover:bg-greyScale-lighter"
-                        onClick={() => actionElement(medicien.id)}
-                      />
-                      {medicineSelected(medicien.id) && (
-                        <div className="flex flex-col gap-medium">
-                          <DropdownProvider title="اختيار الدفعة">
-                            <Dropdown
-                              error={
-                                medicineSelected(medicien.id) &&
-                                elements[medicien.id].batchId === null
-                              }
-                            >
-                              <DropdownMenu>
-                                {medicien.batches.map((item: any) => (
-                                  <DropdownItem
-                                    key={`${item.expireDate}${item.id}`}
-                                    title={item.id.toString()}
-                                    subTitle={item.expireDate}
-                                    handleSelectValue={() =>
-                                      handleCaptureBatch(
-                                        medicien.id,
-                                        item.id,
-                                        item.quantity
-                                      )
-                                    }
-                                  />
-                                ))}
-                              </DropdownMenu>
-                            </Dropdown>
-                          </DropdownProvider>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+              {medicines.length > 0
+                ? medicines.map((medicien: any) => {
+                    return (
+                      <div key={`${medicien.id}${medicien.name}`}>
+                        <MedicineCard
+                          name={medicien.name}
+                          photoAlt={medicien.name}
+                          photoSrc={NotFound}
+                          action={
+                            medicineSelected(medicien.id) && (
+                              <Counter
+                                quantity={elements[medicien.id].quantity}
+                                max={elements[medicien.id]?.max}
+                                onChange={(newQuantity) =>
+                                  handleQuantityChange(medicien.id, newQuantity)
+                                }
+                              />
+                            )
+                          }
+                          inactive={
+                            medicineSelected(medicien.id) ? false : true
+                          }
+                          className="cursor-pointer hover:bg-greyScale-lighter"
+                          onClick={() => actionElement(medicien.id)}
+                        />
+                        {medicineSelected(medicien.id) && (
+                          <div className="flex flex-col gap-medium">
+                            <DropdownProvider title="اختيار الدفعة">
+                              <Dropdown
+                                error={
+                                  medicineSelected(medicien.id) &&
+                                  elements[medicien.id].batchId === null
+                                }
+                              >
+                                <DropdownMenu>
+                                  {medicien.batches.map((item: any) => (
+                                    <DropdownItem
+                                      key={`${item.expireDate}${item.id}`}
+                                      title={item.id.toString()}
+                                      subTitle={item.expireDate}
+                                      handleSelectValue={() =>
+                                        handleCaptureBatch(
+                                          medicien.id,
+                                          item.id,
+                                          item.quantity
+                                        )
+                                      }
+                                    />
+                                  ))}
+                                </DropdownMenu>
+                              </Dropdown>
+                            </DropdownProvider>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                : content.current}
               {hasMore && <Beat ref={endRef} />}
             </div>
             <div className="flex justify-center p-medium">

@@ -36,16 +36,25 @@ const SupplierDetails = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSupplierMedicinesData);
   const status = useAppSelector(selectSupplierMedicinesStatus);
+  console.log(data);
   let content;
   useEffect(() => {
-    dispatch(
-      getSupplierMedicines({
-        id: supplierId!,
-        limit: String(pageSize),
-        page: String(pageIndex),
-        category: filtered === "جميع الفئات" ? "" : filtered,
-      })
-    );
+    filtered !== "جميع الفئات"
+      ? dispatch(
+          getSupplierMedicines({
+            id: supplierId!,
+            limit: String(pageSize),
+            page: String(pageIndex),
+            category: filtered,
+          })
+        )
+      : dispatch(
+          getSupplierMedicines({
+            id: supplierId!,
+            limit: String(pageSize),
+            page: String(pageIndex),
+          })
+        );
   }, [dispatch, pageIndex, supplierId, pageSize, filtered]);
   if (status === ResponseStatus.LOADING) {
     content = <Beat />;
@@ -63,8 +72,7 @@ const SupplierDetails = () => {
             name={row.name}
             category={row.category}
             photoAlt={row.name}
-            //TODO: set the image from the response
-            photoSrc={NotFound}
+            photoSrc={row.imageUrl !== undefined ? row.imageUrl : NotFound}
             subtitle={`${row.price} ل.س`}
             action={
               <Button
@@ -135,7 +143,9 @@ const SupplierDetails = () => {
             <div className="flex flex-col items-center justify-between sm:flex-row">
               <CustomPagination
                 page={pageIndex + 1}
-                count={status === "succeeded" ? data.totalRecords : 0}
+                count={
+                  status === ResponseStatus.SUCCEEDED ? data.totalRecords : 0
+                }
                 onChange={handlePgination}
                 pageSize={pageSize}
               />

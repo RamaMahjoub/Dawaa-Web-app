@@ -54,7 +54,7 @@ const ReturnOrders = () => {
   };
 
   const [orders, setOrders] = useState<any>([]);
-  
+
   const [selectedReport, setselectedReport] = useState<{
     index: number;
     medicine: any;
@@ -97,7 +97,7 @@ const ReturnOrders = () => {
     rejectButton = "رفض الطلب";
   }
   useEffect(() => {
-    if (ordersStatus === ResponseStatus.SUCCEEDED) {
+    if (ordersStatus === ResponseStatus.SUCCEEDED && orders.length > 0) {
       setselectedReport({
         index: orders.length > 0 && orders[0].id,
         medicine: orders.length > 0 && orders[0].medicine,
