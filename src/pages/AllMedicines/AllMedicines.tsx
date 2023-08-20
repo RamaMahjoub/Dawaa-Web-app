@@ -6,7 +6,7 @@ import { PlusLg, Search } from "react-bootstrap-icons";
 import Button from "../../components/Button/Button";
 import { useMediaQuery } from "react-responsive";
 import IconButton from "../../components/Button/IconButton";
-import { useEffect, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useRef, useState } from "react";
 import MedicineCard from "../../components/MedicineCard/MedicineCard";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
 import { routes } from "../../router/constant";
@@ -30,6 +30,8 @@ const AllMedicines = () => {
   const title = HeaderTitle(pathname);
   const [filtered, setFiltered] = useState(catigoriesList[0]);
   const { pageIndex, pageSize, handlePgination } = usePagination(10);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const deferredQuery = useDeferredValue(searchQuery);
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectAllMedicinesData);
   const status = useAppSelector(selectAllMedicinesStatus);
@@ -39,12 +41,12 @@ const AllMedicines = () => {
       findAllMedicines({
         limit: String(pageSize),
         page: String(pageIndex),
-        category: filtered === "جميع الفئات" ? "" : filtered,
+        category: filtered !== "جميع الفئات" ? filtered : undefined,
+        name: deferredQuery !== "" ? deferredQuery : undefined,
       })
     );
-  }, [dispatch, pageIndex, pageSize, filtered]);
+  }, [dispatch, pageIndex, pageSize, filtered, deferredQuery]);
 
-  
   if (status === ResponseStatus.LOADING) {
     content.current = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {
@@ -87,6 +89,12 @@ const AllMedicines = () => {
   const handleNavigate = (medicineId: string) => {
     navigate(`/${routes.ALL_MEDICINES}/${medicineId}`);
   };
+  const handleSearch = (event: any) => {
+    setSearchQuery(event.target.value);
+  };
+  const handleFilter = (filter: string) => {
+    setFiltered(filter);
+  };
   return (
     <div className="flex flex-col h-screen">
       <div className="header">
@@ -96,6 +104,8 @@ const AllMedicines = () => {
             startIcon={<Search />}
             placeholder="بحث"
             inputSize="medium"
+            value={searchQuery}
+            onChange={handleSearch}
           />
           {isMobile ? (
             <IconButton
@@ -123,7 +133,7 @@ const AllMedicines = () => {
             text={category}
             size="med"
             className="min-w-max"
-            onClick={() => setFiltered(category)}
+            onClick={() => handleFilter(category)}
           />
         ))}
       </div>

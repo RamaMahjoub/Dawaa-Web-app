@@ -12,7 +12,6 @@ export default axios.create({
 });
 
 export const protectedAxios = axios.create({
-  // baseURL: "http://localhost:3000",
   baseURL: "https://makhzan.mouhandalkadri.com",
   headers: {
     "Content-Type": "application/json",

@@ -42,8 +42,9 @@ const initialState: SupplierState = {
 
 export const getAllSuppliers = createAsyncThunk(
   "warehouse/get-suppliers",
-  async () => {
-    const response = await SupplierService.getAllSuppliers();
+  async (params: { name?: string }) => {
+    const { name } = params;
+    const response = await SupplierService.getAllSuppliers(name);
     return response.data;
   }
 );
@@ -73,13 +74,16 @@ export const getSupplierMedicines = createAsyncThunk(
     limit: string;
     page: string;
     category?: string;
+    name?: string;
   }) => {
-    const { id, limit, page, category } = params;
+    const { id, limit, page, category, name } = params;
+
     const response = await SupplierService.getSupplierMedicines(
       id,
       page,
       limit,
-      category
+      category,
+      name
     );
     return response.data;
   }

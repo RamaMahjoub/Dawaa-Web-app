@@ -1,7 +1,21 @@
 import { protectedAxios } from "./axios";
 
-const getAllSuppliers = () => {
-  return protectedAxios.get<any>("/warehouse/get-suppliers");
+const getAllSuppliers = (name?: string) => {
+  const queryParams: { [key: string]: string } = {};
+
+  if (name) {
+    queryParams.name = name;
+  }
+  const queryString = Object.keys(queryParams)
+    .map(
+      (key) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`
+    )
+    .join("&");
+  const baseURL = `/warehouse/get-suppliers`;
+  const finalURL = `${baseURL}?${queryString}`;
+  console.log("final", finalURL);
+  return protectedAxios.get<any>(finalURL);
 };
 
 const getSupplierDetails = (id: string) => {
@@ -16,17 +30,28 @@ const getSupplierMedicines = (
   id: string,
   page: string,
   limit: string,
-  category?: string
+  category?: string,
+  name?: string
 ) => {
-  let url;
-  category
-    ? (url = protectedAxios.get<any>(
-        `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}&category=${category}`
-      ))
-    : (url = protectedAxios.get<any>(
-        `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}`
-      ));
-  return url;
+  const queryParams: { [key: string]: string } = {};
+
+  if (category) {
+    queryParams.category = category;
+  }
+
+  if (name) {
+    queryParams.name = name;
+  }
+  const queryString = Object.keys(queryParams)
+    .map(
+      (key) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`
+    )
+    .join("&");
+  const baseURL = `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}`;
+  const finalURL = `${baseURL}&${queryString}`;
+  console.log("final", finalURL);
+  return protectedAxios.get<any>(finalURL);
 };
 
 const SupplierService = {

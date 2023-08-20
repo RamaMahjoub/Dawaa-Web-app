@@ -5,8 +5,21 @@ const registerStore = (body: RegisterStoreSchema) => {
   return protectedAxios.post<any>("/auth/inventory-register", body);
 };
 
-const getAllStores = () => {
-  return protectedAxios.get<any>("/warehouse/inventories");
+const getAllStores = (name?: string) => {
+  const queryParams: { [key: string]: string } = {};
+  if (name) {
+    queryParams.name = name;
+  }
+  const queryString = Object.keys(queryParams)
+    .map(
+      (key) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`
+    )
+    .join("&");
+  const baseURL = `/warehouse/inventories`;
+  const finalURL = `${baseURL}?${queryString}`;
+  console.log("final", finalURL);
+  return protectedAxios.get<any>(finalURL);
 };
 
 const getMedicinesInStore = (page: string, limit: string, id: string) => {

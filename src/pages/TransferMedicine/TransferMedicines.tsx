@@ -77,7 +77,7 @@ const TransferMedicines = () => {
   const status = useAppSelector(selectAllStoresStatus);
   const sendStatus = useAppSelector(selectTransferBetweenInventoriesStatus);
   useEffect(() => {
-    dispatch(getAllStores());
+    dispatch(getAllStores({name: undefined}));
   }, [dispatch]);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {

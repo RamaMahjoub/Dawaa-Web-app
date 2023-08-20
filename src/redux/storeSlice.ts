@@ -44,8 +44,9 @@ export const registerStore = createAsyncThunk(
 
 export const getAllStores = createAsyncThunk(
   "warehouse/inventories",
-  async () => {
-    const response = await StoreService.getAllStores();
+  async (params: { name?: string }) => {
+    const { name } = params;
+    const response = await StoreService.getAllStores(name);
     return response.data;
   }
 );

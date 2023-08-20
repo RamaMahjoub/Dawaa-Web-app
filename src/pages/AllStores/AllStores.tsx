@@ -8,7 +8,7 @@ import IconButton from "../../components/Button/IconButton";
 import StoreCard from "./StoreCard";
 import Header, { HeaderTypes } from "../../components/Header/Header";
 import AddStore from "./AddStore/AddStore";
-import { useEffect } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -35,10 +35,13 @@ const AllStores = () => {
   const { open: openAddStore, handleOpen: handleOpenAddStore } =
     useOpenToggle();
   const { open: openPending, handleOpen: handleOpenPending } = useOpenToggle();
-
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const deferredQuery = useDeferredValue(searchQuery);
   useEffect(() => {
-    dispatch(getAllStores());
-  }, [dispatch]);
+    dispatch(
+      getAllStores({ name: deferredQuery !== "" ? deferredQuery : undefined })
+    );
+  }, [dispatch, deferredQuery]);
   useEffect(() => {
     if (addStoreStatus === ResponseStatus.SUCCEEDED) {
       handleOpenAddStore();
@@ -56,7 +59,9 @@ const AllStores = () => {
       <NoData />
     );
   }
-
+  const handleSearch = (event: any) => {
+    setSearchQuery(event.target.value);
+  };
   return (
     <>
       <div className="flex flex-col h-screen">
@@ -68,6 +73,8 @@ const AllStores = () => {
                 startIcon={<Search />}
                 placeholder="بحث"
                 inputSize="medium"
+                value={searchQuery}
+                onChange={handleSearch}
               />
               {isMobile ? (
                 <IconButton

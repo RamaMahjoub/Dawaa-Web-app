@@ -8,10 +8,31 @@ const findWarehouseOnlyMedicines = (page: string, limit: string) => {
     `/medicine/warehouse/all?limit=${limit}&page=${page}`
   );
 };
-const findAllMedicines = (page: string, limit: string, category?: string) => {
-  return protectedAxios.get<any>(
-    `/medicine/warehouse?limit=${limit}&page=${page}&category=${category}`
-  );
+const findAllMedicines = (
+  page: string,
+  limit: string,
+  category?: string,
+  name?: string
+) => {
+  const queryParams: { [key: string]: string } = {};
+
+  if (category) {
+    queryParams.category = category;
+  }
+
+  if (name) {
+    queryParams.name = name;
+  }
+  const queryString = Object.keys(queryParams)
+    .map(
+      (key) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`
+    )
+    .join("&");
+  const baseURL = `/medicine/warehouse?limit=${limit}&page=${page}`;
+  const finalURL = `${baseURL}&${queryString}`;
+  console.log("final", finalURL);
+  return protectedAxios.get<any>(finalURL);
 };
 
 const findMedicinDetails = (id: string) => {

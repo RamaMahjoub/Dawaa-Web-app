@@ -3,7 +3,7 @@ import TextField from "../../components/TextField/TextField";
 import { useLocation } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
 import Header, { HeaderTypes } from "../../components/Header/Header";
-import { useEffect } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -22,10 +22,16 @@ const Suppliers = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectAllSuppliersData);
   const status = useAppSelector(selectAllSuppliersStatus);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const deferredQuery = useDeferredValue(searchQuery);
   let content;
   useEffect(() => {
-    dispatch(getAllSuppliers());
-  }, [dispatch]);
+    dispatch(
+      getAllSuppliers({
+        name: deferredQuery !== "" ? deferredQuery : undefined,
+      })
+    );
+  }, [dispatch, deferredQuery]);
   if (status === ResponseStatus.LOADING) {
     content = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {
@@ -38,6 +44,9 @@ const Suppliers = () => {
         <NoData />
       );
   }
+  const handleSearch = (event: any) => {
+    setSearchQuery(event.target.value);
+  };
   return (
     <div className="flex flex-col h-screen">
       <Header
@@ -47,6 +56,8 @@ const Suppliers = () => {
             startIcon={<Search />}
             placeholder="بحث"
             inputSize="large"
+            value={searchQuery}
+            onChange={handleSearch}
           />
         }
         leftSpace={HeaderTypes.ALL}

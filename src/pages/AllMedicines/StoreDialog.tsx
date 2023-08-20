@@ -86,7 +86,7 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
     }));
   };
   useEffect(() => {
-    dispatch(getAllStores());
+    dispatch(getAllStores({ name: undefined }));
   }, [dispatch]);
 
   if (status === ResponseStatus.LOADING) {
@@ -107,7 +107,7 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
       };
       return dispatch(storeInInventory({ id: elements[key].inventoryId, body }))
         .then((response) => ({ success: true, response }))
-        .catch((error) => ({ success: false, error })); 
+        .catch((error) => ({ success: false, error }));
     });
 
     Promise.all(requests)

@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { HeaderTitle } from "../../../utils/HeaderTitle";
 import TextField from "../../../components/TextField/TextField";
 import Button from "../../../components/Button/Button";
-import { useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import MedicineCard from "../../../components/MedicineCard/MedicineCard";
 import CustomPagination from "../../../components/CustomPagination/CustomPagination";
 import { routes } from "../../../router/constant";
@@ -32,30 +32,24 @@ const SupplierDetails = () => {
   const [filtered, setFiltered] = useState(catigoriesList[0]);
   const { open, handleOpen } = useOpenToggle();
   const { pageIndex, pageSize, handlePgination } = usePagination(10);
-
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const deferredQuery = useDeferredValue(searchQuery);
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSupplierMedicinesData);
   const status = useAppSelector(selectSupplierMedicinesStatus);
-  console.log(data);
+
   let content;
   useEffect(() => {
-    filtered !== "جميع الفئات"
-      ? dispatch(
-          getSupplierMedicines({
-            id: supplierId!,
-            limit: String(pageSize),
-            page: String(pageIndex),
-            category: filtered,
-          })
-        )
-      : dispatch(
-          getSupplierMedicines({
-            id: supplierId!,
-            limit: String(pageSize),
-            page: String(pageIndex),
-          })
-        );
-  }, [dispatch, pageIndex, supplierId, pageSize, filtered]);
+    dispatch(
+      getSupplierMedicines({
+        id: supplierId!,
+        limit: String(pageSize),
+        page: String(pageIndex),
+        category: filtered !== "جميع الفئات" ? filtered : undefined,
+        name: deferredQuery !== "" ? deferredQuery : undefined,
+      })
+    );
+  }, [dispatch, pageIndex, supplierId, pageSize, filtered, deferredQuery]);
   if (status === ResponseStatus.LOADING) {
     content = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {
@@ -99,6 +93,12 @@ const SupplierDetails = () => {
   const handleAddToBasket = async (medicineId: number) => {
     await dispatch(findBasketMedicine({ medicineId, quantity: 1 }));
   };
+  const handleSearch = (event: any) => {
+    setSearchQuery(event.target.value);
+  };
+  const handleFilter = (filter: string) => {
+    setFiltered(filter);
+  };
   return (
     <>
       <div className="flex flex-col h-screen">
@@ -110,6 +110,8 @@ const SupplierDetails = () => {
                 startIcon={<Search />}
                 placeholder="بحث"
                 inputSize="medium"
+                value={searchQuery}
+                onChange={handleSearch}
               />
               <Button
                 variant="base-blue"
@@ -131,7 +133,7 @@ const SupplierDetails = () => {
               text={filter}
               size="med"
               className="min-w-max"
-              onClick={() => setFiltered(filter)}
+              onClick={() => handleFilter(filter)}
             />
           ))}
         </div>
