@@ -3,6 +3,7 @@ import Pending from "../../components/Pending";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import {
   isAccepted,
+  resetLoginStatus,
   selectIsAcceptedData,
   selectIsAcceptedStatus,
 } from "../../redux/authSlice";
@@ -19,10 +20,11 @@ const RegesterionPending = () => {
   const navigata = useNavigate();
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED && data === true) {
+      dispatch(resetLoginStatus());
       navigata(`/${routes.LOGIN}`);
       toast.success("تم قبول اشتراكك في النظام");
     }
-  }, [status, data, navigata]);
+  }, [status, data, navigata, dispatch]);
   useEffect(() => {
     dispatch(isAccepted());
     const intervalId = setInterval(() => {

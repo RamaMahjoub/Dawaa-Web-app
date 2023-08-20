@@ -9,7 +9,6 @@ import { registerDetailsValidationSchema } from "../../validations/registerDetai
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { completeInfo, selectCompleteInfoStatus } from "../../redux/authSlice";
-import Loading from "../../components/Loading/Clip";
 import { routes } from "../../router/constant";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
@@ -20,7 +19,6 @@ const RegisterDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectCompleteInfoStatus);
-  let buttonContent;
 
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
@@ -29,15 +27,6 @@ const RegisterDetails = () => {
     }
   }, [status, navigate]);
 
-  if (status === ResponseStatus.LOADING) {
-    buttonContent = <Loading />;
-  } else if (status === ResponseStatus.SUCCEEDED) {
-    buttonContent = "إرسال";
-  } else if (status === ResponseStatus.IDLE) {
-    buttonContent = "إرسال";
-  } else if (status === ResponseStatus.FAILED) {
-    buttonContent = "إرسال";
-  }
   const initialValues: RegisterDetailSchema = {
     name: "",
     location: "",
@@ -107,8 +96,9 @@ const RegisterDetails = () => {
             type="submit"
             variant="base-blue"
             disabled={false}
-            text={buttonContent}
+            text="إرسال"
             size="xlg"
+            status={status}
           />
         </form>
       </div>

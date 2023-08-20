@@ -17,7 +17,6 @@ import { routes } from "../../router/constant";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { login, register, selectRegisterStatus } from "../../redux/authSlice";
-import Loading from "../../components/Loading/Clip";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
 
@@ -35,7 +34,6 @@ const Register = () => {
   };
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectRegisterStatus);
-  let buttonContent;
 
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
@@ -43,16 +41,6 @@ const Register = () => {
       toast.success("تم إنشاء الحساب بنجاح");
     }
   }, [status, navigate]);
-
-  if (status === ResponseStatus.LOADING) {
-    buttonContent = <Loading />;
-  } else if (status === ResponseStatus.SUCCEEDED) {
-    buttonContent = "اشنراك";
-  } else if (status === ResponseStatus.IDLE) {
-    buttonContent = "اشنراك";
-  } else if (status === ResponseStatus.FAILED) {
-    buttonContent = "اشنراك";
-  }
 
   const initialValues: RegisterSchema = {
     fullName: "",
@@ -159,9 +147,10 @@ const Register = () => {
           <Button
             variant="base-blue"
             disabled={false}
-            text={buttonContent}
+            text="اشتراك"
             size="xlg"
             type="submit"
+            status={status}
           />
         </form>
         <p className="flex items-center justify-center text-greyScale-main text-medium gap-xx-small">

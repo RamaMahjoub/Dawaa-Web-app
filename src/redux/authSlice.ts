@@ -67,8 +67,12 @@ export const register = createAsyncThunk(
 export const login = createAsyncThunk(
   "auth/login-warehouse",
   async (body: LoginSchema) => {
-    const response = await AuthService.login(body);
-    return response.data;
+    try {
+      const response = await AuthService.login(body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 

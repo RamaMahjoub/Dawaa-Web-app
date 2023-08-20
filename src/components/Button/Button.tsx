@@ -2,6 +2,8 @@
 import { css } from "@emotion/react";
 import { ButtonHTMLAttributes, FC, ReactNode } from "react";
 import tw from "twin.macro";
+import { ResponseStatus } from "../../enums/ResponseStatus";
+import Clip from "../Loading/Clip";
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: keyof typeof variants;
@@ -10,6 +12,7 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   text: ReactNode;
   icon?: ReactNode;
   start?: boolean;
+  status?: string;
 }
 
 const variants = {
@@ -37,7 +40,7 @@ const useButtonStyles = () => {
     variant: keyof typeof variants,
     size: keyof typeof sizes
   ) => css`
-    ${tw`inline-flex justify-center items-center font-bold rounded-small text-medium transition-all duration-300 ease-in`}
+    ${tw`inline-flex items-center justify-center font-bold transition-all duration-300 ease-in rounded-small text-medium`}
     ${variants[variant]}
     ${sizes[size]}
   `;
@@ -59,13 +62,18 @@ const Button: FC<Props> = ({
   text,
   icon,
   start,
+  status,
   ...rest
 }) => {
   const styles = useButtonStyles();
+  console.log(status, text);
   return (
     <button css={styles.buttonWrapper(disabled, variant, size!)} {...rest}>
       <span css={styles.buttonContent}>
-        {start === true && icon} <p css={styles.buttonText}>{text}</p>
+        {start === true && icon}{" "}
+        <p css={styles.buttonText}>
+          {status === ResponseStatus.LOADING ? <Clip /> : text}
+        </p>
         {start === false && icon}
       </span>
     </button>
