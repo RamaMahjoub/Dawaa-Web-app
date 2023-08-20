@@ -60,7 +60,7 @@ const StoreMedicines = () => {
             name={row.name}
             category={row.medicineCategory}
             photoAlt={row.name}
-            photoSrc={NotFound}
+            photoSrc={row.imageUrl !== null ? row.imageUrl : NotFound}
             subtitle={row.medicineSupplier}
             action={
               <Button
@@ -77,7 +77,7 @@ const StoreMedicines = () => {
         <NoData />
       );
   } else if (status === ResponseStatus.FAILED) {
-    content = <div>error..</div>;
+    content = <div>حدث خطأ ما...</div>;
   }
 
   return (

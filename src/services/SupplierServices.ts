@@ -26,6 +26,13 @@ const findMedicine = (id: string) => {
   return protectedAxios.get<any>(`/medicine/warehouse/supplier/medicine/${id}`);
 };
 
+const supplierEvaluation = (id: string, body: any) => {
+  return protectedAxios.post<any>(
+    `/medicine/warehouse/supplier/medicine/${id}`,
+    body
+  );
+};
+
 const getSupplierMedicines = (
   id: string,
   page: string,
@@ -59,6 +66,7 @@ const SupplierService = {
   getSupplierDetails,
   findMedicine,
   getSupplierMedicines,
+  supplierEvaluation,
 };
 
 export default SupplierService;

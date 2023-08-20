@@ -7,7 +7,6 @@ import { useAppSelector } from "../../../hooks/useAppSelector";
 import { logout, selectLogoutStatus } from "../../../redux/authSlice";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../../router/constant";
-import Loading from "../../../components/Loading/Clip";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
 
@@ -30,16 +29,6 @@ const Logout: FC<Props> = ({ open, handleOpen }) => {
       toast.success("تم تسجيل الخروج بنجاح");
     }
   }, [status, navigate]);
-  let buttonContent;
-  if (status === ResponseStatus.LOADING) {
-    buttonContent = <Loading />;
-  } else if (status === ResponseStatus.SUCCEEDED) {
-    buttonContent = "تسجيل الخروج";
-  } else if (status === ResponseStatus.FAILED) {
-    buttonContent = "تسجيل الخروج";
-  } else if (status === ResponseStatus.IDLE) {
-    buttonContent = "تسجيل الخروج";
-  }
   return (
     <>
       {open && (
@@ -59,11 +48,12 @@ const Logout: FC<Props> = ({ open, handleOpen }) => {
             </div>
             <div className="flex justify-end p-medium gap-small">
               <Button
-                text={buttonContent}
+                text="تسجيل الخروج"
                 variant="red"
                 disabled={false}
                 size={isMobile ? "med" : "lg"}
                 onClick={handleLogout}
+                status={status}
               />
               <Button
                 text="إلغاء"

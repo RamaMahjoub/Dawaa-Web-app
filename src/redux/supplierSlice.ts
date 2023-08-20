@@ -19,9 +19,12 @@ type SupplierState = {
   supplierDetailsData: any;
   supplierDetailsStatus: string;
   supplierDetailsError: string | undefined;
-  findMedicineData: any;
-  findMedicineStatus: string;
-  findMedicineError: string | undefined;
+  findBasketMedicineData: any;
+  findBasketMedicineStatus: string;
+  findBasketMedicineError: string | undefined;
+  supplierEvaluaionData: any;
+  supplierEvaluaionStatus: string;
+  supplierEvaluaionError: string | undefined;
 };
 
 const initialState: SupplierState = {
@@ -35,9 +38,12 @@ const initialState: SupplierState = {
   supplierDetailsData: {},
   supplierDetailsStatus: ResponseStatus.IDLE,
   supplierDetailsError: undefined,
-  findMedicineData: [],
-  findMedicineStatus: ResponseStatus.IDLE,
-  findMedicineError: undefined,
+  findBasketMedicineData: [],
+  findBasketMedicineStatus: ResponseStatus.IDLE,
+  findBasketMedicineError: undefined,
+  supplierEvaluaionData: {},
+  supplierEvaluaionStatus: ResponseStatus.IDLE,
+  supplierEvaluaionError: undefined,
 };
 
 export const getAllSuppliers = createAsyncThunk(
@@ -65,13 +71,12 @@ export const getSupplierDetails = createAsyncThunk(
     }
   }
 );
-
-export const findMedicine = createAsyncThunk(
-  "/medicine/warehouse/supplier/medicine/:id",
-  async (params: { id: string }) => {
+export const supplierEvaluation = createAsyncThunk(
+  "warehouse/supplier-evaluation/:id",
+  async (params: { id: string; body: any }) => {
     try {
-      const { id } = params;
-      const response = await SupplierService.findMedicine(id);
+      const { id, body } = params;
+      const response = await SupplierService.supplierEvaluation(id, body);
       return response.data;
     } catch (error: any) {
       throw error.response.data.error || "حدث خطأ ما";
@@ -153,6 +158,9 @@ export const SupplierSlice = createSlice({
     clearBasket: (state) => {
       state.basket = [];
     },
+    resetFindBasketMedicineStatus: (state) => {
+      state.findBasketMedicineStatus = ResponseStatus.IDLE;
+    },
   },
   extraReducers(builder) {
     builder
@@ -198,24 +206,19 @@ export const SupplierSlice = createSlice({
         state.supplierMedicinesStatus = ResponseStatus.FAILED;
         state.supplierMedicinesError = action.error.message;
       })
-      .addCase(findMedicine.pending, (state) => {
-        state.findMedicineStatus = ResponseStatus.LOADING;
+      .addCase(supplierEvaluation.pending, (state) => {
+        state.supplierEvaluaionStatus = ResponseStatus.LOADING;
       })
-      .addCase(findMedicine.fulfilled, (state, action: PayloadAction<any>) => {
-        state.findMedicineStatus = ResponseStatus.SUCCEEDED;
-        const newItem = action.payload;
-
-        const existingItem = state.findMedicineData.find(
-          (item: any) => item.data.id === newItem.data.id
-        );
-
-        if (!existingItem) {
-          state.findMedicineData.push(newItem);
+      .addCase(
+        supplierEvaluation.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.supplierEvaluaionStatus = ResponseStatus.SUCCEEDED;
+          state.supplierEvaluaionData = action.payload;
         }
-      })
-      .addCase(findMedicine.rejected, (state, action) => {
-        state.findMedicineStatus = ResponseStatus.FAILED;
-        state.findMedicineError = action.error.message;
+      )
+      .addCase(supplierEvaluation.rejected, (state, action) => {
+        state.supplierEvaluaionStatus = ResponseStatus.FAILED;
+        state.supplierEvaluaionError = action.error.message;
       });
   },
 });
@@ -238,12 +241,19 @@ export const selectSupplierMedicinesData = (state: RootState) =>
   state.supplier.supplierMedicinesData;
 export const selectSupplierMedicinesError = (state: RootState) =>
   state.supplier.supplierMedicinesError;
-export const selectFindMedicineStatus = (state: RootState) =>
-  state.supplier.findMedicineStatus;
-export const selectFindMedicineData = (state: RootState) =>
-  state.supplier.findMedicineData;
-export const selectFindMedicineError = (state: RootState) =>
-  state.supplier.findMedicineError;
+export const selectFindBasketMedicineStatus = (state: RootState) =>
+  state.supplier.findBasketMedicineStatus;
+export const selectFindBasketMedicineData = (state: RootState) =>
+  state.supplier.findBasketMedicineData;
+export const selectFindBasketMedicineError = (state: RootState) =>
+  state.supplier.findBasketMedicineError;
+export const selectSupplierEvaluationStatus = (state: RootState) =>
+  state.supplier.supplierEvaluaionStatus;
+export const selectSupplierEvaluationData = (state: RootState) =>
+  state.supplier.supplierEvaluaionData;
+export const selectSupplierEvaluationError = (state: RootState) =>
+  state.supplier.supplierEvaluaionError;
 export const selectBasket = (state: RootState) => state.supplier.basket;
-export const { addToBasket, clearBasket } = SupplierSlice.actions;
+export const { addToBasket, clearBasket, resetFindBasketMedicineStatus } =
+  SupplierSlice.actions;
 export default SupplierSlice.reducer;

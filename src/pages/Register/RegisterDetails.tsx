@@ -8,7 +8,11 @@ import { useFormSubmit } from "../../hooks/useFormSubmit";
 import { registerDetailsValidationSchema } from "../../validations/registerDetails.validation";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { completeInfo, selectCompleteInfoStatus } from "../../redux/authSlice";
+import {
+  completeInfo,
+  selectCompleteInfoError,
+  selectCompleteInfoStatus,
+} from "../../redux/authSlice";
 import { routes } from "../../router/constant";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
@@ -19,13 +23,15 @@ const RegisterDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectCompleteInfoStatus);
-
+  const error = useAppSelector(selectCompleteInfoError);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.REGISTERION_PENDING}`);
       toast.success("تم إرسال المعلومات إلى مشرف النظام بنجاح");
+    } else if (status === ResponseStatus.FAILED) {
+      toast.error(error);
     }
-  }, [status, navigate]);
+  }, [status, navigate, error]);
 
   const initialValues: RegisterDetailSchema = {
     name: "",

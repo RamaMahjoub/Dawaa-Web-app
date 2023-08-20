@@ -39,9 +39,6 @@ const SupplierDetails = lazy(
 const OrderDetails = lazy(
   () => import("../pages/ReceivedOrders/OrderDetails/OrderDetails")
 );
-const StoreDetails = lazy(
-  () => import("../pages/AllStores/StoreDetails/StoreDetails")
-);
 const Settings = lazy(() => import("../pages/Settings/Settings"));
 const Analytics = lazy(() => import("../pages/Analytics/Analytics"));
 const ExpressOrders = lazy(
@@ -68,10 +65,6 @@ export const router = createBrowserRouter(
         <Route
           path={routes.ALL_STORES}
           element={<AuthGuard element={<AllStores />} />}
-        />
-        <Route
-          path={`${routes.ALL_STORES}/:storeId`}
-          element={<AuthGuard element={<StoreDetails />} />}
         />
         <Route
           path={routes.TRANSFER_MEDICINES}

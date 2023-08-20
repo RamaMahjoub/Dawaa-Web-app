@@ -1,14 +1,36 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Button from "../../components/Button/Button";
 import { CheckCircle, XSquareFill } from "react-bootstrap-icons";
 import { Rating } from "@mui/material";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  selectSupplierEvaluationError,
+  selectSupplierEvaluationStatus,
+  supplierEvaluation,
+} from "../../redux/supplierSlice";
+import { ResponseStatus } from "../../enums/ResponseStatus";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
   handleOpen: () => void;
+  supplierId: string;
 }
-const Review: FC<Props> = ({ open, handleOpen }) => {
+const Review: FC<Props> = ({ open, handleOpen, supplierId }) => {
   const [value, setValue] = useState<number | null>(null);
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectSupplierEvaluationStatus);
+  const error = useAppSelector(selectSupplierEvaluationError);
+
+  useEffect(() => {
+    if (status === ResponseStatus.SUCCEEDED) {
+      toast.success("تم إرسال تقييمك بنجاح");
+      handleOpen();
+    } else if (status === ResponseStatus.FAILED) {
+      toast.error(error);
+    }
+  }, [status, handleOpen, error]);
   const handleReview = (newVal: number | null) => {
     console.log(newVal);
     setValue(newVal);
@@ -19,6 +41,7 @@ const Review: FC<Props> = ({ open, handleOpen }) => {
       evaluation: value,
     };
     console.log(request);
+    dispatch(supplierEvaluation({ id: supplierId, body: request }));
   };
   return (
     <>
@@ -40,7 +63,6 @@ const Review: FC<Props> = ({ open, handleOpen }) => {
                 شاركنا رأيك حول التعامل مع هذه الشركة
               </p>
               <Rating
-              
                 size="large"
                 value={value}
                 onChange={(_, newValue) => {
@@ -55,6 +77,7 @@ const Review: FC<Props> = ({ open, handleOpen }) => {
                 disabled={false}
                 size="lg"
                 onClick={handleSendRequest}
+                status={status}
               />
             </div>
           </div>

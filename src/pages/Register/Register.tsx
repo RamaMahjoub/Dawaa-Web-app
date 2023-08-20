@@ -16,7 +16,12 @@ import { useEffect, useState } from "react";
 import { routes } from "../../router/constant";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { login, register, selectRegisterStatus } from "../../redux/authSlice";
+import {
+  login,
+  register,
+  selectRegisterError,
+  selectRegisterStatus,
+} from "../../redux/authSlice";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
 
@@ -34,13 +39,15 @@ const Register = () => {
   };
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectRegisterStatus);
-
+  const error = useAppSelector(selectRegisterError);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.REGISTER_DETAILS}`);
       toast.success("تم إنشاء الحساب بنجاح");
+    } else if (status === ResponseStatus.FAILED) {
+      toast.error(error);
     }
-  }, [status, navigate]);
+  }, [status, navigate, error]);
 
   const initialValues: RegisterSchema = {
     fullName: "",

@@ -7,9 +7,9 @@ import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import {
   editMedicine,
+  selectEditMedicineError,
   selectEditMedicineStatus,
 } from "../../../redux/medicineSlice";
-import Loading from "./../../../components/Loading/Clip";
 import { EditMedicineSchema } from "../../../Schema/request/editMedicine.schema";
 import { useFormSubmit } from "../../../hooks/useFormSubmit";
 import { editMedicineValidationSchema } from "../../../validations/editMedicine.validation";
@@ -32,21 +32,16 @@ const EditMedicine: FC<Props> = ({
 
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectEditMedicineStatus);
-  let buttonContent;
-  if (status === ResponseStatus.LOADING) {
-    buttonContent = <Loading />;
-  } else if (status === ResponseStatus.SUCCEEDED) {
-    buttonContent = "حفظ";
-    toast.success("تم تعديل سعر الدواء بنجاح");
-  } else if (status === ResponseStatus.IDLE) {
-    buttonContent = "حفظ";
-  } else if (status === ResponseStatus.FAILED) {
-    buttonContent = "حفظ";
-  }
+  const error = useAppSelector(selectEditMedicineError);
 
   useEffect(() => {
-    if (status === ResponseStatus.SUCCEEDED) handleOpen();
-  }, [status, handleOpen]);
+    if (status === ResponseStatus.SUCCEEDED) {
+      toast.success("تم تعديل سعر الدواء بنجاح");
+      handleOpen();
+    } else if (status === ResponseStatus.FAILED) {
+      toast.error(error);
+    }
+  }, [status, handleOpen, error]);
 
   const initialValues: EditMedicineSchema = {
     price: prePrice,
@@ -95,11 +90,12 @@ const EditMedicine: FC<Props> = ({
                 />
                 <div className="flex justify-end pt-small gap-small">
                   <Button
-                    text={buttonContent}
+                    text="حفظ"
                     variant="red"
                     disabled={false}
                     size={isMobile ? "med" : "lg"}
                     type="submit"
+                    status={status}
                   />
                   <Button
                     text="إلغاء"

@@ -8,7 +8,7 @@ import IconButton from "../../components/Button/IconButton";
 import StoreCard from "./StoreCard";
 import Header, { HeaderTypes } from "../../components/Header/Header";
 import AddStore from "./AddStore/AddStore";
-import { useDeferredValue, useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
@@ -29,7 +29,7 @@ const AllStores = () => {
   const title = HeaderTitle(pathname);
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectAllStoresData);
-  let content;
+  const content = useRef<any>(null);
   const status = useAppSelector(selectAllStoresStatus);
   const addStoreStatus = useAppSelector(selectAddStoreStatus);
   const { open: openAddStore, handleOpen: handleOpenAddStore } =
@@ -49,15 +49,15 @@ const AllStores = () => {
     }
   }, [addStoreStatus, handleOpenAddStore, handleOpenPending]);
   if (status === ResponseStatus.LOADING) {
-    content = <Beat />;
+    content.current = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {
-    content = data.data ? (
-      data.data.map((row: any, index: number) => (
-        <StoreCard storeData={row} index={index + 1} key={row.id} />
-      ))
-    ) : (
-      <NoData />
-    );
+    data.data
+      ? (content.current = data.data.map((row: any, index: number) => (
+          <StoreCard storeData={row} index={index + 1} key={row.id} />
+        )))
+      : (content.current = <NoData />);
+  } else if (status === ResponseStatus.FAILED) {
+    content.current = <div>حدث خطأ ما...</div>;
   }
   const handleSearch = (event: any) => {
     setSearchQuery(event.target.value);
@@ -98,7 +98,7 @@ const AllStores = () => {
           leftSpace={HeaderTypes.DISTRIPUTE}
         />
         <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large gap-large">
-          {content}
+          {content.current}
         </div>
       </div>
       {openAddStore && (

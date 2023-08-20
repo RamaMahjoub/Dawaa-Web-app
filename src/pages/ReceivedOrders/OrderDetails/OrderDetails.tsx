@@ -18,13 +18,18 @@ import {
   acceptOrder,
   deliverOrder,
   findReceivedOrderDetails,
+  resetAcceptStatus,
+  resetDeliverStatus,
+  resetRejectStatus,
+  selectAcceptOrderError,
   selectAcceptOrderStatus,
+  selectDeliverOrderError,
   selectDeliverOrderStatus,
   selectReceivedOrderDetailsData,
   selectReceivedOrderDetailsStatus,
+  selectRejectOrderError,
 } from "../../../redux/orderSlice";
 import Beat from "../../../components/Loading/Beat";
-import Loading from "../../../components/Loading/Clip";
 import NoData from "../../NoData/NoData";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
 import { toast } from "react-toastify";
@@ -42,6 +47,9 @@ const OrderDetails = () => {
   const acceptStatus = useAppSelector(selectAcceptOrderStatus);
   const rejectStatus = useAppSelector(selectAcceptOrderStatus);
   const delivertatus = useAppSelector(selectDeliverOrderStatus);
+  const acceptError = useAppSelector(selectAcceptOrderError);
+  const rejectError = useAppSelector(selectRejectOrderError);
+  const deliveError = useAppSelector(selectDeliverOrderError);
   const [orderStatus, setOrderStatus] = useState<string>();
   useEffect(() => {
     dispatch(findReceivedOrderDetails({ id: orderId! }));
@@ -76,10 +84,6 @@ const OrderDetails = () => {
       setOrderStatus(data.data.status);
     }
   }, [status, data]);
-  let acceptButtonContent: any,
-    rejectButtonContent: any,
-    deliverButtonContet: any;
-
   if (status === ResponseStatus.LOADING) {
     contentRef.current = <Beat />;
   } else if (status === ResponseStatus.IDLE) {
@@ -87,6 +91,11 @@ const OrderDetails = () => {
   } else if (status === ResponseStatus.FAILED) {
     contentRef.current = <div>error...</div>;
   }
+  useEffect(() => {
+    dispatch(resetAcceptStatus());
+    dispatch(resetDeliverStatus());
+    dispatch(resetRejectStatus());
+  }, [dispatch]);
 
   const handleAccept = () => {
     dispatch(acceptOrder({ id: orderId! }));
@@ -100,48 +109,33 @@ const OrderDetails = () => {
     dispatch(deliverOrder({ id: orderId! }));
   };
 
-  if (acceptStatus === ResponseStatus.LOADING) {
-    acceptButtonContent = <Loading />;
-  } else if (acceptStatus === ResponseStatus.SUCCEEDED) {
-    acceptButtonContent = "قبول الطلب";
-    toast.success("تم قبول الطلب بنجاح");
-  } else if (acceptStatus === ResponseStatus.IDLE) {
-    acceptButtonContent = "قبول الطلب";
-  } else if (acceptStatus === ResponseStatus.FAILED) {
-    acceptButtonContent = "قبول الطلب";
-  }
-
-  if (delivertatus === ResponseStatus.LOADING) {
-    deliverButtonContet = <Loading />;
-  } else if (delivertatus === ResponseStatus.SUCCEEDED) {
-    deliverButtonContet = "تم التسليم";
-    toast.success("تم تسليم الطلب بنجاح");
-  } else if (delivertatus === ResponseStatus.IDLE) {
-    deliverButtonContet = "تم التسليم";
-  } else if (delivertatus === ResponseStatus.FAILED) {
-    deliverButtonContet = "تم التسليم";
-  }
-
-  if (rejectStatus === ResponseStatus.LOADING) {
-    rejectButtonContent = <Loading />;
-  } else if (rejectStatus === ResponseStatus.SUCCEEDED) {
-    rejectButtonContent = "رفض الطلب";
-    toast.success("تم رفض الطلب بنجاح");
-  } else if (rejectStatus === ResponseStatus.IDLE) {
-    rejectButtonContent = "رفض الطلب";
-  } else if (rejectStatus === ResponseStatus.FAILED) {
-    rejectButtonContent = "رفض الطلب";
-  }
-
   useEffect(() => {
-    if (acceptStatus === ResponseStatus.SUCCEEDED) setOrderStatus("Accepted");
-  }, [acceptStatus]);
+    if (acceptStatus === ResponseStatus.SUCCEEDED) {
+      setOrderStatus("Accepted");
+      toast.success("تم قبول الطلب بنجاح");
+    }
+    if (acceptStatus === ResponseStatus.FAILED) {
+      toast.error(acceptError);
+    }
+  }, [acceptStatus, acceptError]);
   useEffect(() => {
-    if (rejectStatus === ResponseStatus.SUCCEEDED) setOrderStatus("Rejected");
-  }, [rejectStatus]);
+    if (rejectStatus === ResponseStatus.SUCCEEDED) {
+      setOrderStatus("Rejected");
+      toast.success("تم رفض الطلب بنجاح");
+    }
+    if (rejectStatus === ResponseStatus.FAILED) {
+      toast.error(rejectError);
+    }
+  }, [rejectStatus, rejectError]);
   useEffect(() => {
-    if (delivertatus === ResponseStatus.SUCCEEDED) setOrderStatus("Delivered");
-  }, [delivertatus]);
+    if (delivertatus === ResponseStatus.SUCCEEDED) {
+      setOrderStatus("Delivered");
+      toast.success("تم تسليم الطلب بنجاح");
+    }
+    if (delivertatus === ResponseStatus.FAILED) {
+      toast.error(deliveError);
+    }
+  }, [delivertatus, deliveError]);
   return (
     <>
       <div className="flex flex-col h-screen">
@@ -168,34 +162,37 @@ const OrderDetails = () => {
             {orderStatus && orderStatus === "Pending" && (
               <>
                 <Button
-                  text={acceptButtonContent}
+                  text="قبول الطلب"
                   variant="secondary-light"
                   disabled={false}
                   size="med"
                   className="min-w-max"
                   style={{ flex: "1" }}
                   onClick={handleAccept}
+                  status={acceptStatus}
                 />
                 <Button
-                  text={rejectButtonContent}
+                  text="رفض الطلب"
                   variant="red"
                   disabled={false}
                   size="med"
                   className="min-w-max"
                   style={{ flex: "1" }}
                   onClick={handleReject}
+                  status={rejectStatus}
                 />
               </>
             )}
             {orderStatus && orderStatus === "Accepted" && (
               <Button
-                text={deliverButtonContet}
+                text="تم التسليم"
                 variant="green"
                 disabled={false}
                 size="med"
                 className="min-w-max"
                 style={{ flex: "1" }}
                 onClick={handleDeliver}
+                status={delivertatus}
               />
             )}
           </div>

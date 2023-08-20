@@ -10,12 +10,18 @@ import DropdownItem from "../../../components/Dropdown/DropdownItem";
 import { useOpenToggle } from "../../../hooks/useOpenToggle";
 import {
   findMedicinesToReeturn,
+  resetReturnMedicinesStatus,
   returnMedicines,
+  selectReturnMedicinesError,
+  selectReturnMedicinesStatus,
 } from "../../../redux/medicineSlice";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { usePagination } from "../../../hooks/usePagination";
 import NoData from "../../NoData/NoData";
 import Beat from "../../../components/Loading/Beat";
+import { useAppSelector } from "../../../hooks/useAppSelector";
+import { ResponseStatus } from "../../../enums/ResponseStatus";
+import { toast } from "react-toastify";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 
 interface Props {
@@ -33,6 +39,8 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
     setReason(e.target.value);
   };
   const dispatch = useAppDispatch();
+  const status = useAppSelector(selectReturnMedicinesStatus);
+  const error = useAppSelector(selectReturnMedicinesError);
   const [elements, setUiElements] = useState<Array<{ [key: string]: any }>>([]);
   const actionElement = (index: string) => {
     if (!medicineSelected(index)) {
@@ -95,18 +103,21 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
             quantity: element.quantity,
           };
         });
-        //TODO set a Toast error
         if (isValid) {
           dispatch(returnMedicines({ returnReason: reason, batches: request }));
-          handleOpen();
+        } else {
+          toast.error("المعلومات المدخلة غير مكتملة");
         }
+      } else {
+        toast.error("المعلومات المدخلة غير مكتملة");
       }
+    } else {
+      toast.error("المعلومات المدخلة غير مكتملة");
     }
   };
   const onIntersection = useCallback(
     async (entries: any) => {
       const firstEntry = entries[0];
-
       if (firstEntry.isIntersecting && hasMore && !isFetching) {
         setIsFetching(true);
 
@@ -129,7 +140,7 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
             if (medicines.length === 0) content.current = <NoData />;
           }
         } catch (error) {
-          content.current = <div>error...</div>;
+          content.current = <div>حدث خطأ ما...</div>;
         } finally {
           setIsFetching(false);
         }
@@ -146,15 +157,25 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
     ]
   );
   useEffect(() => {
+    if (status === ResponseStatus.SUCCEEDED) {
+      handleOpen();
+      toast.success("تم إرسال الطلب بنجاح");
+      dispatch(resetReturnMedicinesStatus());
+    } else if (status === ResponseStatus.FAILED) {
+      toast.error(error);
+    }
+  }, [status, error, handleOpen, dispatch]);
+
+  useEffect(() => {
     const observer = new IntersectionObserver(onIntersection);
-    if (observer && endRef.current) {
+    if (observer && endRef.current && openChoose) {
       observer.observe(endRef.current);
     }
 
     return () => {
       if (observer) observer.disconnect();
     };
-  }, [onIntersection]);
+  }, [onIntersection, openChoose]);
   return (
     <>
       {open && (
@@ -191,6 +212,7 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
                   disabled={false}
                   size="lg"
                   onClick={handleSendRequest}
+                  status={status}
                 />
               </div>
             </div>
@@ -215,7 +237,11 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
                         <MedicineCard
                           name={medicien.name}
                           photoAlt={medicien.name}
-                          photoSrc={NotFound}
+                          photoSrc={
+                            medicien.imageUrl !== null
+                              ? medicien.imageUrl
+                              : NotFound
+                          }
                           action={
                             medicineSelected(medicien.id) && (
                               <Counter

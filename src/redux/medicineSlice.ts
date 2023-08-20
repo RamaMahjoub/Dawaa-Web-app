@@ -222,7 +222,11 @@ export const findAllSendedReturnMedicines = createAsyncThunk(
 export const medicineSlice = createSlice({
   name: "medicine",
   initialState,
-  reducers: {},
+  reducers: {
+    resetReturnMedicinesStatus: (state) => {
+      state.returnMedicinesStatus = ResponseStatus.IDLE;
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(findWarehouseOnlyMedicines.pending, (state) => {
@@ -434,5 +438,5 @@ export const selectEditMedicineData = (state: RootState) =>
   state.medicine.editMedicineData;
 export const selectEditMedicineError = (state: RootState) =>
   state.medicine.editMedicineError;
-
+export const { resetReturnMedicinesStatus } = medicineSlice.actions;
 export default medicineSlice.reducer;

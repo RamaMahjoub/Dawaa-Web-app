@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Button from "../../../components/Button/Button";
 import TextField from "../../../components/TextField/TextField";
 import {
@@ -15,10 +15,13 @@ import {
 import { useFormSubmit } from "../../../hooks/useFormSubmit";
 import { RegisterStoreSchema } from "../../../Schema/request/registerStore.schema";
 import { registerStoreValidationSchema } from "../../../validations/registerStore.validation";
-import { registerStore, selectAddStoreStatus } from "../../../redux/storeSlice";
+import {
+  registerStore,
+  selectAddStoreError,
+  selectAddStoreStatus,
+} from "../../../redux/storeSlice";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
-import Loading from "../../../components/Loading/Clip";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
 
@@ -30,6 +33,7 @@ interface Props {
 const AddStore: FC<Props> = ({ open, handleOpen }) => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectAddStoreStatus);
+  const error = useAppSelector(selectAddStoreError);
   const [showPass, setShowPass] = useState<boolean>(false);
   const handleShowPassword = () => {
     setShowPass((pre) => !pre);
@@ -50,17 +54,15 @@ const AddStore: FC<Props> = ({ open, handleOpen }) => {
     handleSubmit,
     registerStoreValidationSchema
   );
-  let buttonContent;
-  if (status === ResponseStatus.LOADING) {
-    buttonContent = <Loading />;
-  } else if (status === ResponseStatus.SUCCEEDED) {
-    toast.success("تم تسجيل الحساب بنجاح");
-    buttonContent = "حفظ";
-  } else if (status === ResponseStatus.IDLE) {
-    buttonContent = "حفظ";
-  } else if (status === ResponseStatus.FAILED) {
-    buttonContent = "حفظ";
-  }
+
+  useEffect(() => {
+    if (status === ResponseStatus.SUCCEEDED) {
+      toast.success("تم تسجيل الحساب بنجاح");
+    } else if (status === ResponseStatus.FAILED) {
+      toast.error(error);
+    }
+  }, [status, error]);
+
   return (
     <>
       {open && (
@@ -175,11 +177,12 @@ const AddStore: FC<Props> = ({ open, handleOpen }) => {
                 />
                 <div className="flex justify-center p-medium">
                   <Button
-                    text={buttonContent}
+                    text="حفظ"
                     type="submit"
                     variant="base-blue"
                     disabled={false}
                     size="lg"
+                    status={status}
                   />
                 </div>
               </form>

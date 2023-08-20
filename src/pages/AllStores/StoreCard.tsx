@@ -1,8 +1,5 @@
 import { FC } from "react";
 import { OStoreSchema } from "../../Schema/response/Store.schema";
-import Button from "../../components/Button/Button";
-import { useNavigate } from "react-router-dom";
-import { routes } from "../../router/constant";
 
 interface Props {
   storeData: OStoreSchema;
@@ -10,10 +7,7 @@ interface Props {
 }
 
 const StoreCard: FC<Props> = ({ storeData, index }) => {
-  const navigate = useNavigate();
-  const handleNavigate = () => {
-    navigate(`/${routes.ALL_STORES}/${storeData.id}`);
-  };
+
   return (
     <div className="w-full bg-white p-large rounded-small">
       <div className="flex items-center justify-between pb-small">
@@ -21,13 +15,6 @@ const StoreCard: FC<Props> = ({ storeData, index }) => {
           <p>{index < 10 ? `0${index}` : index}</p>
           <p className="px-medium">{storeData.name}</p>
         </span>
-        <Button
-          variant="secondary-light"
-          disabled={false}
-          text="عرض الأدوية"
-          size="med"
-          onClick={handleNavigate}
-        />
       </div>
       <div className="justify-between leading-loose bg-greyScale-lighter h-fit rounded-small p-large sm:flex">
         <span className="flex flex-col items-center grow">

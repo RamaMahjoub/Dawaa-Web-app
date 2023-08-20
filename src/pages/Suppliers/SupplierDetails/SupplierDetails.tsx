@@ -34,6 +34,7 @@ const SupplierDetails = () => {
   const { pageIndex, pageSize, handlePgination } = usePagination(10);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const deferredQuery = useDeferredValue(searchQuery);
+  const [disaple, setDisaple] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSupplierMedicinesData);
   const status = useAppSelector(selectSupplierMedicinesStatus);
@@ -84,6 +85,8 @@ const SupplierDetails = () => {
       ) : (
         <NoData />
       );
+  } else if (status === ResponseStatus.FAILED) {
+    content = <div>حدث خطأ ما...</div>;
   }
   const navigate = useNavigate();
   const handleNavigate = () => {
@@ -91,7 +94,9 @@ const SupplierDetails = () => {
   };
 
   const handleAddToBasket = async (medicineId: number) => {
+    setDisaple(true);
     await dispatch(findBasketMedicine({ medicineId, quantity: 1 }));
+    setDisaple(false);
   };
   const handleSearch = (event: any) => {
     setSearchQuery(event.target.value);
@@ -154,7 +159,7 @@ const SupplierDetails = () => {
 
               <Button
                 variant="base-blue"
-                disabled={false}
+                disabled={disaple}
                 icon={<Cart2 fontSize="small" />}
                 start={false}
                 text="السلة"
@@ -166,7 +171,7 @@ const SupplierDetails = () => {
           </div>
         </div>
       </div>
-      <Review open={open} handleOpen={handleOpen} />
+      <Review open={open} handleOpen={handleOpen} supplierId={supplierId!} />
     </>
   );
 };

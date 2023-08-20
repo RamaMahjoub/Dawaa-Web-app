@@ -43,6 +43,8 @@ const Suppliers = () => {
       ) : (
         <NoData />
       );
+  } else if (status === ResponseStatus.FAILED) {
+    content = <div>حدث خطأ ما...</div>;
   }
   const handleSearch = (event: any) => {
     setSearchQuery(event.target.value);

@@ -66,7 +66,8 @@ const MedicineDetails = () => {
     ]);
   }, [dispatch, medicineId]);
   let content = <NoData />,
-    distributionsContent = <NoData />;
+    distributionsContent = <NoData />,
+    batchesInWarehouseContent = <NoData />;
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
       setMed(data.data);
@@ -76,16 +77,22 @@ const MedicineDetails = () => {
   if (status === ResponseStatus.LOADING) {
     content = <Beat />;
   } else if (status === ResponseStatus.FAILED) {
-    content = <div>error...</div>;
+    content = <div>حدث خطأ ما...</div>;
   }
 
   if (distributionsStatus === ResponseStatus.LOADING) {
     distributionsContent = <Beat />;
   } else if (distributionsStatus === ResponseStatus.FAILED) {
-    distributionsContent = <div>error...</div>;
+    distributionsContent = <div>حدث خطأ ما...</div>;
   }
 
-  const columns = useMemo<ColumnDef<TableSchema>[]>(
+  if (batchesStatus === ResponseStatus.LOADING) {
+    batchesInWarehouseContent = <Beat />;
+  } else if (batchesStatus === ResponseStatus.FAILED) {
+    batchesInWarehouseContent = <div>حدث خطأ ما...</div>;
+  }
+
+  const inventoriesDistribution = useMemo<ColumnDef<TableSchema>[]>(
     () => [
       {
         header: "اسم المخزن",
@@ -111,7 +118,7 @@ const MedicineDetails = () => {
     []
   );
 
-  const columns2 = useMemo<ColumnDef<TableSchema2>[]>(
+  const batchesInWarehouse = useMemo<ColumnDef<TableSchema2>[]>(
     () => [
       {
         header: "رقم الدفعة",
@@ -127,8 +134,7 @@ const MedicineDetails = () => {
     []
   );
 
-  console.log(distributionsData.data);
-  const transformedData: Array<TableSchema> = useMemo(() => {
+  const inventoriesDistributionData: Array<TableSchema> = useMemo(() => {
     return (
       distributionsStatus === ResponseStatus.SUCCEEDED &&
       distributionsData.data &&
@@ -143,7 +149,7 @@ const MedicineDetails = () => {
     );
   }, [distributionsData, distributionsStatus]);
 
-  const transformedData2: Array<TableSchema2> = useMemo(() => {
+  const batchesInWarehouseData: Array<TableSchema2> = useMemo(() => {
     return (
       batchesStatus === "succeeded" &&
       batchesData.data &&
@@ -155,15 +161,16 @@ const MedicineDetails = () => {
       })
     );
   }, [batchesData, batchesStatus]);
-  const table = useReactTable({
-    data: transformedData,
-    columns,
+
+  const inventoriesDistributionTable = useReactTable({
+    data: inventoriesDistributionData,
+    columns: inventoriesDistribution,
     getCoreRowModel: getCoreRowModel(),
     debugTable: true,
   });
-  const table2 = useReactTable({
-    data: transformedData2,
-    columns: columns2,
+  const batchesInWarehouseTabel = useReactTable({
+    data: batchesInWarehouseData,
+    columns: batchesInWarehouse,
     getCoreRowModel: getCoreRowModel(),
     debugTable: true,
   });
@@ -240,59 +247,66 @@ const MedicineDetails = () => {
               <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
                 <table className="w-full min-w-max">
                   <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <tr
-                        key={headerGroup.id}
-                        className="sticky top-0 bg-greyScale-lighter"
-                      >
-                        {headerGroup.headers.map((header) => {
-                          return (
-                            <th
-                              key={header.id}
-                              className="py-medium px-small text-center min-w-[150px] text-medium text-greyScale-light first:rounded-tr-med first:rounded-br-med last:rounded-tl-med last:rounded-bl-med"
-                              colSpan={header.colSpan}
-                            >
-                              {header.isPlaceholder ? null : (
-                                <div>
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                </div>
-                              )}
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    ))}
+                    {inventoriesDistributionTable
+                      .getHeaderGroups()
+                      .map((headerGroup) => (
+                        <tr
+                          key={headerGroup.id}
+                          className="sticky top-0 bg-greyScale-lighter"
+                        >
+                          {headerGroup.headers.map((header) => {
+                            return (
+                              <th
+                                key={header.id}
+                                className="py-medium px-small text-center min-w-[150px] text-medium text-greyScale-light first:rounded-tr-med first:rounded-br-med last:rounded-tl-med last:rounded-bl-med"
+                                colSpan={header.colSpan}
+                              >
+                                {header.isPlaceholder ? null : (
+                                  <div>
+                                    {flexRender(
+                                      header.column.columnDef.header,
+                                      header.getContext()
+                                    )}
+                                  </div>
+                                )}
+                              </th>
+                            );
+                          })}
+                        </tr>
+                      ))}
                   </thead>
                   <tbody>
-                    {table.getRowModel().rows.length > 0 ? (
-                      table.getRowModel().rows.map((row) => {
-                        return (
-                          <tr
-                            key={row.id}
-                            className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
-                          >
-                            {row.getVisibleCells().map((cell) => {
-                              return (
-                                <td
-                                  key={cell.id}
-                                  className="py-medium px-small text-center min-w-[150px] max-w-[150px] font-semibold text-medium text-greyScale-main overflow-hidden text-ellipsis whitespace-nowrap"
-                                >
-                                  {flexRender(
-                                    cell.column.columnDef.cell,
-                                    cell.getContext()
-                                  )}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        );
-                      })
+                    {inventoriesDistributionTable.getRowModel().rows.length >
+                    0 ? (
+                      inventoriesDistributionTable
+                        .getRowModel()
+                        .rows.map((row) => {
+                          return (
+                            <tr
+                              key={row.id}
+                              className="transition-colors duration-300 ease-in border-b border-opacity-50 cursor-pointer border-greyScale-light hover:bg-greyScale-lighter"
+                            >
+                              {row.getVisibleCells().map((cell) => {
+                                return (
+                                  <td
+                                    key={cell.id}
+                                    className="py-medium px-small text-center min-w-[150px] max-w-[150px] font-semibold text-medium text-greyScale-main overflow-hidden text-ellipsis whitespace-nowrap"
+                                  >
+                                    {flexRender(
+                                      cell.column.columnDef.cell,
+                                      cell.getContext()
+                                    )}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          );
+                        })
                     ) : (
                       <tr>
-                        <td colSpan={columns.length}>{distributionsContent}</td>
+                        <td colSpan={inventoriesDistribution.length}>
+                          {distributionsContent}
+                        </td>
                       </tr>
                     )}
                   </tbody>
@@ -306,35 +320,37 @@ const MedicineDetails = () => {
               <div className="flex-1 overflow-auto bg-white scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
                 <table className="w-full min-w-max">
                   <thead>
-                    {table2.getHeaderGroups().map((headerGroup) => (
-                      <tr
-                        key={headerGroup.id}
-                        className="sticky top-0 bg-greyScale-lighter"
-                      >
-                        {headerGroup.headers.map((header) => {
-                          return (
-                            <th
-                              key={header.id}
-                              className="py-medium px-small text-center min-w-[150px] text-medium text-greyScale-light first:rounded-tr-med first:rounded-br-med last:rounded-tl-med last:rounded-bl-med"
-                              colSpan={header.colSpan}
-                            >
-                              {header.isPlaceholder ? null : (
-                                <div>
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                </div>
-                              )}
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    ))}
+                    {batchesInWarehouseTabel
+                      .getHeaderGroups()
+                      .map((headerGroup) => (
+                        <tr
+                          key={headerGroup.id}
+                          className="sticky top-0 bg-greyScale-lighter"
+                        >
+                          {headerGroup.headers.map((header) => {
+                            return (
+                              <th
+                                key={header.id}
+                                className="py-medium px-small text-center min-w-[150px] text-medium text-greyScale-light first:rounded-tr-med first:rounded-br-med last:rounded-tl-med last:rounded-bl-med"
+                                colSpan={header.colSpan}
+                              >
+                                {header.isPlaceholder ? null : (
+                                  <div>
+                                    {flexRender(
+                                      header.column.columnDef.header,
+                                      header.getContext()
+                                    )}
+                                  </div>
+                                )}
+                              </th>
+                            );
+                          })}
+                        </tr>
+                      ))}
                   </thead>
                   <tbody>
-                    {table2.getRowModel().rows.length > 0 ? (
-                      table2.getRowModel().rows.map((row) => {
+                    {batchesInWarehouseTabel.getRowModel().rows.length > 0 ? (
+                      batchesInWarehouseTabel.getRowModel().rows.map((row) => {
                         return (
                           <tr
                             key={row.id}
@@ -358,7 +374,9 @@ const MedicineDetails = () => {
                       })
                     ) : (
                       <tr>
-                        <td colSpan={columns.length}>{distributionsContent}</td>
+                        <td colSpan={batchesInWarehouse.length}>
+                          {batchesInWarehouseContent}
+                        </td>
                       </tr>
                     )}
                   </tbody>

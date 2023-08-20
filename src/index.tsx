@@ -17,7 +17,7 @@ root.render(
     
     <ToastContainer
       transition={Flip}
-      autoClose={500000}
+      autoClose={100000}
       hideProgressBar={true}
       theme="colored"
       position={toast.POSITION.BOTTOM_LEFT}

@@ -17,11 +17,15 @@ import {
 } from "../../redux/supplierSlice";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { createOrder, selectCreateOrderStatus } from "../../redux/orderSlice";
+import {
+  createOrder,
+  selectCreateOrderError,
+  selectCreateOrderStatus,
+} from "../../redux/orderSlice";
 import { routes } from "../../router/constant";
 import { ResponseStatus } from "../../enums/ResponseStatus";
-import Clip from "../../components/Loading/Clip";
 import Beat from "../../components/Loading/Beat";
+import { toast } from "react-toastify";
 
 const NotFound = require("./../../assets/medicines/not-found.png");
 
@@ -70,12 +74,16 @@ const SendOrder = () => {
   const supplierStatus = useAppSelector(selectSupplierDetailsStatus);
   const supplierData = useAppSelector(selectSupplierDetailsData);
   const createOrderStatus = useAppSelector(selectCreateOrderStatus);
+  const createOrderError = useAppSelector(selectCreateOrderError);
   const navigate = useNavigate();
   useEffect(() => {
     if (createOrderStatus === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.SUPPLIERS}/${supplierId}`);
+      toast.success("تم إرسال الطلب بنجاح");
+    } else if (createOrderStatus === ResponseStatus.FAILED) {
+      toast.error(createOrderError);
     }
-  }, [createOrderStatus, navigate, supplierId]);
+  }, [createOrderStatus, navigate, supplierId, createOrderError]);
   let medicines = basket.map((item: Basket) => {
     return (
       <MedicineCard
@@ -191,6 +199,7 @@ const SendOrder = () => {
                 size="med"
                 style={{ flex: "1" }}
                 onClick={handleSend}
+                status={createOrderStatus}
               />
               <Button
                 text="إلغاء الطلب"
@@ -204,7 +213,7 @@ const SendOrder = () => {
           )}
         </div>
         <div className="flex flex-col h-full bg-white sm:w-8/12 rounded-med p-large">
-          <p className="h-10 text-x-large text-greyScale-main">العناصر</p>
+          <p className="h-10 text-x-large text-greyScale-main">عناصر الطلب</p>
           <div className="flex-1 overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
             {medicines}
           </div>
@@ -224,6 +233,7 @@ const SendOrder = () => {
               disabled={false}
               size="med"
               style={{ flex: "1" }}
+              status={createOrderStatus}
             />
             <Button
               text="إلغاء الطلب"

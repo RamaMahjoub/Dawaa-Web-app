@@ -79,8 +79,8 @@ const AllMedicines = () => {
       ) : (
         <NoData />
       );
-  } else if (status === ResponseStatus.IDLE) {
-    content.current = <NoData />;
+  } else if (status === ResponseStatus.FAILED) {
+    content.current = <div>حدث خطأ ما</div>;
   }
   const navigate = useNavigate();
   const handleOpen = () => {

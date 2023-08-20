@@ -18,6 +18,7 @@ import NoData from "../NoData/NoData";
 import { v4 as uuidv4 } from "uuid";
 import { storeInInventory } from "../../redux/medicineSlice";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -28,7 +29,7 @@ interface Props {
 const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectAllStoresData);
-
+  const [loading, setLoading] = useState<string>(ResponseStatus.IDLE);
   let content: any;
   const status = useAppSelector(selectAllStoresStatus);
   const [elements, setUiElements] = useState<Array<{ [key: string]: any }>>([]);
@@ -53,6 +54,8 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
           max: undefined,
         },
       }));
+    } else {
+      toast.error("المعلومات المدخلة غير مكتملة");
     }
   };
 
@@ -94,32 +97,52 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
   } else if (status === ResponseStatus.SUCCEEDED) {
     content = <NoData />;
   } else if (status === ResponseStatus.FAILED) {
-    content = <div>error..</div>;
+    content = <div>حدث خطأ ما...</div>;
   }
 
   const handleSendRequest = () => {
     const requests = Object.keys(elements).map((key: any) => {
-      const body = {
-        batch: {
-          batchId: elements[key].batchId,
-          quantity: elements[key].quantity,
-        },
-      };
-      return dispatch(storeInInventory({ id: elements[key].inventoryId, body }))
-        .then((response) => ({ success: true, response }))
-        .catch((error) => ({ success: false, error }));
+      const isValid =
+        Object.keys(elements).length > 0
+          ? Object.keys(elements).every((key: any) => {
+              const element = elements[key];
+              if (element.batchId === null || element.inventoryId === null)
+                return false;
+              return true;
+            })
+          : true;
+      if (isValid) {
+        const body = {
+          batch: {
+            batchId: elements[key].batchId,
+            quantity: elements[key].quantity,
+          },
+        };
+        return dispatch(
+          storeInInventory({ id: elements[key].inventoryId, body })
+        )
+          .then((response) => ({ success: true, response }))
+          .catch((error) => ({ success: false, error }));
+      } else {
+        toast.error("المعلومات المدخلة غير مكتملة");
+      }
     });
 
-    Promise.all(requests)
-      .then((results) => {
-        const allSucceeded = results.every((result) => result.success);
-        if (allSucceeded) {
-          console.log("All requests succeeded");
-        } else {
-          console.log("Some requests failed");
-        }
-      })
-      .catch(() => console.log("Error while processing requests"));
+    if (requests.length > 0) {
+      setLoading(ResponseStatus.LOADING);
+      Promise.all(requests)
+        .then((results) => {
+          const allSucceeded = results.every((result) => result?.success);
+          if (allSucceeded) {
+            toast.success("تم تخزين الأدوية بنجاح");
+            handleOpen();
+          } else {
+            toast.error("حدث خطا ما...");
+          }
+        })
+        .catch(() => toast.error("حدث خطا ما..."))
+        .finally(() => setLoading(ResponseStatus.IDLE));
+    }
   };
   return (
     <>
@@ -203,6 +226,7 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
                 disabled={false}
                 size="lg"
                 onClick={handleSendRequest}
+                status={loading}
               />
             </div>
           </div>

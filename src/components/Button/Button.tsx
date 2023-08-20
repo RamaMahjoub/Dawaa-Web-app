@@ -43,6 +43,7 @@ const useButtonStyles = () => {
     ${tw`inline-flex items-center justify-center font-bold transition-all duration-300 ease-in rounded-small text-medium`}
     ${variants[variant]}
     ${sizes[size]}
+    ${disabled && tw`cursor-not-allowed opacity-70`}
   `;
   return {
     buttonWrapper,
@@ -66,9 +67,12 @@ const Button: FC<Props> = ({
   ...rest
 }) => {
   const styles = useButtonStyles();
-  console.log(status, text);
   return (
-    <button css={styles.buttonWrapper(disabled, variant, size!)} {...rest}>
+    <button
+      disabled={disabled} 
+      css={styles.buttonWrapper(disabled, variant, size!)}
+      {...rest}
+    >
       <span css={styles.buttonContent}>
         {start === true && icon}{" "}
         <p css={styles.buttonText}>

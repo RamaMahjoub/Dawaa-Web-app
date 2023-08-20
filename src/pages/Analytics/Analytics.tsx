@@ -84,7 +84,7 @@ const Analytics = () => {
       <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large px-xx-large pb-large scrollbar-thin">
         <div className="flex flex-col flex-1 overflow-auto bg-white p-large min-w-max gap-medium rounded-med scrollbar-none">
           <p className="text-greyScale-main">
-            الطلبات الواردة غير مكتملة الدفع
+            الحسابات غير المكتملة مع الصيدليات
           </p>
           <div className="flex flex-col overflow-auto divide-y scrollbar-none gap-medium">
             {schema.map((item) => {
@@ -105,7 +105,7 @@ const Analytics = () => {
         </div>
         <div className="flex flex-col flex-1 overflow-auto bg-white p-large min-w-max gap-medium rounded-med scrollbar-none">
           <p className="text-greyScale-main">
-            الطلبات الصادرة غير مكتملة الدفع
+            الحسابات غير المكتملة مع المورّدين
           </p>
           <div className="flex flex-col overflow-auto divide-y scrollbar-none gap-medium">
             {schema.map((item) => {
