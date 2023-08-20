@@ -37,34 +37,50 @@ const initialState: StoreState = {
 export const registerStore = createAsyncThunk(
   "auth/inventory-register",
   async (body: RegisterStoreSchema) => {
-    const response = await StoreService.registerStore(body);
-    return response.data;
+    try {
+      const response = await StoreService.registerStore(body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const getAllStores = createAsyncThunk(
   "warehouse/inventories",
   async (params: { name?: string }) => {
-    const { name } = params;
-    const response = await StoreService.getAllStores(name);
-    return response.data;
+    try {
+      const { name } = params;
+      const response = await StoreService.getAllStores(name);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const getMedicinesInStore = createAsyncThunk(
   "/medicine/warehouse/inventory",
   async (params: { page: string; limit: string; id: string }) => {
-    const { page, limit, id } = params;
-    const response = await StoreService.getMedicinesInStore(page, limit, id);
-    return response.data;
+    try {
+      const { page, limit, id } = params;
+      const response = await StoreService.getMedicinesInStore(page, limit, id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const transferBetweenInventories = createAsyncThunk(
   "/medicine/warehouse/transfer-between-inventory",
   async (body: any) => {
-    const response = await StoreService.transferBetweenInventories(body);
-    return response.data;
+    try {
+      const response = await StoreService.transferBetweenInventories(body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 

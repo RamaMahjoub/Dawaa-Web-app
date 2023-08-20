@@ -60,8 +60,12 @@ const initialState: AuthState = {
 export const register = createAsyncThunk(
   "auth/warehouse-register",
   async (body: RegisterSchema) => {
-    const response = await AuthService.register(body);
-    return response.data;
+    try {
+      const response = await AuthService.register(body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 export const login = createAsyncThunk(
@@ -77,8 +81,12 @@ export const login = createAsyncThunk(
 );
 
 export const isAccepted = createAsyncThunk("user/is-accepted", async () => {
-  const response = await AuthService.isAccepted();
-  return response.data;
+  try {
+    const response = await AuthService.isAccepted();
+    return response.data;
+  } catch (error: any) {
+    throw error.response.data.error || "حدث خطأ ما";
+  }
 });
 
 export const logout = createAsyncThunk("auth/logout-warehouse", async () => {
@@ -89,22 +97,34 @@ export const logout = createAsyncThunk("auth/logout-warehouse", async () => {
 export const completeInfo = createAsyncThunk(
   "warehouse/create-warehouse",
   async (body: RegisterDetailSchema) => {
-    const response = await AuthService.completeInfo(body);
-    return response.data;
+    try {
+      const response = await AuthService.completeInfo(body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const updateInfo = createAsyncThunk(
   "warehouse/",
   async (body: Partial<RegisterDetailSchema>) => {
-    const response = await AuthService.updateInfo(body);
-    return response.data;
+    try {
+      const response = await AuthService.updateInfo(body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const getInfo = createAsyncThunk("warehouse/get-info", async () => {
-  const response = await AuthService.getInfo();
-  return response.data;
+  try {
+    const response = await AuthService.getInfo();
+    return response.data;
+  } catch (error: any) {
+    throw error.response.data.error || "حدث خطأ ما";
+  }
 });
 
 export const authSlice = createSlice({

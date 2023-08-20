@@ -76,12 +76,15 @@ export const findWarehouseOnlyMedicines = createAsyncThunk(
   "/medicine/warehouse/all",
   async (params: { page: string; limit: string }) => {
     const { page, limit } = params;
-    console.log("page", page, "limit", limit);
-    const response = await MedicineService.findWarehouseOnlyMedicines(
-      page,
-      limit
-    );
-    return response.data;
+    try {
+      const response = await MedicineService.findWarehouseOnlyMedicines(
+        page,
+        limit
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
@@ -89,12 +92,15 @@ export const findMedicinesToReeturn = createAsyncThunk(
   "/medicine/warehouse/all/return",
   async (params: { page: string; limit: string }) => {
     const { page, limit } = params;
-    console.log("page", page, "limit", limit);
-    const response = await MedicineService.findWarehouseOnlyMedicines(
-      page,
-      limit
-    );
-    return response.data;
+    try {
+      const response = await MedicineService.findWarehouseOnlyMedicines(
+        page,
+        limit
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
@@ -106,78 +112,110 @@ export const findAllMedicines = createAsyncThunk(
     category?: string;
     name?: string;
   }) => {
-    const { page, limit, category, name } = params;
-    const response = await MedicineService.findAllMedicines(
-      page,
-      limit,
-      category,
-      name
-    );
-    return response.data;
+    try {
+      const { page, limit, category, name } = params;
+      const response = await MedicineService.findAllMedicines(
+        page,
+        limit,
+        category,
+        name
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 export const findMedicineDetails = createAsyncThunk(
   "/medicine/warehouse/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await MedicineService.findMedicinDetails(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await MedicineService.findMedicinDetails(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 export const findMedicinnBatches = createAsyncThunk(
   "/medicine/warehouse/details/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await MedicineService.findMedicinBatches(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await MedicineService.findMedicinBatches(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findMedicineDistributions = createAsyncThunk(
   "/medicine/warehouse/get-inventory-distributions/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await MedicineService.findMedicinDistributions(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await MedicineService.findMedicinDistributions(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const editMedicine = createAsyncThunk(
   "/medicine/warehouse/edit/:id",
   async (params: { id: string; body: EditMedicineSchema }) => {
-    const { id, body } = params;
-    const response = await MedicineService.editMedicin(id, body);
-    return response.data;
+    try {
+      const { id, body } = params;
+      const response = await MedicineService.editMedicin(id, body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const storeInInventory = createAsyncThunk(
   "/medicine/warehouse/transfer-to-inventory",
   async (params: { id: string; body: SubRequest }) => {
-    const { id, body } = params;
-    console.log(id, body);
-    const response = await MedicineService.storeInInventory(id, body);
-    return response.data;
+    try {
+      const { id, body } = params;
+      console.log(id, body);
+      const response = await MedicineService.storeInInventory(id, body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const returnMedicines = createAsyncThunk(
   "/returnOrder/warehouse",
   async (body: ReturnMedicines) => {
-    const response = await MedicineService.returnMedicines(body);
-    return response.data;
+    try {
+      const response = await MedicineService.returnMedicines(body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findAllSendedReturnMedicines = createAsyncThunk(
   "/returnOrder/warehouse/allSended",
   async (params: { page: string; limit: string }) => {
-    const { page, limit } = params;
-    const response = await MedicineService.findAllSendedReturnMedicines(
-      page,
-      limit
-    );
-    return response.data;
+    try {
+      const { page, limit } = params;
+      const response = await MedicineService.findAllSendedReturnMedicines(
+        page,
+        limit
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 

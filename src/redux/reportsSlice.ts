@@ -30,26 +30,38 @@ const initialState: ReportsState = {
 export const findInventoriesReports = createAsyncThunk(
   "report-medicine/warehouse",
   async (params: { limit: string; page: string }) => {
-    const { limit, page } = params;
-    const response = await ReportService.findInventoriesReports(page, limit);
-    return response.data;
+    try {
+      const { limit, page } = params;
+      const response = await ReportService.findInventoriesReports(page, limit);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const acceptInventoryReport = createAsyncThunk(
   "report-medicine/warehouse/accept/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await ReportService.acceptInventoryReport(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await ReportService.acceptInventoryReport(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 export const rejectInventoryReport = createAsyncThunk(
   "report-medicine/warehouse/reject/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await ReportService.rejectInventoryReport(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await ReportService.rejectInventoryReport(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 

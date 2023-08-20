@@ -43,27 +43,39 @@ const initialState: SupplierState = {
 export const getAllSuppliers = createAsyncThunk(
   "warehouse/get-suppliers",
   async (params: { name?: string }) => {
-    const { name } = params;
-    const response = await SupplierService.getAllSuppliers(name);
-    return response.data;
+    try {
+      const { name } = params;
+      const response = await SupplierService.getAllSuppliers(name);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const getSupplierDetails = createAsyncThunk(
   "warehouse/get-suppliers/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await SupplierService.getSupplierDetails(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await SupplierService.getSupplierDetails(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findMedicine = createAsyncThunk(
   "/medicine/warehouse/supplier/medicine/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await SupplierService.findMedicine(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await SupplierService.findMedicine(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
@@ -76,16 +88,20 @@ export const getSupplierMedicines = createAsyncThunk(
     category?: string;
     name?: string;
   }) => {
-    const { id, limit, page, category, name } = params;
+    try {
+      const { id, limit, page, category, name } = params;
 
-    const response = await SupplierService.getSupplierMedicines(
-      id,
-      page,
-      limit,
-      category,
-      name
-    );
-    return response.data;
+      const response = await SupplierService.getSupplierMedicines(
+        id,
+        page,
+        limit,
+        category,
+        name
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 export const findBasketMedicine = createAsyncThunk(
@@ -112,8 +128,8 @@ export const findBasketMedicine = createAsyncThunk(
             medicine: response.data,
           })
         );
-      } catch (error) {
-        console.error("Error fetching medicine:", error);
+      } catch (error: any) {
+        throw error.response.data.error || "حدث خطأ ما";
       }
     }
   }

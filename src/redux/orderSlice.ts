@@ -84,107 +84,155 @@ const initialState: AuthState = {
 export const createOrder = createAsyncThunk(
   "/order/warehouse",
   async (body: any) => {
-    const response = await OrderService.createOrder(body);
-    return response.data;
+    try {
+      const response = await OrderService.createOrder(body);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findSendedOrders = createAsyncThunk(
   "/order/warehouse/sended",
   async (params: { limit: string; page: string }) => {
-    const { limit, page } = params;
-    const response = await OrderService.findSendedOrders(page, limit);
-    return response.data;
+    try {
+      const { limit, page } = params;
+      const response = await OrderService.findSendedOrders(page, limit);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findSendedOrderDetails = createAsyncThunk(
   "order/warehouse/sended/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await OrderService.findSendedOrderDetails(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await OrderService.findSendedOrderDetails(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findReceivedOrders = createAsyncThunk(
   "/order/warehouse/received",
   async (params: { limit: string; page: string }) => {
-    const { limit, page } = params;
-    const response = await OrderService.findReceivedOrders(page, limit);
-    return response.data;
+    try {
+      const { limit, page } = params;
+      const response = await OrderService.findReceivedOrders(page, limit);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findReceivedReturnOrders = createAsyncThunk(
   "/report-medicine/warehouse/pharmacy",
   async (params: { limit: string; page: string }) => {
-    const { limit, page } = params;
-    const response = await OrderService.findReceivedReturnOrders(page, limit);
-    return response.data;
+    try {
+      const { limit, page } = params;
+      const response = await OrderService.findReceivedReturnOrders(page, limit);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const acceptReturnOrders = createAsyncThunk(
   "/report-medicine/warehouse/accept-pharmacy/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await OrderService.acceptReturnOrder(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await OrderService.acceptReturnOrder(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const rejectReturnOrders = createAsyncThunk(
   "/report-medicine/warehouse/reject-pharmacy/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await OrderService.rejectReturnOrder(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await OrderService.rejectReturnOrder(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findReceivedOrderDetails = createAsyncThunk(
   "order/warehouse/received/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await OrderService.findReceivedOrderDetails(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await OrderService.findReceivedOrderDetails(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const findOrderDistribution = createAsyncThunk(
   "/order/warehouse/distribution/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await OrderService.orderOverview(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await OrderService.orderOverview(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const acceptOrder = createAsyncThunk(
   "/order/warehouse/accept/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await OrderService.acceptOrder(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await OrderService.acceptOrder(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const rejectOrder = createAsyncThunk(
   "/order/warehouse/reject/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await OrderService.acceptOrder(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await OrderService.acceptOrder(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
 export const deliverOrder = createAsyncThunk(
   "/order/warehouse/deliver/:id",
   async (params: { id: string }) => {
-    const { id } = params;
-    const response = await OrderService.deliverOrder(id);
-    return response.data;
+    try {
+      const { id } = params;
+      const response = await OrderService.deliverOrder(id);
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
   }
 );
 
