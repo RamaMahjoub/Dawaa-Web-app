@@ -28,7 +28,7 @@ const findMedicine = (id: string) => {
 
 const supplierEvaluation = (id: string, body: any) => {
   return protectedAxios.post<any>(
-    `/medicine/warehouse/supplier/medicine/${id}`,
+    `/supplier/warehouse/rate-supplier/${id}`,
     body
   );
 };

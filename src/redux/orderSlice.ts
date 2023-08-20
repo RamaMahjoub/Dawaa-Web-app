@@ -215,7 +215,7 @@ export const rejectOrder = createAsyncThunk(
   async (params: { id: string }) => {
     try {
       const { id } = params;
-      const response = await OrderService.acceptOrder(id);
+      const response = await OrderService.rejectOrder(id);
       return response.data;
     } catch (error: any) {
       throw error.response.data.error || "حدث خطأ ما";

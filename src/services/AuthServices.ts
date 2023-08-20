@@ -19,10 +19,6 @@ const login = (body: LoginSchema) => {
   return http.post<any>("/auth/login-warehouse", body);
 };
 
-const logout = () => {
-  // return protectedAxios.post<any>("/warehouse/create-warehouse");
-};
-
 const isAccepted = () => {
   return protectedAxios.post<any>("/user/is-accepted");
 };
@@ -36,7 +32,6 @@ const AuthService = {
   completeInfo,
   updateInfo,
   login,
-  logout,
   isAccepted,
   getInfo,
 };

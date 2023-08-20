@@ -42,7 +42,7 @@ const acceptOrder = (id: string) =>
   protectedAxios.patch<any>(`/order/warehouse/accept/${id}`);
 
 const rejectOrder = (id: string) =>
-  protectedAxios.patch<any>(`/order/warehouse/${id}`);
+  protectedAxios.patch<any>(`/order/warehouse/reject/${id}`);
 
 const deliverOrder = (id: string) =>
   protectedAxios.patch<any>(`/order/warehouse/deliver/${id}`);

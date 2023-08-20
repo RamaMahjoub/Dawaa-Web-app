@@ -72,7 +72,7 @@ export const getSupplierDetails = createAsyncThunk(
   }
 );
 export const supplierEvaluation = createAsyncThunk(
-  "warehouse/supplier-evaluation/:id",
+  "supplier/warehouse/rate-supplier/:id",
   async (params: { id: string; body: any }) => {
     try {
       const { id, body } = params;

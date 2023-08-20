@@ -18,6 +18,7 @@ import {
   acceptOrder,
   deliverOrder,
   findReceivedOrderDetails,
+  rejectOrder,
   resetAcceptStatus,
   resetDeliverStatus,
   resetRejectStatus,
@@ -28,6 +29,7 @@ import {
   selectReceivedOrderDetailsData,
   selectReceivedOrderDetailsStatus,
   selectRejectOrderError,
+  selectRejectOrderStatus,
 } from "../../../redux/orderSlice";
 import Beat from "../../../components/Loading/Beat";
 import NoData from "../../NoData/NoData";
@@ -45,7 +47,7 @@ const OrderDetails = () => {
   const data = useAppSelector(selectReceivedOrderDetailsData);
   const status = useAppSelector(selectReceivedOrderDetailsStatus);
   const acceptStatus = useAppSelector(selectAcceptOrderStatus);
-  const rejectStatus = useAppSelector(selectAcceptOrderStatus);
+  const rejectStatus = useAppSelector(selectRejectOrderStatus);
   const delivertatus = useAppSelector(selectDeliverOrderStatus);
   const acceptError = useAppSelector(selectAcceptOrderError);
   const rejectError = useAppSelector(selectRejectOrderError);
@@ -54,6 +56,7 @@ const OrderDetails = () => {
   useEffect(() => {
     dispatch(findReceivedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
+  console.log(data)
   const { open, handleOpen } = useOpenToggle();
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
@@ -89,7 +92,7 @@ const OrderDetails = () => {
   } else if (status === ResponseStatus.IDLE) {
     contentRef.current = <NoData />;
   } else if (status === ResponseStatus.FAILED) {
-    contentRef.current = <div>error...</div>;
+    contentRef.current = <div>حدث خطأ ما...</div>;
   }
   useEffect(() => {
     dispatch(resetAcceptStatus());
@@ -102,7 +105,7 @@ const OrderDetails = () => {
   };
 
   const handleReject = () => {
-    dispatch(acceptOrder({ id: orderId! }));
+    dispatch(rejectOrder({ id: orderId! }));
   };
 
   const handleDeliver = () => {

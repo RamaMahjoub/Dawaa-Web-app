@@ -4,7 +4,7 @@ import { RegisterSchema } from "../Schema/request/register.schema";
 import { RootState } from "./store";
 import { RegisterDetailSchema } from "../Schema/request/registerDetails.schema";
 import { LoginSchema } from "../Schema/request/login.schema";
-import { clearStoredUser, setStoredUser } from "../utils/user-storage";
+import { setStoredUser } from "../utils/user-storage";
 import { ResponseStatus } from "../enums/ResponseStatus";
 
 type AuthState = {
@@ -18,9 +18,6 @@ type AuthState = {
   updateInfoStatus: string;
   updateInfoError: undefined | string;
   updateInfoData: any;
-  logoutStatus: string;
-  logoutError: undefined | string;
-  logoutData: any;
   loginStatus: string;
   loginError: undefined | string;
   loginData: any;
@@ -43,9 +40,6 @@ const initialState: AuthState = {
   updateInfoStatus: ResponseStatus.IDLE,
   updateInfoError: undefined,
   updateInfoData: null,
-  logoutStatus: ResponseStatus.IDLE,
-  logoutError: undefined,
-  logoutData: {},
   loginStatus: ResponseStatus.IDLE,
   loginError: undefined,
   loginData: {},
@@ -87,11 +81,6 @@ export const isAccepted = createAsyncThunk("user/is-accepted", async () => {
   } catch (error: any) {
     throw error.response.data.error || "حدث خطأ ما";
   }
-});
-
-export const logout = createAsyncThunk("auth/logout-warehouse", async () => {
-  // const response = await AuthService.logout();
-  // return response.data;
 });
 
 export const completeInfo = createAsyncThunk(
@@ -185,18 +174,6 @@ export const authSlice = createSlice({
         state.loginStatus = ResponseStatus.FAILED;
         state.loginError = action.error.message;
       })
-      .addCase(logout.pending, (state) => {
-        state.logoutStatus = ResponseStatus.LOADING;
-      })
-      .addCase(logout.fulfilled, (state, action: PayloadAction<any>) => {
-        state.logoutStatus = ResponseStatus.SUCCEEDED;
-        state.logoutData = action.payload;
-        clearStoredUser();
-      })
-      .addCase(logout.rejected, (state, action) => {
-        state.logoutStatus = ResponseStatus.FAILED;
-        state.logoutError = action.error.message;
-      })
       .addCase(isAccepted.pending, (state) => {
         state.isAcceptedStatus = ResponseStatus.LOADING;
       })
@@ -241,10 +218,6 @@ export const selectUpdateInfoData = (state: RootState) =>
   state.auth.updateInfoData;
 export const selectUpdateInfoError = (state: RootState) =>
   state.auth.updateInfoError;
-
-export const selectLogoutStatus = (state: RootState) => state.auth.logoutStatus;
-export const selectLogoutData = (state: RootState) => state.auth.logoutData;
-export const selectLogoutError = (state: RootState) => state.auth.logoutError;
 
 export const selectLoginStatus = (state: RootState) => state.auth.loginStatus;
 export const selectLoginData = (state: RootState) => state.auth.loginData;

@@ -25,8 +25,7 @@ const SupplierCard: FC<Props> = ({ supplierData }) => {
         </div>
         <div className="flex items-center justify-center gap-1 max-w-fit max-h-fit h-fit px-small bg-greyScale-lighter rounded-small">
           <StarFill className="w-3 h-3 text-secondary-main" />
-          {/* <p>{supplier.evaluation}</p> */}
-          <p>2.75</p>
+          <p>{supplierData.rating}</p>
         </div>
       </span>
       <div className="flex flex-col bg-greyScale-lighter p-large rounded-med text-greyScale-light text-medium">

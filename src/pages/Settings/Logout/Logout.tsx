@@ -1,14 +1,11 @@
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import Button from "../../../components/Button/Button";
 import { XSquareFill } from "react-bootstrap-icons";
 import { useMediaQuery } from "react-responsive";
-import { useAppDispatch } from "../../../hooks/useAppDispatch";
-import { useAppSelector } from "../../../hooks/useAppSelector";
-import { logout, selectLogoutStatus } from "../../../redux/authSlice";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../../router/constant";
 import { toast } from "react-toastify";
-import { ResponseStatus } from "../../../enums/ResponseStatus";
+import { clearStoredUser } from "../../../utils/user-storage";
 
 interface Props {
   open: boolean;
@@ -17,18 +14,13 @@ interface Props {
 
 const Logout: FC<Props> = ({ open, handleOpen }) => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
-  const dispatch = useAppDispatch();
-  const status = useAppSelector(selectLogoutStatus);
-  const handleLogout = () => {
-    dispatch(logout());
-  };
   const navigate = useNavigate();
-  useEffect(() => {
-    if (status === ResponseStatus.SUCCEEDED) {
-      navigate(`/${routes.LOGIN}`);
-      toast.success("تم تسجيل الخروج بنجاح");
-    }
-  }, [status, navigate]);
+  const handleLogout = () => {
+    clearStoredUser();
+    navigate(`/${routes.LOGIN}`);
+    toast.success("تم تسجيل الخروج بنجاح");
+  };
+
   return (
     <>
       {open && (
@@ -53,7 +45,6 @@ const Logout: FC<Props> = ({ open, handleOpen }) => {
                 disabled={false}
                 size={isMobile ? "med" : "lg"}
                 onClick={handleLogout}
-                status={status}
               />
               <Button
                 text="إلغاء"

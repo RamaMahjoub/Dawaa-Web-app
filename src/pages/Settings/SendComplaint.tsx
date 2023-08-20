@@ -1,19 +1,117 @@
-import { FC, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import Button from "../../components/Button/Button";
 import { XSquareFill } from "react-bootstrap-icons";
 import { DropdownProvider } from "../../components/Dropdown/context";
 import Dropdown from "../../components/Dropdown/Dropdown";
 import DropdownItem from "../../components/Dropdown/DropdownItem";
 import DropdownMenu from "../../components/Dropdown/DropdownMenu";
-import { suppliers } from "../../Schema/response/Suppliers.schema";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { getAllPharmacies } from "../../redux/pharmacySlice";
+import { usePagination } from "../../hooks/usePagination";
+import NoData from "../NoData/NoData";
+import Beat from "../../components/Loading/Beat";
+import { useOpenToggle } from "../../hooks/useOpenToggle";
+import {
+  getAllSuppliers,
+  selectAllSuppliersData,
+  selectAllSuppliersStatus,
+} from "../../redux/supplierSlice";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { ResponseStatus } from "../../enums/ResponseStatus";
 
 interface Props {
   open: boolean;
   handleOpen: () => void;
 }
-const destinations = ["صيدلية", "مورّد"];
+const destinations = ["صيدلية", "مورد"];
 const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
+  const { open: openDropdown, handleOpen: handleOpenDropdown } =
+    useOpenToggle();
   const [dest, setDest] = useState<string>("صيدلية");
+  const { pageIndex, pageSize, handlePgination } = usePagination(10);
+  const [data, setData] = useState<any>([]);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const suppliers = useAppSelector(selectAllSuppliersData);
+  const suppliersStatus = useAppSelector(selectAllSuppliersStatus);
+  const content = useRef<any>(null);
+  const endRef = useRef<any>(null);
+  const dispatch = useAppDispatch();
+  const [request, setRequest] = useState<{
+    destination: number | undefined;
+    reason: string | undefined;
+  }>({ destination: undefined, reason: undefined });
+
+  const fetchParmacies = useCallback(async () => {
+    try {
+      const response = await dispatch(
+        getAllPharmacies({
+          limit: String(pageSize),
+          page: String(pageIndex),
+        })
+      );
+
+      if (response.payload && response.payload.data.length > 0) {
+        setData((prevMedicines: any) => [
+          ...prevMedicines,
+          ...response.payload.data,
+        ]);
+        handlePgination(pageIndex + 1);
+      } else {
+        setHasMore(false);
+        if (data.length === 0) content.current = <NoData />;
+      }
+    } catch (error) {
+      content.current = <div>حدث خطأ ما...</div>;
+    } finally {
+      setIsFetching(false);
+    }
+  }, [dispatch, pageIndex, pageSize, handlePgination, data.length]);
+  const onIntersection = useCallback(
+    async (entries: any) => {
+      const firstEntry = entries[0];
+      if (firstEntry.isIntersecting && hasMore && !isFetching) {
+        setIsFetching(true);
+
+        await fetchParmacies();
+      }
+    },
+    [hasMore, isFetching, fetchParmacies]
+  );
+  useEffect(() => {
+    const observer = new IntersectionObserver(onIntersection);
+
+    if (endRef.current && openDropdown && dest === "صيدلية") {
+      observer.observe(endRef.current);
+    }
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [onIntersection, openDropdown, dest]);
+  const handleFilter = async (filter: string) => {
+    setDest(filter);
+    handleOpenDropdown();
+    if (filter === "صيدلية") {
+      await fetchParmacies();
+    } else {
+      await dispatch(getAllSuppliers({}));
+      console.log(suppliers);
+    }
+  };
+
+  const handleCaptureDestination = (destId: number) => {
+    setRequest((pre) => ({ ...pre, destination: destId }));
+  };
+  const handleChangeReason = (event: any) => {
+    setRequest((pre) => ({ ...pre, reason: event.target.value }));
+  };
+
+  const handleSendRequest = () => {
+    console.log("req", request);
+  };
   return (
     <>
       {open && (
@@ -36,35 +134,56 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
                     text={destination}
                     size="med"
                     className="min-w-max"
-                    onClick={() => setDest(destination)}
+                    onClick={() => handleFilter(destination)}
                   />
                 ))}
               </div>
-              <form
-                onSubmit={(e: any) => e.preventDefault()}
-                className="flex flex-col gap-3 my-medium"
-              >
-                <DropdownProvider
-                  title={
-                    dest === destinations[0]
-                      ? "تحديد الصيدلية"
-                      : "تحديد المورّد"
-                  }
-                >
-                  <Dropdown>
-                    <DropdownMenu>
-                      {suppliers.map((supplier) => (
-                        <DropdownItem key={supplier.id} title={supplier.name} />
-                      ))}
-                    </DropdownMenu>
-                  </Dropdown>
-                </DropdownProvider>
+              <div className="flex flex-col gap-3 my-medium">
+                {dest === "صيدلية" ? (
+                  <div onClick={handleOpenDropdown}>
+                    <DropdownProvider title="اختيار صيدلية">
+                      <Dropdown>
+                        <DropdownMenu>
+                          {data.length > 0 &&
+                            data.map((item: any) => (
+                              <DropdownItem
+                                key={item.id}
+                                title={item.name}
+                                handleSelectValue={() =>
+                                  handleCaptureDestination(item.id)
+                                }
+                              />
+                            ))}
+                          {hasMore && <Beat ref={endRef} />}
+                        </DropdownMenu>
+                      </Dropdown>
+                    </DropdownProvider>
+                  </div>
+                ) : (
+                  dest === "مورد" && (
+                    <div onClick={handleOpenDropdown}>
+                      <DropdownProvider title="اختيار مورَد">
+                        <Dropdown>
+                          <DropdownMenu>
+                            {suppliersStatus === ResponseStatus.SUCCEEDED &&
+                              suppliers.data.length > 0 &&
+                              suppliers.data.map((item: any) => (
+                                <DropdownItem key={item.id} title={item.name} />
+                              ))}
+                          </DropdownMenu>
+                        </Dropdown>
+                      </DropdownProvider>
+                    </div>
+                  )
+                )}
                 <textarea
+                  value={request.reason}
+                  onChange={handleChangeReason}
                   rows={3}
                   placeholder="ملاحظات حول السبب..."
                   className="border outline-none resize-none px-x-large py-small border-greyScale-light text-greyScale-main rounded-small text-medium"
                 />
-              </form>
+              </div>
             </div>
             <div className="flex justify-center p-medium">
               <Button
@@ -72,6 +191,8 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
                 variant="base-blue"
                 disabled={false}
                 size="lg"
+                onClick={handleSendRequest}
+                
               />
             </div>
           </div>

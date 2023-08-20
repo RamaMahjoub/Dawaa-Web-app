@@ -29,6 +29,7 @@ const OutgoingOrderDetails = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSendedOrderDetailsData);
   const status = useAppSelector(selectSendedOrderDetailsStatus);
+  console.log(data)
   useEffect(() => {
     dispatch(findSendedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
