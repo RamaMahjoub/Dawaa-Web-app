@@ -11,6 +11,7 @@ import {
 } from "../../redux/supplierSlice";
 import { ResponseStatus } from "../../enums/ResponseStatus";
 import { toast } from "react-toastify";
+import { Rate } from "../../Schema/Requests/Rate";
 
 interface Props {
   open: boolean;
@@ -36,10 +37,13 @@ const Review: FC<Props> = ({ open, handleOpen, supplierId }) => {
   };
 
   const handleSendRequest = () => {
-    const request = {
-      evaluation: value,
-    };
-    dispatch(supplierEvaluation({ id: supplierId, body: request }));
+    if (value !== null) {
+      const request: Rate = {
+        supplierId: Number(supplierId),
+        rating: value,
+      };
+      dispatch(supplierEvaluation({ body: request }));
+    }
   };
   return (
     <>

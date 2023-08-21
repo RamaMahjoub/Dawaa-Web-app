@@ -25,6 +25,7 @@ import { usePagination } from "../../hooks/usePagination";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { InventoryReport } from "../../Schema/Responses/InventoryReport";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 const ReportAMedicine = () => {
@@ -34,7 +35,7 @@ const ReportAMedicine = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const endRef = useRef<any>(null);
   const dispatch = useAppDispatch();
-  const [reports, setReports] = useState<any>([]);
+  const [reports, setReports] = useState<InventoryReport[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const acceptStatus = useAppSelector(selectAcceptReportStatus);
   const rejectStatus = useAppSelector(selectRejectReportStatus);
@@ -73,7 +74,7 @@ const ReportAMedicine = () => {
       );
 
       if (response.payload && response.payload.data.length > 0) {
-        setReports((prevMedicines: any) => [
+        setReports((prevMedicines: InventoryReport[]) => [
           ...prevMedicines,
           ...response.payload.data,
         ]);
@@ -122,7 +123,7 @@ const ReportAMedicine = () => {
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
       <div className="flex flex-col flex-1 overflow-auto gap-large bg-greyScale-lighter scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large ">
         {reports.length > 0
-          ? reports.map((report: any) => {
+          ? reports.map((report: InventoryReport) => {
               const date = new Date(report.reportDate);
               const reportDate = `${getMonth(
                 date.getMonth() + 1

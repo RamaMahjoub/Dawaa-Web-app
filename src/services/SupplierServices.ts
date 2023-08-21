@@ -1,3 +1,4 @@
+import { Rate } from "../Schema/Requests/Rate";
 import { protectedAxios } from "./axios";
 
 const getAllSuppliers = (name?: string) => {
@@ -25,9 +26,9 @@ const findMedicine = (id: string) => {
   return protectedAxios.get<any>(`/medicine/warehouse/supplier/medicine/${id}`);
 };
 
-const supplierEvaluation = (id: string, body: any) => {
-  return protectedAxios.post<any>(
-    `/supplier/warehouse/rate-supplier/${id}`,
+const supplierEvaluation = (body: Rate) => {
+  return protectedAxios.patch<any>(
+    `/supplier/warehouse/rate-supplier`,
     body
   );
 };

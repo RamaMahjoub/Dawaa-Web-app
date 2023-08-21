@@ -5,11 +5,12 @@ import { SubRequest } from "../Schema/request/storeInInventory";
 import { ReturnMedicines } from "../Schema/request/returnMedicines";
 import { EditMedicineSchema } from "../Schema/request/editMedicine.schema";
 import { ResponseStatus } from "../enums/ResponseStatus";
+import { ApiState } from "./type";
+import { Data } from "../Schema/Responses/Data";
+import { WarehouseMedicine } from "../Schema/Responses/WarhouseMedicine";
 
 type MedicineState = {
-  warehouseOnlyMedicinesData: any;
-  warehouseOnlyMedicinesStatus: string;
-  warehouseOnlyMedicinesError: string | undefined;
+  warehouseOnlyMedicines: ApiState<Data<Array<WarehouseMedicine>>>;
   allMedicinesData: any;
   allMedicinesStatus: string;
   allMedicinesError: string | undefined;
@@ -40,9 +41,11 @@ type MedicineState = {
 };
 
 const initialState: MedicineState = {
-  warehouseOnlyMedicinesData: {},
-  warehouseOnlyMedicinesStatus: ResponseStatus.IDLE,
-  warehouseOnlyMedicinesError: undefined,
+  warehouseOnlyMedicines: {
+    data: { data: [] },
+    error: undefined,
+    status: ResponseStatus.IDLE,
+  },
   allMedicinesData: {},
   allMedicinesStatus: ResponseStatus.IDLE,
   allMedicinesError: undefined,
@@ -229,18 +232,18 @@ export const medicineSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(findWarehouseOnlyMedicines.pending, (state) => {
-        state.warehouseOnlyMedicinesStatus = ResponseStatus.LOADING;
+        state.warehouseOnlyMedicines.status = ResponseStatus.LOADING;
       })
       .addCase(
         findWarehouseOnlyMedicines.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.warehouseOnlyMedicinesStatus = ResponseStatus.SUCCEEDED;
-          state.warehouseOnlyMedicinesData = action.payload;
+          state.warehouseOnlyMedicines.status = ResponseStatus.SUCCEEDED;
+          state.warehouseOnlyMedicines.data = action.payload;
         }
       )
       .addCase(findWarehouseOnlyMedicines.rejected, (state, action) => {
-        state.warehouseOnlyMedicinesStatus = ResponseStatus.FAILED;
-        state.warehouseOnlyMedicinesError = action.error.message;
+        state.warehouseOnlyMedicines.status = ResponseStatus.FAILED;
+        state.warehouseOnlyMedicines.error = action.error.message;
       })
       .addCase(findAllMedicines.pending, (state) => {
         state.allMedicinesStatus = ResponseStatus.LOADING;
@@ -369,11 +372,11 @@ export const medicineSlice = createSlice({
 });
 
 export const selectWarehouseOnlyMedicinesStatus = (state: RootState) =>
-  state.medicine.warehouseOnlyMedicinesStatus;
+  state.medicine.warehouseOnlyMedicines.status;
 export const selectWarehouseOnlyMedicinesData = (state: RootState) =>
-  state.medicine.warehouseOnlyMedicinesData;
+  state.medicine.warehouseOnlyMedicines.data;
 export const selectWarehouseOnlyMedicinesError = (state: RootState) =>
-  state.medicine.warehouseOnlyMedicinesError;
+  state.medicine.warehouseOnlyMedicines.error;
 
 export const selectMedicinesToReturnStatus = (state: RootState) =>
   state.medicine.medicinesToReturnStatus;

@@ -2,83 +2,96 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import OrderService from "../services/OrderService";
 import { ResponseStatus } from "../enums/ResponseStatus";
+import { ApiState } from "./type";
+import { Data } from "../Schema/Responses/Data";
+import {
+  SendedOrder,
+  SendedOrderDetails,
+} from "../Schema/Responses/SendedOrder";
+import {
+  OrderOverview,
+  ReceivedOrder,
+  ReceivedOrderDetails,
+  ReceivedReturnOrder,
+} from "../Schema/Responses/ReceivedOrder";
 
 type OrderState = {
-  createOrderData: any;
-  createOrderStatus: string;
-  createOrderError: string | undefined;
-  acceptOrderData: any;
-  acceptOrderStatus: string;
-  acceptOrderError: undefined | string;
-  rejectOrderData: any;
-  rejectOrderStatus: string;
-  rejectOrderError: undefined | string;
-  deliverOrderData: any;
-  deliverOrderStatus: string;
-  deliverOrderError: undefined | string;
-  sendedOrdersData: any;
-  sendedOrdersStatus: string;
-  sendedOrdersError: string | undefined;
-  sendedOrderDetailsData: any;
-  sendedOrderDetailsStatus: string;
-  sendedOrderDetailsError: string | undefined;
-  receivedOrdersData: any;
-  receivedOrdersStatus: string;
-  receivedOrdersError: string | undefined;
-  receivedReturnOrdersData: any;
-  receivedReturnOrdersStatus: string;
-  receivedReturnOrdersError: string | undefined;
-  acceptReturnOrderData: any;
-  acceptReturnOrderStatus: string;
-  acceptReturnOrderError: string | undefined;
-  rejectReturnOrderData: any;
-  rejectReturnOrderStatus: string;
-  rejectReturnOrderError: undefined | string;
-  receivedOrderDetailsData: any;
-  receivedOrderDetailsStatus: string;
-  receivedOrderDetailsError: string | undefined;
-  orderOverviewData: any;
-  orderOverviewStatus: string;
-  orderOverviewError: undefined | string;
+  createOrder: ApiState<any>;
+  acceptOrder: ApiState<any>;
+  rejectOrder: ApiState<any>;
+  deliverOrder: ApiState<any>;
+  sendedOrders: ApiState<Data<Array<SendedOrder>>>;
+  sendedOrderDetails: ApiState<Data<SendedOrderDetails | undefined>>;
+  receivedOrders: ApiState<Data<Array<ReceivedOrder>>>;
+  receivedOrderDetails: ApiState<Data<ReceivedOrderDetails | undefined>>;
+  receivedReturnOrders: ApiState<Data<Array<ReceivedReturnOrder>>>;
+  acceptReturnOrder: ApiState<any>;
+  rejectReturnOrder: ApiState<any>;
+  orderOverview: ApiState<Data<Array<OrderOverview>>>;
 };
 
 const initialState: OrderState = {
-  createOrderData: {},
-  createOrderStatus: ResponseStatus.IDLE,
-  createOrderError: undefined,
-  acceptOrderData: {},
-  acceptOrderStatus: ResponseStatus.IDLE,
-  acceptOrderError: undefined,
-  rejectOrderData: {},
-  rejectOrderStatus: ResponseStatus.IDLE,
-  rejectOrderError: undefined,
-  deliverOrderData: {},
-  deliverOrderStatus: ResponseStatus.IDLE,
-  deliverOrderError: undefined,
-  sendedOrdersData: {},
-  sendedOrdersStatus: ResponseStatus.IDLE,
-  sendedOrdersError: undefined,
-  sendedOrderDetailsData: {},
-  sendedOrderDetailsStatus: ResponseStatus.IDLE,
-  sendedOrderDetailsError: undefined,
-  receivedOrdersData: {},
-  receivedOrdersStatus: ResponseStatus.IDLE,
-  receivedOrdersError: undefined,
-  receivedReturnOrdersData: {},
-  receivedReturnOrdersStatus: ResponseStatus.IDLE,
-  receivedReturnOrdersError: undefined,
-  acceptReturnOrderData: {},
-  acceptReturnOrderStatus: ResponseStatus.IDLE,
-  acceptReturnOrderError: undefined,
-  rejectReturnOrderData: {},
-  rejectReturnOrderStatus: ResponseStatus.IDLE,
-  rejectReturnOrderError: undefined,
-  receivedOrderDetailsData: {},
-  receivedOrderDetailsStatus: ResponseStatus.IDLE,
-  receivedOrderDetailsError: undefined,
-  orderOverviewData: {},
-  orderOverviewStatus: ResponseStatus.IDLE,
-  orderOverviewError: undefined,
+  createOrder: {
+    data: {},
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  acceptOrder: {
+    data: {},
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  rejectOrder: {
+    data: {},
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  deliverOrder: {
+    data: {},
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  sendedOrders: {
+    data: { data: [] },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  sendedOrderDetails: {
+    data: { data: undefined },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  receivedOrders: {
+    data: { data: [] },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  receivedOrderDetails: {
+    data: { data: undefined },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  receivedReturnOrders: {
+    data: { data: [] },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  acceptReturnOrder: {
+    data: {},
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  rejectReturnOrder: {
+    data: {},
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+
+  orderOverview: {
+    data: { data: [] },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
 };
 
 export const createOrder = createAsyncThunk(
@@ -241,255 +254,255 @@ export const orderSlice = createSlice({
   initialState,
   reducers: {
     resetAcceptStatus: (state) => {
-      state.acceptOrderStatus = ResponseStatus.IDLE;
+      state.acceptOrder.status = ResponseStatus.IDLE;
     },
     resetRejectStatus: (state) => {
-      state.rejectOrderStatus = ResponseStatus.IDLE;
+      state.rejectOrder.status = ResponseStatus.IDLE;
     },
     resetDeliverStatus: (state) => {
-      state.deliverOrderStatus = ResponseStatus.IDLE;
+      state.deliverOrder.status = ResponseStatus.IDLE;
     },
   },
   extraReducers(builder) {
     builder
       .addCase(createOrder.pending, (state) => {
-        state.createOrderStatus = ResponseStatus.LOADING;
+        state.createOrder.status = ResponseStatus.LOADING;
       })
       .addCase(createOrder.fulfilled, (state, action: PayloadAction<any>) => {
-        state.createOrderStatus = ResponseStatus.SUCCEEDED;
-        state.createOrderData = action.payload;
+        state.createOrder.status = ResponseStatus.SUCCEEDED;
+        state.createOrder.data = action.payload;
       })
       .addCase(createOrder.rejected, (state, action) => {
-        state.createOrderStatus = ResponseStatus.FAILED;
-        state.createOrderError = action.error.message;
+        state.createOrder.status = ResponseStatus.FAILED;
+        state.createOrder.error = action.error.message;
       })
       .addCase(acceptOrder.pending, (state) => {
-        state.acceptOrderStatus = ResponseStatus.LOADING;
+        state.acceptOrder.status = ResponseStatus.LOADING;
       })
       .addCase(acceptOrder.fulfilled, (state, action: PayloadAction<any>) => {
-        state.acceptOrderStatus = ResponseStatus.SUCCEEDED;
-        state.acceptOrderData = action.payload;
+        state.acceptOrder.status = ResponseStatus.SUCCEEDED;
+        state.acceptOrder.data = action.payload;
       })
       .addCase(acceptOrder.rejected, (state, action) => {
-        state.acceptOrderStatus = ResponseStatus.FAILED;
-        state.acceptOrderError = action.error.message;
+        state.acceptOrder.status = ResponseStatus.FAILED;
+        state.acceptOrder.error = action.error.message;
       })
       .addCase(rejectOrder.pending, (state) => {
-        state.rejectOrderStatus = ResponseStatus.LOADING;
+        state.rejectOrder.status = ResponseStatus.LOADING;
       })
       .addCase(rejectOrder.fulfilled, (state, action: PayloadAction<any>) => {
-        state.rejectOrderStatus = ResponseStatus.SUCCEEDED;
-        state.rejectOrderData = action.payload;
+        state.rejectOrder.status = ResponseStatus.SUCCEEDED;
+        state.rejectOrder.data = action.payload;
       })
       .addCase(rejectOrder.rejected, (state, action) => {
-        state.rejectOrderStatus = ResponseStatus.FAILED;
-        state.rejectOrderError = action.error.message;
+        state.rejectOrder.status = ResponseStatus.FAILED;
+        state.rejectOrder.error = action.error.message;
       })
       .addCase(deliverOrder.pending, (state) => {
-        state.deliverOrderStatus = ResponseStatus.LOADING;
+        state.deliverOrder.status = ResponseStatus.LOADING;
       })
       .addCase(deliverOrder.fulfilled, (state, action: PayloadAction<any>) => {
-        state.deliverOrderStatus = ResponseStatus.SUCCEEDED;
-        state.deliverOrderData = action.payload;
+        state.deliverOrder.status = ResponseStatus.SUCCEEDED;
+        state.deliverOrder.data = action.payload;
       })
       .addCase(deliverOrder.rejected, (state, action) => {
-        state.deliverOrderStatus = ResponseStatus.FAILED;
-        state.deliverOrderError = action.error.message;
+        state.deliverOrder.status = ResponseStatus.FAILED;
+        state.deliverOrder.error = action.error.message;
       })
       .addCase(findSendedOrders.pending, (state) => {
-        state.sendedOrdersStatus = ResponseStatus.LOADING;
+        state.sendedOrders.status = ResponseStatus.LOADING;
       })
       .addCase(
         findSendedOrders.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.sendedOrdersStatus = ResponseStatus.SUCCEEDED;
-          state.sendedOrdersData = action.payload;
+          state.sendedOrders.status = ResponseStatus.SUCCEEDED;
+          state.sendedOrders.data = action.payload;
         }
       )
       .addCase(findSendedOrders.rejected, (state, action) => {
-        state.sendedOrdersStatus = ResponseStatus.FAILED;
-        state.sendedOrdersError = action.error.message;
+        state.sendedOrders.status = ResponseStatus.FAILED;
+        state.sendedOrders.error = action.error.message;
       })
       .addCase(findSendedOrderDetails.pending, (state) => {
-        state.sendedOrderDetailsStatus = ResponseStatus.LOADING;
+        state.sendedOrderDetails.status = ResponseStatus.LOADING;
       })
       .addCase(
         findSendedOrderDetails.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.sendedOrderDetailsStatus = ResponseStatus.SUCCEEDED;
-          state.sendedOrderDetailsData = action.payload;
+          state.sendedOrderDetails.status = ResponseStatus.SUCCEEDED;
+          state.sendedOrderDetails.data = action.payload;
         }
       )
       .addCase(findSendedOrderDetails.rejected, (state, action) => {
-        state.sendedOrderDetailsStatus = ResponseStatus.FAILED;
-        state.sendedOrderDetailsError = action.error.message;
+        state.sendedOrderDetails.status = ResponseStatus.FAILED;
+        state.sendedOrderDetails.error = action.error.message;
       })
       .addCase(findReceivedOrders.pending, (state) => {
-        state.receivedOrdersStatus = ResponseStatus.LOADING;
+        state.receivedOrders.status = ResponseStatus.LOADING;
       })
       .addCase(
         findReceivedOrders.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.receivedOrdersStatus = ResponseStatus.SUCCEEDED;
-          state.receivedOrdersData = action.payload;
+          state.receivedOrders.status = ResponseStatus.SUCCEEDED;
+          state.receivedOrders.data = action.payload;
         }
       )
       .addCase(findReceivedOrders.rejected, (state, action) => {
-        state.receivedOrdersStatus = ResponseStatus.FAILED;
-        state.receivedOrdersError = action.error.message;
+        state.receivedOrders.status = ResponseStatus.FAILED;
+        state.receivedOrders.error = action.error.message;
       })
       .addCase(findReceivedReturnOrders.pending, (state) => {
-        state.receivedReturnOrdersStatus = ResponseStatus.LOADING;
+        state.receivedReturnOrders.status = ResponseStatus.LOADING;
       })
       .addCase(
         findReceivedReturnOrders.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.receivedReturnOrdersStatus = ResponseStatus.SUCCEEDED;
-          state.receivedReturnOrdersData = action.payload;
+          state.receivedReturnOrders.status = ResponseStatus.SUCCEEDED;
+          state.receivedReturnOrders.data = action.payload;
         }
       )
       .addCase(findReceivedReturnOrders.rejected, (state, action) => {
-        state.receivedReturnOrdersStatus = ResponseStatus.FAILED;
-        state.receivedReturnOrdersError = action.error.message;
+        state.receivedReturnOrders.status = ResponseStatus.FAILED;
+        state.receivedReturnOrders.error = action.error.message;
       })
       .addCase(acceptReturnOrders.pending, (state) => {
-        state.acceptReturnOrderStatus = ResponseStatus.LOADING;
+        state.acceptReturnOrder.status = ResponseStatus.LOADING;
       })
       .addCase(
         acceptReturnOrders.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.acceptReturnOrderStatus = ResponseStatus.SUCCEEDED;
-          state.acceptReturnOrderData = action.payload;
+          state.acceptReturnOrder.status = ResponseStatus.SUCCEEDED;
+          state.acceptReturnOrder.data = action.payload;
         }
       )
       .addCase(acceptReturnOrders.rejected, (state, action) => {
-        state.acceptReturnOrderStatus = ResponseStatus.FAILED;
-        state.acceptReturnOrderError = action.error.message;
+        state.acceptReturnOrder.status = ResponseStatus.FAILED;
+        state.acceptReturnOrder.error = action.error.message;
       })
       .addCase(rejectReturnOrders.pending, (state) => {
-        state.rejectReturnOrderStatus = ResponseStatus.LOADING;
+        state.rejectReturnOrder.status = ResponseStatus.LOADING;
       })
       .addCase(
         rejectReturnOrders.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.rejectReturnOrderStatus = ResponseStatus.SUCCEEDED;
-          state.rejectReturnOrderData = action.payload;
+          state.rejectReturnOrder.status = ResponseStatus.SUCCEEDED;
+          state.rejectReturnOrder.data = action.payload;
         }
       )
       .addCase(rejectReturnOrders.rejected, (state, action) => {
-        state.rejectReturnOrderStatus = ResponseStatus.FAILED;
-        state.rejectReturnOrderError = action.error.message;
+        state.rejectReturnOrder.status = ResponseStatus.FAILED;
+        state.rejectReturnOrder.error = action.error.message;
       })
       .addCase(findReceivedOrderDetails.pending, (state) => {
-        state.receivedOrderDetailsStatus = ResponseStatus.LOADING;
+        state.receivedOrderDetails.status = ResponseStatus.LOADING;
       })
       .addCase(
         findReceivedOrderDetails.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.receivedOrderDetailsStatus = ResponseStatus.SUCCEEDED;
-          state.receivedOrderDetailsData = action.payload;
+          state.receivedOrderDetails.status = ResponseStatus.SUCCEEDED;
+          state.receivedOrderDetails.data = action.payload;
         }
       )
       .addCase(findReceivedOrderDetails.rejected, (state, action) => {
-        state.receivedOrderDetailsStatus = ResponseStatus.FAILED;
-        state.receivedOrderDetailsError = action.error.message;
+        state.receivedOrderDetails.status = ResponseStatus.FAILED;
+        state.receivedOrderDetails.error = action.error.message;
       })
       .addCase(findOrderDistribution.pending, (state) => {
-        state.orderOverviewStatus = ResponseStatus.LOADING;
+        state.orderOverview.status = ResponseStatus.LOADING;
       })
       .addCase(
         findOrderDistribution.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.orderOverviewStatus = ResponseStatus.SUCCEEDED;
-          state.orderOverviewData = action.payload;
+          state.orderOverview.status = ResponseStatus.SUCCEEDED;
+          state.orderOverview.data = action.payload;
         }
       )
       .addCase(findOrderDistribution.rejected, (state, action) => {
-        state.orderOverviewStatus = ResponseStatus.FAILED;
-        state.orderOverviewError = action.error.message;
+        state.orderOverview.status = ResponseStatus.FAILED;
+        state.orderOverview.error = action.error.message;
       });
   },
 });
 
 export const selectCreateOrderStatus = (state: RootState) =>
-  state.order.createOrderStatus;
+  state.order.createOrder.status;
 
 export const selectCreateOrderError = (state: RootState) =>
-  state.order.createOrderError;
+  state.order.createOrder.error;
 
 export const selectSendedOrdersStatus = (state: RootState) =>
-  state.order.sendedOrdersStatus;
+  state.order.sendedOrders.status;
 export const selectSendedOrdersData = (state: RootState) =>
-  state.order.sendedOrdersData;
+  state.order.sendedOrders.data;
 export const selectSendedOrdersError = (state: RootState) =>
-  state.order.sendedOrdersError;
+  state.order.sendedOrders.error;
 export const selectSendedOrderDetailsStatus = (state: RootState) =>
-  state.order.sendedOrderDetailsStatus;
+  state.order.sendedOrderDetails.status;
 export const selectSendedOrderDetailsData = (state: RootState) =>
-  state.order.sendedOrderDetailsData;
+  state.order.sendedOrderDetails.data;
 export const selectSendedOrderDetailsError = (state: RootState) =>
-  state.order.sendedOrderDetailsError;
+  state.order.sendedOrderDetails.error;
 
 export const selectReceivedOrdersStatus = (state: RootState) =>
-  state.order.receivedOrdersStatus;
+  state.order.receivedOrders.status;
 export const selectReceivedOrdersData = (state: RootState) =>
-  state.order.receivedOrdersData;
+  state.order.receivedOrders.data;
 export const selectReceivedOrdersError = (state: RootState) =>
-  state.order.receivedOrdersError;
+  state.order.receivedOrders.error;
 export const selectReceivedReturnOrdersStatus = (state: RootState) =>
-  state.order.receivedReturnOrdersStatus;
+  state.order.receivedReturnOrders.status;
 export const selectReceivedReturnOrdersData = (state: RootState) =>
-  state.order.receivedReturnOrdersData;
+  state.order.receivedReturnOrders.data;
 export const selectReceivedReturnOrdersError = (state: RootState) =>
-  state.order.receivedReturnOrdersError;
+  state.order.receivedReturnOrders.error;
 
 export const selectAcceptReturnOrdersStatus = (state: RootState) =>
-  state.order.acceptReturnOrderStatus;
+  state.order.acceptReturnOrder.status;
 export const selectAcceptReturnOrdersData = (state: RootState) =>
-  state.order.acceptReturnOrderData;
+  state.order.acceptReturnOrder.data;
 export const selectAcceptReturnOrdersError = (state: RootState) =>
-  state.order.acceptReturnOrderError;
+  state.order.acceptReturnOrder.error;
 
 export const selectRejectReturnOrdersStatus = (state: RootState) =>
-  state.order.rejectReturnOrderStatus;
+  state.order.rejectReturnOrder.status;
 export const selectRejectReturnOrdersData = (state: RootState) =>
-  state.order.rejectReturnOrderData;
+  state.order.rejectReturnOrder.data;
 export const selectRejectReturnOrdersError = (state: RootState) =>
-  state.order.rejectReturnOrderError;
+  state.order.rejectReturnOrder.error;
 export const selectReceivedOrderDetailsStatus = (state: RootState) =>
-  state.order.receivedOrderDetailsStatus;
+  state.order.receivedOrderDetails.status;
 export const selectReceivedOrderDetailsData = (state: RootState) =>
-  state.order.receivedOrderDetailsData;
+  state.order.receivedOrderDetails.data;
 export const selectReceivedOrderDetailsError = (state: RootState) =>
-  state.order.receivedOrderDetailsError;
+  state.order.receivedOrderDetails.error;
 
 export const selectAcceptOrderStatus = (state: RootState) =>
-  state.order.acceptOrderStatus;
+  state.order.acceptOrder.status;
 export const selectAcceptOrderData = (state: RootState) =>
-  state.order.acceptOrderData;
+  state.order.acceptOrder.data;
 export const selectAcceptOrderError = (state: RootState) =>
-  state.order.acceptOrderError;
+  state.order.acceptOrder.error;
 
 export const selectRejectOrderStatus = (state: RootState) =>
-  state.order.rejectOrderStatus;
+  state.order.rejectOrder.status;
 export const selectRejectOrderData = (state: RootState) =>
-  state.order.rejectOrderData;
+  state.order.rejectOrder.data;
 export const selectRejectOrderError = (state: RootState) =>
-  state.order.rejectOrderError;
+  state.order.rejectOrder.error;
 
 export const selectDeliverOrderStatus = (state: RootState) =>
-  state.order.deliverOrderStatus;
+  state.order.deliverOrder.status;
 export const selectDeliverOrderData = (state: RootState) =>
-  state.order.deliverOrderData;
+  state.order.deliverOrder.data;
 export const selectDeliverOrderError = (state: RootState) =>
-  state.order.deliverOrderError;
+  state.order.deliverOrder.error;
 
 export const selectOrderOverviewStatus = (state: RootState) =>
-  state.order.orderOverviewStatus;
+  state.order.orderOverview.status;
 export const selectOrderOverviewData = (state: RootState) =>
-  state.order.orderOverviewData;
+  state.order.orderOverview.data;
 export const selectOrderOverviewError = (state: RootState) =>
-  state.order.orderOverviewError;
+  state.order.orderOverview.error;
 export const { resetAcceptStatus, resetDeliverStatus, resetRejectStatus } =
   orderSlice.actions;
 export default orderSlice.reducer;

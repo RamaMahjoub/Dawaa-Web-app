@@ -12,26 +12,28 @@ import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
-  getAllStores,
-  selectAddStoreStatus,
-  selectAllStoresData,
-  selectAllStoresStatus,
-} from "../../redux/storeSlice";
+  getAllInventories,
+  selectRegisterInventoryStatus,
+  selectallInventoriesData,
+  selectallInventoriesStatus,
+} from "../../redux/inventorySlice";
 import PendingDialog from "./AddStore/PendingDialog";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
 import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { Data } from "../../Schema/Responses/Data";
+import { Inventory } from "../../Schema/Responses/Inventory";
 
 const AllStores = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const dispatch = useAppDispatch();
-  const data = useAppSelector(selectAllStoresData);
+  const data = useAppSelector<Data<Array<Inventory>>>(selectallInventoriesData);
   const content = useRef<any>(null);
-  const status = useAppSelector(selectAllStoresStatus);
-  const addStoreStatus = useAppSelector(selectAddStoreStatus);
+  const status = useAppSelector(selectallInventoriesStatus);
+  const registerInventoryStatus = useAppSelector(selectRegisterInventoryStatus);
   const { open: openAddStore, handleOpen: handleOpenAddStore } =
     useOpenToggle();
   const { open: openPending, handleOpen: handleOpenPending } = useOpenToggle();
@@ -39,20 +41,22 @@ const AllStores = () => {
   const deferredQuery = useDeferredValue(searchQuery);
   useEffect(() => {
     dispatch(
-      getAllStores({ name: deferredQuery !== "" ? deferredQuery : undefined })
+      getAllInventories({
+        name: deferredQuery !== "" ? deferredQuery : undefined,
+      })
     );
   }, [dispatch, deferredQuery]);
   useEffect(() => {
-    if (addStoreStatus === ResponseStatus.SUCCEEDED) {
+    if (registerInventoryStatus === ResponseStatus.SUCCEEDED) {
       handleOpenAddStore();
       handleOpenPending();
     }
-  }, [addStoreStatus, handleOpenAddStore, handleOpenPending]);
+  }, [registerInventoryStatus, handleOpenAddStore, handleOpenPending]);
   if (status === ResponseStatus.LOADING) {
     content.current = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {
     data.data
-      ? (content.current = data.data.map((row: any, index: number) => (
+      ? (content.current = data.data.map((row: Inventory, index: number) => (
           <StoreCard storeData={row} index={index + 1} key={row.id} />
         )))
       : (content.current = <NoData />);

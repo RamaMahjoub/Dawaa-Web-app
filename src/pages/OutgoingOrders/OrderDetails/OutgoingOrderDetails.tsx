@@ -16,6 +16,10 @@ import {
 } from "../../../redux/orderSlice";
 import Beat from "../../../components/Loading/Beat";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
+import {
+  MedicineInSendedOrder,
+  SupplierInSendedOrder,
+} from "../../../Schema/Responses/SendedOrder";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 
 const OutgoingOrderDetails = () => {
@@ -24,7 +28,9 @@ const OutgoingOrderDetails = () => {
   const { orderId } = useParams();
   const contentRef = useRef<any>();
   const [cost, setCost] = useState<number | null>(null);
-  const [supplier, setSupplier] = useState<any>(null);
+  const [supplier, setSupplier] = useState<SupplierInSendedOrder | undefined>(
+    undefined
+  );
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSendedOrderDetailsData);
   const status = useAppSelector(selectSendedOrderDetailsStatus);
@@ -33,32 +39,34 @@ const OutgoingOrderDetails = () => {
   }, [orderId, dispatch]);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
-      const total = data.data.medicines.reduce(
-        (acc: number, medicine: any) =>
+      const total = data.data?.medicines.reduce(
+        (acc: number, medicine: MedicineInSendedOrder) =>
           (acc += medicine.price * medicine.quantity),
         0
       );
-      setCost(total);
-      setSupplier(data.data.supplier);
-      contentRef.current = data.data.medicines.map((medicine: any) => (
-        <MedicineCard
-          key={medicine.name}
-          name={medicine.name}
-          photoAlt={medicine.name}
-          photoSrc={
-            medicine.imageUrl === undefined ? NotFound : medicine.imageUrl
-          }
-          subtitle={`${medicine.price} ل.س`}
-          action={
-            <IconBadge
-              icon={
-                <p className="font-bold text-xx-large">x{medicine.quantity}</p>
-              }
-              status={BadgeStatus.WARNING}
-            />
-          }
-        />
-      ));
+      setCost(total!);
+      setSupplier(data.data?.supplier);
+      contentRef.current = data.data?.medicines.map(
+        (medicine: MedicineInSendedOrder) => (
+          <MedicineCard
+            key={medicine.name}
+            name={medicine.name}
+            photoAlt={medicine.name}
+            photoSrc={medicine.imageUrl === null ? NotFound : medicine.imageUrl}
+            subtitle={`${medicine.price} ل.س`}
+            action={
+              <IconBadge
+                icon={
+                  <p className="font-bold text-xx-large">
+                    x{medicine.quantity}
+                  </p>
+                }
+                status={BadgeStatus.WARNING}
+              />
+            }
+          />
+        )
+      );
     }
   }, [status, data]);
   if (status === ResponseStatus.LOADING) {
@@ -66,6 +74,7 @@ const OutgoingOrderDetails = () => {
   } else if (status === ResponseStatus.FAILED) {
     contentRef.current = <div>حدث خطأ ما...</div>;
   }
+  console.log(data);
   return (
     <>
       <div className="flex flex-col h-screen">
@@ -86,7 +95,7 @@ const OutgoingOrderDetails = () => {
               {supplier ? (
                 <DestinationCard
                   title={supplier.name}
-                  subTitle={supplier.address}
+                  subTitle={supplier.location}
                   email={supplier.email}
                   phone={supplier.phoneNumber}
                   inactive={true}

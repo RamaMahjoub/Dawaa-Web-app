@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
 import TextField from "../../components/TextField/TextField";
 import Button from "../../components/Button/Button";
-import { RegisterDetailSchema } from "../../Schema/request/registerDetails.schema";
 import { useFormSubmit } from "../../hooks/useFormSubmit";
 import { registerDetailsValidationSchema } from "../../validations/registerDetails.validation";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -16,6 +15,7 @@ import {
 import { routes } from "../../router/constant";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { CompleteInfo } from "../../Schema/Requests/CompleteInfo";
 
 const RegisterDetails = () => {
   const { pathname } = useLocation();
@@ -33,13 +33,13 @@ const RegisterDetails = () => {
     }
   }, [status, navigate, error]);
 
-  const initialValues: RegisterDetailSchema = {
+  const initialValues: CompleteInfo = {
     name: "",
     location: "",
     phoneNumber: "",
   };
 
-  const handleSubmit = (values: RegisterDetailSchema) => {
+  const handleSubmit = (values: CompleteInfo) => {
     dispatch(completeInfo(values));
   };
 

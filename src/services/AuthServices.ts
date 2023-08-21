@@ -1,21 +1,21 @@
-import { LoginSchema } from "../Schema/request/login.schema";
-import { RegisterSchema } from "../Schema/request/register.schema";
-import { RegisterDetailSchema } from "../Schema/request/registerDetails.schema";
+import { CompleteInfo } from "../Schema/Requests/CompleteInfo";
+import { LoginRequest } from "../Schema/Requests/Login";
+import { RegisterRequest } from "../Schema/Requests/Register";
 import http, { protectedAxios } from "./axios";
 
-const register = (body: RegisterSchema) => {
+const register = (body: RegisterRequest) => {
   return http.post<any>("/auth/warehouse-register", body);
 };
 
-const completeInfo = (body: RegisterDetailSchema) => {
+const completeInfo = (body: CompleteInfo) => {
   return protectedAxios.post<any>("/warehouse/create-warehouse", body);
 };
 
-const updateInfo = (body: Partial<RegisterDetailSchema>) => {
+const updateInfo = (body: Partial<CompleteInfo>) => {
   return protectedAxios.patch<any>("/warehouse", body);
 };
 
-const login = (body: LoginSchema) => {
+const login = (body: LoginRequest) => {
   return http.post<any>("/auth/login-warehouse", body);
 };
 

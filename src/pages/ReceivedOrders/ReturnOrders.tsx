@@ -21,7 +21,6 @@ import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { ResponseStatus } from "../../enums/ResponseStatus";
-import Clip from "../../components/Loading/Clip";
 import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
 import { SubMenuProvider } from "../../components/Menu/context";
 import Menu, { MenuItem, SubMenu } from "../../components/Menu/Menu";
@@ -29,6 +28,10 @@ import { FunnelFill } from "react-bootstrap-icons";
 import IconButton from "../../components/Button/IconButton";
 import { useMediaQuery } from "react-responsive";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
+import {
+  MedicineInReceivedReturnOrder,
+  ReceivedReturnOrder,
+} from "../../Schema/Responses/ReceivedOrder";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 interface Filter {
@@ -53,14 +56,18 @@ const ReturnOrders = () => {
     navigate(filter.route);
   };
 
-  const [orders, setOrders] = useState<any>([]);
-
+  const [orders, setOrders] = useState<ReceivedReturnOrder[]>([]);
+  console.log(orders);
   const [selectedReport, setselectedReport] = useState<{
     index: number;
-    medicine: any;
+    medicine: MedicineInReceivedReturnOrder;
     reason: string;
   }>();
-  const handleSelectOrder = (id: number, medicine: any, reason: string) => {
+  const handleSelectOrder = (
+    id: number,
+    medicine: MedicineInReceivedReturnOrder,
+    reason: string
+  ) => {
     setselectedReport({
       index: id,
       medicine,
@@ -70,39 +77,22 @@ const ReturnOrders = () => {
   const { pageIndex, pageSize, handlePgination } = usePagination(1);
 
   const dispatch = useAppDispatch();
-  const [hasMore, setHasMore] = useState<any>(true);
-  const [isFetching, setIsFetching] = useState<any>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
   const endRef = useRef<any>(null);
   const content = useRef<any>(null);
   const ordersStatus = useAppSelector(selectReceivedReturnOrdersStatus);
   const acceptStatus = useAppSelector(selectAcceptReturnOrdersStatus);
   const rejectStatus = useAppSelector(selectRejectReturnOrdersStatus);
-  let acceptButton: any, rejectButton: any;
-  if (acceptStatus === ResponseStatus.LOADING) {
-    acceptButton = <Clip />;
-  } else if (acceptStatus === ResponseStatus.SUCCEEDED) {
-    acceptButton = "قبول الطلب";
-  } else if (acceptStatus === ResponseStatus.FAILED) {
-    acceptButton = "قبول الطلب";
-  } else if (acceptStatus === ResponseStatus.IDLE) {
-    acceptButton = "قبول الطلب";
-  }
-  if (rejectStatus === ResponseStatus.LOADING) {
-    rejectButton = <Clip />;
-  } else if (rejectStatus === ResponseStatus.SUCCEEDED) {
-    rejectButton = "رفض الطلب";
-  } else if (rejectStatus === ResponseStatus.FAILED) {
-    rejectButton = "رفض الطلب";
-  } else if (rejectStatus === ResponseStatus.IDLE) {
-    rejectButton = "رفض الطلب";
-  }
+
   useEffect(() => {
-    if (ordersStatus === ResponseStatus.SUCCEEDED && orders.length > 0) {
-      setselectedReport({
-        index: orders.length > 0 && orders[0].id,
-        medicine: orders.length > 0 && orders[0].medicine,
-        reason: orders.length > 0 && orders[0].reason,
-      });
+    if (ordersStatus === ResponseStatus.SUCCEEDED) {
+      orders.length > 0 &&
+        setselectedReport({
+          index: orders[0].id,
+          medicine: orders[0].medicine,
+          reason: orders[0].reason,
+        });
     }
   }, [ordersStatus, orders]);
   const fetchReturnOrders = useCallback(async () => {
@@ -115,7 +105,7 @@ const ReturnOrders = () => {
       );
 
       if (response.payload && response.payload.data.length > 0) {
-        setOrders((prevMedicines: any) => [
+        setOrders((prevMedicines: ReceivedReturnOrder[]) => [
           ...prevMedicines,
           ...response.payload.data,
         ]);
@@ -208,7 +198,7 @@ const ReturnOrders = () => {
       <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin">
         <div className="flex overflow-auto bg-white basis-auto shrink-0 sm:h-full sm:max-h-fit sm:flex-col gap-large p-medium scrollbar-thin sm:w-1/2 rounded-med">
           {orders.length > 0
-            ? orders.map((order: any) => {
+            ? orders.map((order: ReceivedReturnOrder) => {
                 const date = new Date(order.reportDate);
                 const reportDate = `${getMonth(
                   date.getMonth() + 1
@@ -254,20 +244,26 @@ const ReturnOrders = () => {
                         order.status === "Pending" && (
                           <div className="flex flex-1 gap-small">
                             <Button
-                              text={acceptButton}
+                              text="قبول الطلب"
                               variant="base-blue"
                               disabled={false}
                               size="med"
                               style={{ flex: "1" }}
-                              onClick={() => handleAcceptOrder(order.id)}
+                              onClick={() =>
+                                handleAcceptOrder(String(order.id))
+                              }
+                              status={acceptStatus}
                             />
                             <Button
-                              text={rejectButton}
+                              text="رفض الطلب"
                               variant="red"
                               disabled={false}
                               style={{ flex: "1" }}
                               size="med"
-                              onClick={() => handleRejectOrder(order.id)}
+                              onClick={() =>
+                                handleRejectOrder(String(order.id))
+                              }
+                              status={rejectStatus}
                             />
                           </div>
                         )

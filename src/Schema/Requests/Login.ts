@@ -1,4 +1,4 @@
-export interface LoginSchema {
+export interface LoginRequest {
   email: string;
   password: string;
 }

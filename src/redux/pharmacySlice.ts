@@ -2,17 +2,20 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { ResponseStatus } from "../enums/ResponseStatus";
 import PharmacyService from "../services/pharmacyServices";
+import { ApiState } from "./type";
+import { Data } from "../Schema/Responses/Data";
+import { Pharmacy } from "../Schema/Responses/Pharmacy";
 
 type PharmacyState = {
-  allPharmaciesData: any;
-  allPharmaciesStatus: string;
-  allPharmaciesError: string | undefined;
+  allPharmacies: ApiState<Data<Array<Pharmacy>>>;
 };
 
 const initialState: PharmacyState = {
-  allPharmaciesData: {},
-  allPharmaciesStatus: ResponseStatus.IDLE,
-  allPharmaciesError: undefined,
+  allPharmacies: {
+    data: { data: [] },
+    error: undefined,
+    status: ResponseStatus.IDLE,
+  },
 };
 
 export const getAllPharmacies = createAsyncThunk(
@@ -35,27 +38,27 @@ export const pharmacySlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(getAllPharmacies.pending, (state) => {
-        state.allPharmaciesStatus = ResponseStatus.LOADING;
+        state.allPharmacies.status = ResponseStatus.LOADING;
       })
       .addCase(
         getAllPharmacies.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.allPharmaciesStatus = ResponseStatus.SUCCEEDED;
-          state.allPharmaciesData = action.payload;
+          state.allPharmacies.status = ResponseStatus.SUCCEEDED;
+          state.allPharmacies.data = action.payload;
         }
       )
       .addCase(getAllPharmacies.rejected, (state, action) => {
-        state.allPharmaciesStatus = ResponseStatus.FAILED;
-        state.allPharmaciesError = action.error.message;
+        state.allPharmacies.status = ResponseStatus.FAILED;
+        state.allPharmacies.error = action.error.message;
       });
   },
 });
 
 export const selectAllPharmaciesStatus = (state: RootState) =>
-  state.pharmacy.allPharmaciesStatus;
+  state.pharmacy.allPharmacies.status;
 export const selectAllPharmaciesData = (state: RootState) =>
-  state.pharmacy.allPharmaciesData;
+  state.pharmacy.allPharmacies.data;
 export const selectAllPharmaciesError = (state: RootState) =>
-  state.pharmacy.allPharmaciesError;
+  state.pharmacy.allPharmacies.error;
 
 export default pharmacySlice.reducer;

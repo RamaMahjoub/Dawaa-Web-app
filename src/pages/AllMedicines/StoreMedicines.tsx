@@ -19,15 +19,18 @@ import { usePagination } from "../../hooks/usePagination";
 import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { WarehouseMedicine } from "../../Schema/Responses/WarhouseMedicine";
 const NotFound = require("./../../assets/medicines/not-found.png");
 const StoreMedicines = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const { pageIndex, pageSize, handlePgination } = usePagination(10);
-  const [medicinetoStore, setMedicineToStore] = useState<any>({});
+  const [medicinetoStore, setMedicineToStore] = useState<
+    WarehouseMedicine | undefined
+  >(undefined);
   const { open: openStore, handleOpen: handleOpenStore } = useOpenToggle();
   const handleOpen = useCallback(
-    (medicine?: any) => {
+    (medicine?: WarehouseMedicine) => {
       setMedicineToStore(medicine);
       handleOpenStore();
     },
@@ -37,6 +40,7 @@ const StoreMedicines = () => {
 
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectWarehouseOnlyMedicinesData);
+  console.log(data);
   const status = useAppSelector(selectWarehouseOnlyMedicinesStatus);
   let content,
     totalCount = 0;
@@ -51,16 +55,16 @@ const StoreMedicines = () => {
   if (status === ResponseStatus.LOADING) {
     content = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {
-    totalCount = data.totalRecords;
+    totalCount = data.totalRecords!;
     content =
       data.data.length > 0 ? (
-        data.data.map((row: any) => (
+        data.data.map((row: WarehouseMedicine) => (
           <MedicineCard
             key={row.id}
             name={row.name}
             category={row.medicineCategory}
             photoAlt={row.name}
-            photoSrc={row.imageUrl !== null ? row.imageUrl : NotFound}
+            photoSrc={row.imageUrl !== undefined ? row.imageUrl : NotFound}
             subtitle={row.medicineSupplier}
             action={
               <Button

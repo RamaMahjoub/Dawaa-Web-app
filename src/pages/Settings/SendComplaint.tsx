@@ -18,6 +18,7 @@ import {
 } from "../../redux/supplierSlice";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { Pharmacy } from "../../Schema/Responses/Pharmacy";
 
 interface Props {
   open: boolean;
@@ -29,7 +30,7 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
     useOpenToggle();
   const [dest, setDest] = useState<string>("صيدلية");
   const { pageIndex, pageSize, handlePgination } = usePagination(10);
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<Array<Pharmacy>>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const suppliers = useAppSelector(selectAllSuppliersData);
@@ -52,7 +53,7 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
       );
 
       if (response.payload && response.payload.data.length > 0) {
-        setData((prevMedicines: any) => [
+        setData((prevMedicines: Array<Pharmacy>) => [
           ...prevMedicines,
           ...response.payload.data,
         ]);
@@ -144,7 +145,7 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
                       <Dropdown>
                         <DropdownMenu>
                           {data.length > 0 &&
-                            data.map((item: any) => (
+                            data.map((item: Pharmacy) => (
                               <DropdownItem
                                 key={item.id}
                                 title={item.name}
@@ -191,7 +192,6 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
                 disabled={false}
                 size="lg"
                 onClick={handleSendRequest}
-                
               />
             </div>
           </div>

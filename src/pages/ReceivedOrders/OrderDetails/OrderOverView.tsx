@@ -14,6 +14,7 @@ import { useAppSelector } from "../../../hooks/useAppSelector";
 import { v4 as uuidv4 } from "uuid";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
 import Beat from "../../../components/Loading/Beat";
+import { MedicineInOverview, OrderOverview } from "../../../Schema/Responses/ReceivedOrder";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 
 interface Props {
@@ -31,10 +32,11 @@ const OrderOverView: FC<Props> = ({ open, handleOpen, orderId }) => {
   }, [dispatch, orderId]);
 
   if (status === ResponseStatus.FAILED) {
-    content = <div>error..</div>;
+    content = <div>حدث خطأ ما...</div>;
   } else if (status === ResponseStatus.LOADING) {
     content = <Beat />;
   }
+  console.log(data);
   return (
     <>
       {open && (
@@ -49,7 +51,7 @@ const OrderOverView: FC<Props> = ({ open, handleOpen, orderId }) => {
             </p>
             <div className="flex flex-col items-center flex-1 overflow-auto gap-small px-medium py-medium scrollbar-thin">
               {data.data
-                ? data.data.map((item: any) => {
+                ? data.data.map((item: OrderOverview) => {
                     return (
                       <div
                         key={item.id}
@@ -58,7 +60,7 @@ const OrderOverView: FC<Props> = ({ open, handleOpen, orderId }) => {
                         <p className="text-large text-greyScale-dark">
                           {item.name}
                         </p>
-                        {item.medicines.map((med: any) => {
+                        {item.medicines.map((med: MedicineInOverview) => {
                           return (
                             <MedicineCard
                               key={uuidv4()}

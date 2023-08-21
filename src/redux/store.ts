@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
-import storeReducer from "./storeSlice";
+import inventoryReducer from "./inventorySlice";
 import supplierReducer from "./supplierSlice";
 import medicineSlice from "./medicineSlice";
 import orderSlice from "./orderSlice";
@@ -11,7 +11,7 @@ import paymentSlice from "./paymentSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    store: storeReducer,
+    inventory: inventoryReducer,
     supplier: supplierReducer,
     medicine: medicineSlice,
     order: orderSlice,

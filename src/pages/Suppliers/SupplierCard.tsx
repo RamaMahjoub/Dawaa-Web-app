@@ -3,9 +3,10 @@ import Button from "../../components/Button/Button";
 import { GeoAltFill, StarFill, TelephoneFill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/constant";
+import { Supplier } from "../../Schema/Responses/Supplier";
 
 interface Props {
-  supplierData: any;
+  supplierData: Supplier;
 }
 const SupplierCard: FC<Props> = ({ supplierData }) => {
   const navigate = useNavigate();

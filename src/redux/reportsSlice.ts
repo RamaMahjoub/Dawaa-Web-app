@@ -2,29 +2,32 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import ReportService from "../services/ReportServices";
 import { ResponseStatus } from "../enums/ResponseStatus";
+import { ApiState } from "./type";
+import { Data } from "../Schema/Responses/Data";
+import { InventoryReport } from "../Schema/Responses/InventoryReport";
 
 type ReportsState = {
-  inventoriesReportsData: any;
-  inventoriesReportsStatus: string;
-  inventoriesReportsError: string | undefined;
-  acceptReportData: any;
-  acceptReportStatus: string;
-  acceptReportError: string | undefined;
-  rejectReportData: any;
-  rejectReportStatus: string;
-  rejectReportError: string | undefined;
+  inventoriesReports: ApiState<Data<Array<InventoryReport>>>;
+  acceptReport: ApiState<any>;
+  rejectReport: ApiState<any>;
 };
 
 const initialState: ReportsState = {
-  inventoriesReportsData: {},
-  inventoriesReportsStatus: ResponseStatus.IDLE,
-  inventoriesReportsError: undefined,
-  acceptReportData: {},
-  acceptReportStatus: ResponseStatus.IDLE,
-  acceptReportError: undefined,
-  rejectReportData: {},
-  rejectReportStatus: ResponseStatus.IDLE,
-  rejectReportError: undefined,
+  inventoriesReports: {
+    data: { data: [] },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  acceptReport: {
+    data: {},
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  rejectReport: {
+    data: {},
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
 };
 
 export const findInventoriesReports = createAsyncThunk(
@@ -72,67 +75,68 @@ export const reportsSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(findInventoriesReports.pending, (state) => {
-        state.inventoriesReportsStatus = ResponseStatus.LOADING;
+        state.inventoriesReports.status = ResponseStatus.LOADING;
       })
       .addCase(
         findInventoriesReports.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.inventoriesReportsStatus = ResponseStatus.SUCCEEDED;
-          state.inventoriesReportsData = action.payload;
+          state.inventoriesReports.status = ResponseStatus.SUCCEEDED;
+          state.inventoriesReports.data = action.payload;
         }
       )
       .addCase(findInventoriesReports.rejected, (state, action) => {
-        state.inventoriesReportsStatus = ResponseStatus.FAILED;
-        state.inventoriesReportsError = action.error.message;
+        state.inventoriesReports.status = ResponseStatus.FAILED;
+        state.inventoriesReports.error = action.error.message;
       })
       .addCase(acceptInventoryReport.pending, (state) => {
-        state.acceptReportStatus = ResponseStatus.LOADING;
+        state.acceptReport.status = ResponseStatus.LOADING;
       })
       .addCase(
         acceptInventoryReport.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.acceptReportStatus = ResponseStatus.SUCCEEDED;
-          state.acceptReportData = action.payload;
+          state.acceptReport.status = ResponseStatus.SUCCEEDED;
+          state.acceptReport.data = action.payload;
         }
       )
       .addCase(acceptInventoryReport.rejected, (state, action) => {
-        state.acceptReportStatus = ResponseStatus.FAILED;
-        state.acceptReportError = action.error.message;
+        state.acceptReport.status = ResponseStatus.FAILED;
+        state.acceptReport.error = action.error.message;
       })
       .addCase(rejectInventoryReport.pending, (state) => {
-        state.rejectReportStatus = ResponseStatus.LOADING;
+        state.rejectReport.status = ResponseStatus.LOADING;
       })
       .addCase(
         rejectInventoryReport.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.rejectReportStatus = ResponseStatus.SUCCEEDED;
-          state.rejectReportData = action.payload;
+          state.rejectReport.status = ResponseStatus.SUCCEEDED;
+          state.rejectReport.data = action.payload;
         }
       )
       .addCase(rejectInventoryReport.rejected, (state, action) => {
-        state.rejectReportStatus = ResponseStatus.FAILED;
-        state.rejectReportError = action.error.message;
+        state.rejectReport.status = ResponseStatus.FAILED;
+        state.rejectReport.error = action.error.message;
       });
   },
 });
 
 export const selectInventoriesReportsStatus = (state: RootState) =>
-  state.report.inventoriesReportsStatus;
+  state.report.inventoriesReports.status;
 export const selectInventoriesReportsData = (state: RootState) =>
-  state.report.inventoriesReportsData;
+  state.report.inventoriesReports.data;
 export const selectInventoriesReportsError = (state: RootState) =>
-  state.report.inventoriesReportsError;
+  state.report.inventoriesReports.error;
 
 export const selectAcceptReportStatus = (state: RootState) =>
-  state.report.acceptReportStatus;
+  state.report.acceptReport.status;
 export const selectAcceptReportData = (state: RootState) =>
-  state.report.acceptReportData;
+  state.report.acceptReport.data;
 export const selectAcceptReportError = (state: RootState) =>
-  state.report.acceptReportError;
+  state.report.acceptReport.error;
+
 export const selectRejectReportStatus = (state: RootState) =>
-  state.report.rejectReportStatus;
+  state.report.rejectReport.status;
 export const selectRejectReportData = (state: RootState) =>
-  state.report.rejectReportData;
+  state.report.rejectReport.data;
 export const selectRejectReportError = (state: RootState) =>
-  state.report.rejectReportError;
+  state.report.rejectReport.error;
 export default reportsSlice.reducer;

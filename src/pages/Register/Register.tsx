@@ -9,7 +9,6 @@ import {
   Person,
 } from "react-bootstrap-icons";
 import Button from "../../components/Button/Button";
-import { RegisterSchema } from "../../Schema/request/register.schema";
 import { useFormSubmit } from "../../hooks/useFormSubmit";
 import { registerValidationSchema } from "../../validations/register.validation";
 import { useEffect, useState } from "react";
@@ -24,6 +23,7 @@ import {
 } from "../../redux/authSlice";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { RegisterRequest } from "../../Schema/Requests/Register";
 
 const Register = () => {
   const { pathname } = useLocation();
@@ -49,14 +49,14 @@ const Register = () => {
     }
   }, [status, navigate, error]);
 
-  const initialValues: RegisterSchema = {
+  const initialValues: RegisterRequest = {
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
   };
 
-  const handleSubmit = (values: RegisterSchema) => {
+  const handleSubmit = (values: RegisterRequest) => {
     dispatch(register(values)).then(() => {
       dispatch(login({ email: values.email, password: values.password }));
     });

@@ -14,26 +14,30 @@ import { useOpenToggle } from "../../hooks/useOpenToggle";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
-  getAllStores,
-  getMedicinesInStore,
-  selectAllStoresData,
-  selectAllStoresStatus,
+  getAllInventories,
+  getMedicinesInInventory,
   selectTransferBetweenInventoriesError,
   selectTransferBetweenInventoriesStatus,
+  selectallInventoriesData,
+  selectallInventoriesStatus,
   transferBetweenInventories,
-} from "../../redux/storeSlice";
+} from "../../redux/inventorySlice";
 import NoData from "../NoData/NoData";
 import Beat from "../../components/Loading/Beat";
 import { ResponseStatus } from "../../enums/ResponseStatus";
 import { usePagination } from "../../hooks/usePagination";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
+import { Data } from "../../Schema/Responses/Data";
+import { Inventory } from "../../Schema/Responses/Inventory";
+import { InventoryMedicine } from "../../Schema/Responses/InventoryMedicine";
+import { Batch } from "../../Schema/Responses/Batch";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 interface Req {
   fromInventory: number | undefined;
   toInventory: number | undefined;
-  batches: { batchId: number | undefined; quantity: number }[];
+  batches: { batchId: number; quantity: number }[];
 }
 const TransferMedicines = () => {
   const { pathname } = useLocation();
@@ -44,12 +48,14 @@ const TransferMedicines = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const { pageIndex, pageSize, handlePgination } = usePagination(1);
   const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [medicines, setMedicines] = useState<any>([]);
+  const [medicines, setMedicines] = useState<InventoryMedicine[]>([]);
 
   let content = useRef<any>(null);
   let endRef = useRef<any>(null);
   const dispatch = useAppDispatch();
-  const invintories = useAppSelector(selectAllStoresData);
+  const invintories = useAppSelector<Data<Array<Inventory>>>(
+    selectallInventoriesData
+  );
   let request: Req = useMemo(
     () => ({
       fromInventory: undefined,
@@ -72,11 +78,11 @@ const TransferMedicines = () => {
 
     setFromInventory(updated);
   };
-  const status = useAppSelector(selectAllStoresStatus);
+  const status = useAppSelector(selectallInventoriesStatus);
   const sendStatus = useAppSelector(selectTransferBetweenInventoriesStatus);
   const sendError = useAppSelector(selectTransferBetweenInventoriesError);
   useEffect(() => {
-    dispatch(getAllStores({ name: undefined }));
+    dispatch(getAllInventories({ name: undefined }));
   }, [dispatch]);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
@@ -97,14 +103,14 @@ const TransferMedicines = () => {
       from = <NoData />;
       to = <NoData />;
     } else {
-      from = fromInventory?.map((inventory: any) => (
+      from = fromInventory?.map((inventory: Inventory) => (
         <DropdownItem
           key={uuidv4()}
           title={inventory.name}
           handleSelectValue={() => handleCaptureFromInventory(inventory.id)}
         />
       ));
-      to = toInventory?.map((inventory: any) => (
+      to = toInventory?.map((inventory: Inventory) => (
         <DropdownItem
           key={uuidv4()}
           title={inventory.name}
@@ -193,7 +199,7 @@ const TransferMedicines = () => {
 
         try {
           const response = await dispatch(
-            getMedicinesInStore({
+            getMedicinesInInventory({
               page: String(pageIndex),
               limit: String(pageSize),
               id: String(request.fromInventory),
@@ -201,7 +207,7 @@ const TransferMedicines = () => {
           );
 
           if (response.payload && response.payload.data.length > 0) {
-            setMedicines((prevMedicines: any) => [
+            setMedicines((prevMedicines: InventoryMedicine[]) => [
               ...prevMedicines,
               ...response.payload.data,
             ]);
@@ -289,12 +295,12 @@ const TransferMedicines = () => {
             </p>
             <div className="flex flex-col flex-1 overflow-auto gap-small px-medium scrollbar-thin">
               {medicines.length > 0 &&
-                medicines.map((med: any) => {
+                medicines.map((med: InventoryMedicine) => {
                   return (
                     <div key={med.id}>
                       <MedicineCard
                         name={med.name}
-                        photoAlt={med.id}
+                        photoAlt={String(med.id)}
                         photoSrc={
                           med.imageUrl === null ? NotFound : med.imageUrl
                         }
@@ -324,7 +330,7 @@ const TransferMedicines = () => {
                               }
                             >
                               <DropdownMenu>
-                                {med.batches.map((item: any) => {
+                                {med.batches.map((item: Batch) => {
                                   if (item.quantity > 0)
                                     return (
                                       <DropdownItem

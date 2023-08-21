@@ -8,17 +8,18 @@ import DropdownItem from "../../components/Dropdown/DropdownItem";
 import Counter from "../../components/Counter/Counter";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import {
-  getAllStores,
-  selectAllStoresData,
-  selectAllStoresStatus,
-} from "../../redux/storeSlice";
 import Beat from "../../components/Loading/Beat";
 import NoData from "../NoData/NoData";
 import { v4 as uuidv4 } from "uuid";
 import { storeInInventory } from "../../redux/medicineSlice";
 import { ResponseStatus } from "../../enums/ResponseStatus";
 import { toast } from "react-toastify";
+import {
+  getAllInventories,
+  selectallInventoriesData,
+  selectallInventoriesStatus,
+} from "../../redux/inventorySlice";
+import { Inventory } from "../../Schema/Responses/Inventory";
 
 interface Props {
   open: boolean;
@@ -28,10 +29,10 @@ interface Props {
 
 const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
   const dispatch = useAppDispatch();
-  const data = useAppSelector(selectAllStoresData);
+  const data = useAppSelector(selectallInventoriesData);
   const [loading, setLoading] = useState<string>(ResponseStatus.IDLE);
   let content: any;
-  const status = useAppSelector(selectAllStoresStatus);
+  const status = useAppSelector(selectallInventoriesStatus);
   const [elements, setUiElements] = useState<Array<{ [key: string]: any }>>([]);
   const addUiElement = () => {
     const isValid =
@@ -89,7 +90,7 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
     }));
   };
   useEffect(() => {
-    dispatch(getAllStores({ name: undefined }));
+    dispatch(getAllInventories({ name: undefined }));
   }, [dispatch]);
 
   if (status === ResponseStatus.LOADING) {
@@ -175,12 +176,12 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
                         <Dropdown error={element.inventoryId === null}>
                           <DropdownMenu>
                             {status === "succeeded" && data.data.length > 0
-                              ? data.data.map((store: any) => (
+                              ? data.data.map((inventory: Inventory) => (
                                   <DropdownItem
-                                    key={`${store.id}${key}`}
-                                    title={store.name}
+                                    key={`${inventory.id}${key}`}
+                                    title={inventory.name}
                                     handleSelectValue={() =>
-                                      handleCaptureInventory(key, store.id)
+                                      handleCaptureInventory(key, inventory.id)
                                     }
                                   />
                                 ))

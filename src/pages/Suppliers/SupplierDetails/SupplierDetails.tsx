@@ -22,6 +22,7 @@ import { usePagination } from "../../../hooks/usePagination";
 import NoData from "../../NoData/NoData";
 import Beat from "../../../components/Loading/Beat";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
+import { MedicineFromSupplier } from "../../../Schema/Responses/MedicineFromSupplier";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 
 const SupplierDetails = () => {
@@ -38,7 +39,7 @@ const SupplierDetails = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSupplierMedicinesData);
   const status = useAppSelector(selectSupplierMedicinesStatus);
-
+  console.log(data);
   let content;
   useEffect(() => {
     dispatch(
@@ -55,19 +56,19 @@ const SupplierDetails = () => {
     content = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {
     data.data.length > 0 &&
-      data.data.forEach((row: any) => {
+      data.data.forEach((row: MedicineFromSupplier) => {
         if (!catigoriesList.includes(row.category))
           catigoriesList.push(row.category);
       });
     content =
       data.data.length > 0 ? (
-        data.data.map((row: any) => (
+        data.data.map((row: MedicineFromSupplier) => (
           <MedicineCard
             key={row.id}
             name={row.name}
             category={row.category}
             photoAlt={row.name}
-            photoSrc={row.imageUrl !== undefined ? row.imageUrl : NotFound}
+            photoSrc={row.imageUrl !== null ? row.imageUrl : NotFound}
             subtitle={`${row.price} ل.س`}
             action={
               <Button
@@ -151,7 +152,7 @@ const SupplierDetails = () => {
               <CustomPagination
                 page={pageIndex + 1}
                 count={
-                  status === ResponseStatus.SUCCEEDED ? data.totalRecords : 0
+                  status === ResponseStatus.SUCCEEDED ? data.totalRecords! : 0
                 }
                 onChange={handlePgination}
                 pageSize={pageSize}

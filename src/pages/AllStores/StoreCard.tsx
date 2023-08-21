@@ -1,8 +1,8 @@
 import { FC } from "react";
-import { OStoreSchema } from "../../Schema/response/Store.schema";
+import { Inventory } from "../../Schema/Responses/Inventory";
 
 interface Props {
-  storeData: OStoreSchema;
+  storeData: Inventory;
   index: number;
 }
 

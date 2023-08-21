@@ -26,6 +26,7 @@ import { routes } from "../../router/constant";
 import { ResponseStatus } from "../../enums/ResponseStatus";
 import Beat from "../../components/Loading/Beat";
 import { toast } from "react-toastify";
+import { SupplierById } from "../../Schema/Responses/Supplier";
 
 const NotFound = require("./../../assets/medicines/not-found.png");
 
@@ -34,7 +35,7 @@ const SendOrder = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
   const { supplierId } = useParams();
-  const [supplier, setSupplier] = useState<any>();
+  const [supplier, setSupplier] = useState<SupplierById>();
   let supplierContent;
   const dispatch = useAppDispatch();
   const basket = useAppSelector(selectBasket);
@@ -45,7 +46,7 @@ const SendOrder = () => {
     basket.reduce(
       (acc: any, item: Basket) => ({
         ...acc,
-        [item.medicine.data.id]: item.quantity,
+        [item.medicine.id]: item.quantity,
       }),
       {}
     )
@@ -86,18 +87,20 @@ const SendOrder = () => {
   let medicines = basket.map((item: Basket) => {
     return (
       <MedicineCard
-        key={item.medicine.data.id}
-        name={item.medicine.data.name}
-        subtitle={`${item.medicine.data.price} ل.س`}
-        photoAlt={item.medicine.data.name}
-        photoSrc={NotFound}
+        key={item.medicine.id}
+        name={item.medicine.name}
+        subtitle={`${item.medicine.price} ل.س`}
+        photoAlt={item.medicine.name}
+        photoSrc={
+          item.medicine.imageUrl !== null ? item.medicine.imageUrl : NotFound
+        }
         action={
           <Counter
-            quantity={medicineQuantities[item.medicine.data.id]}
+            quantity={medicineQuantities[item.medicine.id]}
             onChange={(quantity) =>
               handleQuantityChange(
-                item.medicine.data.id,
-                item.medicine.data.price,
+                item.medicine.id,
+                item.medicine.price,
                 quantity
               )
             }
@@ -114,7 +117,7 @@ const SendOrder = () => {
     );
 
     basket.forEach((item: Basket) => {
-      handleFindMedicineFulfilled(item.medicine.data.price);
+      handleFindMedicineFulfilled(item.medicine.price);
     });
   }, [dispatch, supplierId, basket]);
 
@@ -125,7 +128,7 @@ const SendOrder = () => {
   if (supplierStatus === ResponseStatus.LOADING) {
     supplierContent = <Beat />;
   } else if (supplierStatus === ResponseStatus.FAILED) {
-    supplierContent = <div>error...</div>;
+    supplierContent = <div>حدث خطأ ما...</div>;
   }
 
   const handleSend = () => {

@@ -1,59 +1,72 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import AuthService from "../services/AuthServices";
-import { RegisterSchema } from "../Schema/request/register.schema";
 import { RootState } from "./store";
-import { RegisterDetailSchema } from "../Schema/request/registerDetails.schema";
-import { LoginSchema } from "../Schema/request/login.schema";
 import { setStoredUser } from "../utils/user-storage";
 import { ResponseStatus } from "../enums/ResponseStatus";
+import { ApiState } from "./type";
+import { Data } from "../Schema/Responses/Data";
+import { Profile } from "../Schema/Responses/Profile";
+import { LoginRequest } from "../Schema/Requests/Login";
+import { CompleteInfo } from "../Schema/Requests/CompleteInfo";
+import { RegisterRequest } from "../Schema/Requests/Register";
 
 type AuthState = {
+  register: ApiState<any>;
+  login: ApiState<any>;
+  completeInfo: ApiState<any>;
+  updateInfo: ApiState<any>;
   sessionExpired: boolean;
-  getInfoStatus: string;
-  getInfoError: undefined | string;
-  getInfoData: any;
-  completeInfoStatus: string;
-  completeInfoError: undefined | string;
-  completeInfoData: any;
-  updateInfoStatus: string;
-  updateInfoError: undefined | string;
-  updateInfoData: any;
-  loginStatus: string;
-  loginError: undefined | string;
-  loginData: any;
-  registerStatus: string;
-  registerError: undefined | string;
-  registerData: any;
-  isAcceptedStatus: string;
-  isAcceptedError: undefined | string;
-  isAcceptedData: any;
+  getInfo: ApiState<Data<Profile>>;
+  isAccepted: ApiState<boolean>;
 };
 
 const initialState: AuthState = {
+  register: {
+    status: ResponseStatus.IDLE,
+    error: undefined,
+    data: {},
+  },
+  login: {
+    status: ResponseStatus.IDLE,
+    error: undefined,
+    data: {},
+  },
+  completeInfo: {
+    status: ResponseStatus.IDLE,
+    error: undefined,
+    data: {},
+  },
+  updateInfo: {
+    status: ResponseStatus.IDLE,
+    error: undefined,
+    data: {},
+  },
   sessionExpired: false,
-  getInfoStatus: ResponseStatus.IDLE,
-  getInfoError: undefined,
-  getInfoData: null,
-  completeInfoStatus: ResponseStatus.IDLE,
-  completeInfoError: undefined,
-  completeInfoData: null,
-  updateInfoStatus: ResponseStatus.IDLE,
-  updateInfoError: undefined,
-  updateInfoData: null,
-  loginStatus: ResponseStatus.IDLE,
-  loginError: undefined,
-  loginData: {},
-  registerStatus: ResponseStatus.IDLE,
-  registerError: undefined,
-  registerData: {},
-  isAcceptedStatus: ResponseStatus.IDLE,
-  isAcceptedError: undefined,
-  isAcceptedData: {},
+  getInfo: {
+    data: {
+      data: {
+        id: -1,
+        location: "",
+        name: "",
+        rating: -1,
+        rateCount: -1,
+        phoneNumber: "",
+        deleted_at: null,
+      },
+    },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
+  isAccepted: {
+    data: false,
+    error: undefined,
+    status: ResponseStatus.IDLE,
+  },
 };
 
 export const register = createAsyncThunk(
   "auth/warehouse-register",
-  async (body: RegisterSchema) => {
+  async (body: RegisterRequest) => {
     try {
       const response = await AuthService.register(body);
       return response.data;
@@ -64,7 +77,7 @@ export const register = createAsyncThunk(
 );
 export const login = createAsyncThunk(
   "auth/login-warehouse",
-  async (body: LoginSchema) => {
+  async (body: LoginRequest) => {
     try {
       const response = await AuthService.login(body);
       return response.data;
@@ -85,7 +98,7 @@ export const isAccepted = createAsyncThunk("user/is-accepted", async () => {
 
 export const completeInfo = createAsyncThunk(
   "warehouse/create-warehouse",
-  async (body: RegisterDetailSchema) => {
+  async (body: CompleteInfo) => {
     try {
       const response = await AuthService.completeInfo(body);
       return response.data;
@@ -97,7 +110,7 @@ export const completeInfo = createAsyncThunk(
 
 export const updateInfo = createAsyncThunk(
   "warehouse/",
-  async (body: Partial<RegisterDetailSchema>) => {
+  async (body: Partial<CompleteInfo>) => {
     try {
       const response = await AuthService.updateInfo(body);
       return response.data;
@@ -124,117 +137,120 @@ export const authSlice = createSlice({
       state.sessionExpired = true;
     },
     resetLoginStatus: (state) => {
-      state.loginStatus = ResponseStatus.IDLE;
+      state.login.status = ResponseStatus.IDLE;
     },
   },
   extraReducers(builder) {
     builder
       .addCase(register.pending, (state) => {
-        state.registerStatus = ResponseStatus.LOADING;
+        state.register.status = ResponseStatus.LOADING;
       })
       .addCase(register.fulfilled, (state, action: PayloadAction<any>) => {
-        state.registerStatus = ResponseStatus.SUCCEEDED;
-        state.registerData = action.payload;
+        state.register.status = ResponseStatus.SUCCEEDED;
+        state.register.data = action.payload;
       })
       .addCase(register.rejected, (state, action) => {
-        state.registerStatus = ResponseStatus.FAILED;
-        state.registerError = action.error.message;
+        state.register.status = ResponseStatus.FAILED;
+        state.register.error = action.error.message;
       })
       .addCase(completeInfo.pending, (state) => {
-        state.completeInfoStatus = ResponseStatus.LOADING;
+        state.completeInfo.status = ResponseStatus.LOADING;
       })
       .addCase(completeInfo.fulfilled, (state, action: PayloadAction<any>) => {
-        state.completeInfoStatus = ResponseStatus.SUCCEEDED;
-        state.completeInfoData = action.payload;
+        state.completeInfo.status = ResponseStatus.SUCCEEDED;
+        state.completeInfo.data = action.payload;
       })
       .addCase(completeInfo.rejected, (state, action) => {
-        state.completeInfoStatus = ResponseStatus.FAILED;
-        state.completeInfoError = action.error.message;
+        state.completeInfo.status = ResponseStatus.FAILED;
+        state.completeInfo.error = action.error.message;
       })
       .addCase(updateInfo.pending, (state) => {
-        state.updateInfoStatus = ResponseStatus.LOADING;
+        state.updateInfo.status = ResponseStatus.LOADING;
       })
       .addCase(updateInfo.fulfilled, (state, action: PayloadAction<any>) => {
-        state.updateInfoStatus = ResponseStatus.SUCCEEDED;
-        state.updateInfoData = action.payload;
+        state.updateInfo.status = ResponseStatus.SUCCEEDED;
+        state.updateInfo.data = action.payload;
       })
       .addCase(updateInfo.rejected, (state, action) => {
-        state.updateInfoStatus = ResponseStatus.FAILED;
-        state.updateInfoError = action.error.message;
+        state.updateInfo.status = ResponseStatus.FAILED;
+        state.updateInfo.error = action.error.message;
       })
       .addCase(login.pending, (state) => {
-        state.loginStatus = ResponseStatus.LOADING;
+        state.login.status = ResponseStatus.LOADING;
       })
       .addCase(login.fulfilled, (state, action: PayloadAction<any>) => {
-        state.loginStatus = ResponseStatus.SUCCEEDED;
-        state.loginData = action.payload;
+        state.login.status = ResponseStatus.SUCCEEDED;
+        state.login.data = action.payload;
         setStoredUser(action.payload);
       })
       .addCase(login.rejected, (state, action) => {
-        state.loginStatus = ResponseStatus.FAILED;
-        state.loginError = action.error.message;
+        state.login.status = ResponseStatus.FAILED;
+        state.login.error = action.error.message;
       })
       .addCase(isAccepted.pending, (state) => {
-        state.isAcceptedStatus = ResponseStatus.LOADING;
+        state.isAccepted.status = ResponseStatus.LOADING;
       })
       .addCase(isAccepted.fulfilled, (state, action: PayloadAction<any>) => {
-        state.isAcceptedStatus = ResponseStatus.SUCCEEDED;
-        state.isAcceptedData = action.payload;
+        state.isAccepted.status = ResponseStatus.SUCCEEDED;
+        state.isAccepted.data = action.payload;
       })
       .addCase(isAccepted.rejected, (state, action) => {
-        state.isAcceptedStatus = ResponseStatus.FAILED;
-        state.isAcceptedError = action.error.message;
+        state.isAccepted.status = ResponseStatus.FAILED;
+        state.isAccepted.error = action.error.message;
       })
       .addCase(getInfo.pending, (state) => {
-        state.getInfoStatus = ResponseStatus.LOADING;
+        state.getInfo.status = ResponseStatus.LOADING;
       })
       .addCase(getInfo.fulfilled, (state, action: PayloadAction<any>) => {
-        state.getInfoStatus = ResponseStatus.SUCCEEDED;
-        state.getInfoData = action.payload;
+        state.getInfo.status = ResponseStatus.SUCCEEDED;
+        state.getInfo.data = action.payload;
       })
       .addCase(getInfo.rejected, (state, action) => {
-        state.getInfoStatus = ResponseStatus.FAILED;
-        state.getInfoError = action.error.message;
+        state.getInfo.status = ResponseStatus.FAILED;
+        state.getInfo.error = action.error.message;
       });
   },
 });
 
 export const isSessionExpired = (state: RootState) => state.auth.sessionExpired;
+
 export const selectGetInfoStatus = (state: RootState) =>
-  state.auth.getInfoStatus;
-export const selectGetInfoData = (state: RootState) => state.auth.getInfoData;
-export const selectGetInfoError = (state: RootState) => state.auth.getInfoError;
+  state.auth.getInfo.status;
+export const selectGetInfoData = (state: RootState) => state.auth.getInfo.data;
+export const selectGetInfoError = (state: RootState) =>
+  state.auth.getInfo.error;
 
 export const selectCompleteInfoStatus = (state: RootState) =>
-  state.auth.completeInfoStatus;
+  state.auth.completeInfo.status;
 export const selectCompleteInfoData = (state: RootState) =>
-  state.auth.completeInfoData;
+  state.auth.completeInfo.data;
 export const selectCompleteInfoError = (state: RootState) =>
-  state.auth.completeInfoError;
+  state.auth.completeInfo.error;
 
 export const selectUpdateInfoStatus = (state: RootState) =>
-  state.auth.updateInfoStatus;
+  state.auth.updateInfo.status;
 export const selectUpdateInfoData = (state: RootState) =>
-  state.auth.updateInfoData;
+  state.auth.updateInfo.data;
 export const selectUpdateInfoError = (state: RootState) =>
-  state.auth.updateInfoError;
+  state.auth.updateInfo.error;
 
-export const selectLoginStatus = (state: RootState) => state.auth.loginStatus;
-export const selectLoginData = (state: RootState) => state.auth.loginData;
-export const selectLoginError = (state: RootState) => state.auth.loginError;
+export const selectLoginStatus = (state: RootState) => state.auth.login.status;
+export const selectLoginData = (state: RootState) => state.auth.login.data;
+export const selectLoginError = (state: RootState) => state.auth.login.error;
 
 export const selectRegisterStatus = (state: RootState) =>
-  state.auth.registerStatus;
-export const selectRegisterData = (state: RootState) => state.auth.registerData;
+  state.auth.register.status;
+export const selectRegisterData = (state: RootState) =>
+  state.auth.register.data;
 export const selectRegisterError = (state: RootState) =>
-  state.auth.registerError;
+  state.auth.register.error;
 
 export const selectIsAcceptedStatus = (state: RootState) =>
-  state.auth.isAcceptedStatus;
+  state.auth.isAccepted.status;
 export const selectIsAcceptedData = (state: RootState) =>
-  state.auth.isAcceptedData;
+  state.auth.isAccepted.data;
 export const selectIsAcceptedError = (state: RootState) =>
-  state.auth.isAcceptedError;
+  state.auth.isAccepted.error;
 
 export const { setSessionExpired, resetLoginStatus } = authSlice.actions;
 export default authSlice.reducer;

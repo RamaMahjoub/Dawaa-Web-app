@@ -3,7 +3,6 @@ import { HeaderTitle } from "../../utils/HeaderTitle";
 import TextField from "../../components/TextField/TextField";
 import { Envelope, EyeFill, EyeSlashFill, Lock } from "react-bootstrap-icons";
 import Button from "../../components/Button/Button";
-import { LoginSchema } from "../../Schema/request/login.schema";
 import { useFormSubmit } from "../../hooks/useFormSubmit";
 import { loginValidationSchema } from "../../validations/login.validation";
 import { useEffect, useState } from "react";
@@ -17,6 +16,7 @@ import {
 } from "../../redux/authSlice";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { LoginRequest } from "../../Schema/Requests/Login";
 
 const Login = () => {
   const { pathname } = useLocation();
@@ -29,12 +29,12 @@ const Login = () => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectLoginStatus);
   const error = useAppSelector(selectLoginError);
-  const initialValues: LoginSchema = {
+  const initialValues: LoginRequest = {
     email: "",
     password: "",
   };
 
-  const handleSubmit = (values: LoginSchema) => {
+  const handleSubmit = (values: LoginRequest) => {
     dispatch(login(values));
   };
   const formik = useFormSubmit(

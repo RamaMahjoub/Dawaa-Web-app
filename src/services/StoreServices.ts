@@ -1,11 +1,12 @@
-import { RegisterStoreSchema } from "../Schema/request/registerStore.schema";
+import { RegisterInventory } from "../Schema/Requests/RegisterInventory";
+import { TransferBetweenInventories } from "../Schema/Requests/TransferBetweenInventories";
 import { protectedAxios } from "./axios";
 
-const registerStore = (body: RegisterStoreSchema) => {
+const registerInventory = (body: RegisterInventory) => {
   return protectedAxios.post<any>("/auth/inventory-register", body);
 };
 
-const getAllStores = (name?: string) => {
+const getAllInventories = (name?: string) => {
   const queryParams: { [key: string]: string } = {};
   if (name) {
     queryParams.name = name;
@@ -21,22 +22,22 @@ const getAllStores = (name?: string) => {
   return protectedAxios.get<any>(finalURL);
 };
 
-const getMedicinesInStore = (page: string, limit: string, id: string) => {
+const getMedicinesInInventory = (page: string, limit: string, id: string) => {
   return protectedAxios.get<any>(
     `/medicine/warehouse/inventory/${id}?limit=${limit}&page=${page}`
   );
 };
 
-const transferBetweenInventories = (body: any) => {
+const transferBetweenInventories = (body: TransferBetweenInventories) => {
   return protectedAxios.patch<any>(
     "/medicine/warehouse/transfer-between-inventories",
     body
   );
 };
 const StoreService = {
-  registerStore,
-  getAllStores,
-  getMedicinesInStore,
+  registerInventory,
+  getAllInventories,
+  getMedicinesInInventory,
   transferBetweenInventories,
 };
 

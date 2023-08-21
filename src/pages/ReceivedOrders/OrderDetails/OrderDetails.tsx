@@ -35,6 +35,10 @@ import Beat from "../../../components/Loading/Beat";
 import NoData from "../../NoData/NoData";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
 import { toast } from "react-toastify";
+import {
+  MedicineInReceivedOrder,
+  PharmacyInReceivededOrder,
+} from "../../../Schema/Responses/ReceivedOrder";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 const OrderDetails = () => {
   const { pathname } = useLocation();
@@ -42,7 +46,9 @@ const OrderDetails = () => {
   const { orderId } = useParams();
   const contentRef = useRef<any>();
   const [cost, setCost] = useState<number | null>(null);
-  const [pharmacy, setPharmacy] = useState<any>(null);
+  const [pharmacy, setPharmacy] = useState<
+    PharmacyInReceivededOrder | undefined
+  >(undefined);
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectReceivedOrderDetailsData);
   const status = useAppSelector(selectReceivedOrderDetailsStatus);
@@ -57,35 +63,38 @@ const OrderDetails = () => {
     dispatch(findReceivedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
   const { open, handleOpen } = useOpenToggle();
+  console.log(data);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
-      const total = data.data.medicines.reduce(
-        (acc: number, medicine: any) =>
+      const total = data.data?.medicines.reduce(
+        (acc: number, medicine: MedicineInReceivedOrder) =>
           (acc += medicine.price * medicine.quantity),
         0
       );
-      setCost(total);
-      setPharmacy(data.data.pharmacy);
-      contentRef.current = data.data.medicines.map((medicine: any) => (
-        <MedicineCard
-          key={medicine.name}
-          name={medicine.name}
-          photoAlt={medicine.name}
-          photoSrc={
-            medicine.imageUrl === undefined ? NotFound : medicine.imageUrl
-          }
-          subtitle={`${medicine.price} ل.س`}
-          action={
-            <IconBadge
-              icon={
-                <p className="font-bold text-xx-large">x{medicine.quantity}</p>
-              }
-              status={BadgeStatus.WARNING}
-            />
-          }
-        />
-      ));
-      setOrderStatus(data.data.status);
+      setCost(total!);
+      setPharmacy(data.data?.pharmacy);
+      contentRef.current = data.data?.medicines.map(
+        (medicine: MedicineInReceivedOrder) => (
+          <MedicineCard
+            key={medicine.name}
+            name={medicine.name}
+            photoAlt={medicine.name}
+            photoSrc={medicine.imageUrl === null ? NotFound : medicine.imageUrl}
+            subtitle={`${medicine.price} ل.س`}
+            action={
+              <IconBadge
+                icon={
+                  <p className="font-bold text-xx-large">
+                    x{medicine.quantity}
+                  </p>
+                }
+                status={BadgeStatus.WARNING}
+              />
+            }
+          />
+        )
+      );
+      setOrderStatus(data.data?.status);
     }
   }, [status, data]);
   if (status === ResponseStatus.LOADING) {

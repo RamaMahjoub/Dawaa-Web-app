@@ -13,17 +13,13 @@ import {
   Person,
 } from "react-bootstrap-icons";
 import { useFormSubmit } from "../../../hooks/useFormSubmit";
-import { RegisterStoreSchema } from "../../../Schema/request/registerStore.schema";
 import { registerStoreValidationSchema } from "../../../validations/registerStore.validation";
-import {
-  registerStore,
-  selectAddStoreError,
-  selectAddStoreStatus,
-} from "../../../redux/storeSlice";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
+import { registerInventory, selectRegisterInventoryError, selectRegisterInventoryStatus } from "../../../redux/inventorySlice";
+import { RegisterInventory } from "../../../Schema/Requests/RegisterInventory";
 
 interface Props {
   open: boolean;
@@ -32,13 +28,13 @@ interface Props {
 
 const AddStore: FC<Props> = ({ open, handleOpen }) => {
   const dispatch = useAppDispatch();
-  const status = useAppSelector(selectAddStoreStatus);
-  const error = useAppSelector(selectAddStoreError);
+  const status = useAppSelector(selectRegisterInventoryStatus);
+  const error = useAppSelector(selectRegisterInventoryError);
   const [showPass, setShowPass] = useState<boolean>(false);
   const handleShowPassword = () => {
     setShowPass((pre) => !pre);
   };
-  const initialValues: RegisterStoreSchema = {
+  const initialValues: RegisterInventory = {
     fullName: "",
     email: "",
     password: "",
@@ -46,8 +42,8 @@ const AddStore: FC<Props> = ({ open, handleOpen }) => {
     location: "",
     inventoryPhoneNumber: "",
   };
-  const handleSubmit = (values: RegisterStoreSchema) => {
-    dispatch(registerStore(values));
+  const handleSubmit = (values: RegisterInventory) => {
+    dispatch(registerInventory(values));
   };
   const formik = useFormSubmit(
     initialValues,

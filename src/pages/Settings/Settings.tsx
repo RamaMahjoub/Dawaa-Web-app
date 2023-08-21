@@ -8,7 +8,6 @@ import Button from "../../components/Button/Button";
 import Header, { HeaderTypes } from "../../components/Header/Header";
 import { useEffect, useMemo, useState } from "react";
 import Logout from "./Logout/Logout";
-import { RegisterDetailSchema } from "../../Schema/request/registerDetails.schema";
 import { useFormSubmit } from "../../hooks/useFormSubmit";
 import { registerDetailsValidationSchema } from "../../validations/registerDetails.validation";
 import SendComplaint from "./SendComplaint";
@@ -23,8 +22,8 @@ import {
 } from "../../redux/authSlice";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import PendingDialog from "../AllStores/AddStore/PendingDialog";
-import Loading from "../../components/Loading/Clip";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { CompleteInfo } from "../../Schema/Requests/CompleteInfo";
 
 const Settings = () => {
   const { pathname } = useLocation();
@@ -76,16 +75,6 @@ const Settings = () => {
     dispatch(getInfo());
   }, [dispatch]);
 
-  let buttonContent;
-  if (updateStatus === ResponseStatus.LOADING) {
-    buttonContent = <Loading />;
-  } else if (updateStatus === ResponseStatus.SUCCEEDED) {
-    buttonContent = "حفظ التعديلات";
-  } else if (updateStatus === ResponseStatus.IDLE) {
-    buttonContent = "حفظ التعديلات";
-  } else if (updateStatus === ResponseStatus.FAILED) {
-    buttonContent = "حفظ التعديلات";
-  }
   useEffect(() => {
     if (status === "succeeded") {
       formik.setValues({
@@ -99,7 +88,7 @@ const Settings = () => {
 
   useEffect(() => {
     const hasChanged = Object.keys(info).some(
-      (key) => info[key as keyof RegisterDetailSchema] !== formik.values[key]
+      (key) => info[key as keyof CompleteInfo] !== formik.values[key]
     );
 
     setHasInitialValuesChanged(hasChanged);
@@ -188,9 +177,10 @@ const Settings = () => {
               <Button
                 variant="base-blue"
                 disabled={!hasInitialValuesChanged}
-                text={buttonContent}
+                text="حفظ التعديلات"
                 size="xlg"
                 type="submit"
+                status={updateStatus}
               />
             </form>
           </div>

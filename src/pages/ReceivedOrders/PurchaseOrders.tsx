@@ -32,6 +32,7 @@ import Beat from "../../components/Loading/Beat";
 import { useOpenToggle } from "../../hooks/useOpenToggle";
 import { usePagination } from "../../hooks/usePagination";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { ReceivedOrder } from "../../Schema/Responses/ReceivedOrder";
 export interface Filter {
   name: string;
   route: string;
@@ -91,33 +92,31 @@ const PurchaseOrders = () => {
     );
   }, [dispatch, pageIndex, pageSize]);
   const transformedData = useMemo(() => {
-    return (
-      status === ResponseStatus.SUCCEEDED &&
-      data.data.length > 0 &&
-      data.data.map((order: ReceivedTableSchema) => {
-        const state =
-          order.status === "Pending" ? (
-            <TextBadge title={"معلّق"} status={BadgeStatus.WARNING} />
-          ) : order.status === "Accepted" ? (
-            <TextBadge title={"تم القبول"} status={BadgeStatus.SUCCESS} />
-          ) : order.status === "Delivered" ? (
-            <TextBadge title={"تم التسليم"} status={BadgeStatus.DONE} />
-          ) : (
-            <TextBadge title={"مرفوض"} status={BadgeStatus.DANGER} />
-          );
-        const date = new Date(order.date);
-        return {
-          key: order.status,
-          id: `#${order.id}`,
-          date: `${getMonth(
-            date.getMonth() + 1
-          )} ${date.getFullYear()}، ${date.getDate()} `,
-          status: state,
-          pharmacy: order.pharmacy,
-          totalPrice: `${order.totalPrice} ل.س`,
-        };
-      })
-    );
+    return status === ResponseStatus.SUCCEEDED && data.data.length > 0
+      ? data.data.map((order: ReceivedOrder) => {
+          const state =
+            order.status === "Pending" ? (
+              <TextBadge title={"معلّق"} status={BadgeStatus.WARNING} />
+            ) : order.status === "Accepted" ? (
+              <TextBadge title={"تم القبول"} status={BadgeStatus.SUCCESS} />
+            ) : order.status === "Delivered" ? (
+              <TextBadge title={"تم التسليم"} status={BadgeStatus.DONE} />
+            ) : (
+              <TextBadge title={"مرفوض"} status={BadgeStatus.DANGER} />
+            );
+          const date = new Date(order.date);
+          return {
+            key: order.status,
+            id: `#${order.id}`,
+            date: `${getMonth(
+              date.getMonth() + 1
+            )} ${date.getFullYear()}، ${date.getDate()} `,
+            status: state,
+            pharmacy: order.pharmacy,
+            totalPrice: `${order.totalPrice} ل.س`,
+          };
+        })
+      : [];
   }, [data.data, status]);
 
   const table = useReactTable({
@@ -137,7 +136,7 @@ const PurchaseOrders = () => {
   } else if (status === ResponseStatus.IDLE) {
     content = <NoData />;
   } else if (status === ResponseStatus.FAILED) {
-    content = <div>error...</div>;
+    content = <div>حدث خطأ ما...</div>;
   }
   const navigate = useNavigate();
   const handleNavigate = (orderId: string) => {
@@ -148,6 +147,7 @@ const PurchaseOrders = () => {
     setFiltered(filter.name);
     navigate(filter.route);
   };
+  console.log(data);
   return (
     <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />

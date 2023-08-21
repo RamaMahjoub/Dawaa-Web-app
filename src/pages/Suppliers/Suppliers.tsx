@@ -15,6 +15,7 @@ import SupplierCard from "./SupplierCard";
 import Beat from "../../components/Loading/Beat";
 import NoData from "../NoData/NoData";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { Supplier } from "../../Schema/Responses/Supplier";
 
 const Suppliers = () => {
   const { pathname } = useLocation();
@@ -37,7 +38,7 @@ const Suppliers = () => {
   } else if (status === ResponseStatus.SUCCEEDED) {
     content =
       data.data.length > 0 ? (
-        data.data.map((row: any) => (
+        data.data.map((row: Supplier) => (
           <SupplierCard supplierData={row} key={row.id} />
         ))
       ) : (
