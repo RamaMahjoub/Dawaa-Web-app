@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
 import { useCallback, useState } from "react";
-import { data, findOrder } from "../../Schema/response/expressOrder.schema";
+import { data, findOrder } from "../../Schema/response/expressOrder";
 import IconBadge from "../../components/Badge/IconBadge";
 import { BadgeStatus } from "../../components/Badge/TextBadge";
 import { toShowTime } from "../../utils/showTIme";
@@ -21,12 +21,12 @@ const ExpressOrders = () => {
     setSelectedOrder({ index, orderId });
   }, []);
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
       <div
-        className="flex-1 bg-greyScale-lighter sm:flex-row flex-col gap-large flex p-large overflow-auto scrollbar-thin"
+        className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row gap-large p-large scrollbar-thin"
       >
-        <div className="bg-white basis-auto shrink-0 sm:h-full sm:max-h-fit flex sm:flex-col gap-large p-medium overflow-auto scrollbar-thin sm:w-1/2 rounded-med">
+        <div className="flex overflow-auto bg-white basis-auto shrink-0 sm:h-full sm:max-h-fit sm:flex-col gap-large p-medium scrollbar-thin sm:w-1/2 rounded-med">
           {data.map((order, index) => {
             const date = new Date().getTime() - order.requestDate.getTime();
 
@@ -54,7 +54,7 @@ const ExpressOrders = () => {
           })}
         </div>
         {selectedOrder !== undefined && (
-          <div className="bg-white flex-1 flex flex-col sm:h-full sm:w-1/2 rounded-med p-large">
+          <div className="flex flex-col flex-1 bg-white sm:h-full sm:w-1/2 rounded-med p-large">
           <p className="text-x-large text-greyScale-main">العناصر</p>
             <div className="flex-1 overflow-auto scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter">
               {findOrder(selectedOrder.orderId).medicines.map((medicine) => (

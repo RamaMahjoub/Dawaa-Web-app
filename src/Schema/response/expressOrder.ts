@@ -1,4 +1,4 @@
-import { MedicineSchema, MedicinesData } from "./medicine.schema";
+import { MedicineSchema, MedicinesData } from "./medicine";
 
 export interface ExpressOrdersSchema {
   id: string;

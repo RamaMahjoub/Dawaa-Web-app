@@ -1,5 +1,5 @@
-import { Token } from "./../Schema/response/Token";
 import Cookies from "js-cookie";
+import { Token } from "../Schema/Responses/Token";
 const USER_KEY = "user";
 
 export function getStoredUser(): Token | null {
