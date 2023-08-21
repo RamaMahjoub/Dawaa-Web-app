@@ -14,7 +14,6 @@ const getAllSuppliers = (name?: string) => {
     .join("&");
   const baseURL = `/warehouse/get-suppliers`;
   const finalURL = `${baseURL}?${queryString}`;
-  console.log("final", finalURL);
   return protectedAxios.get<any>(finalURL);
 };
 
@@ -57,7 +56,6 @@ const getSupplierMedicines = (
     .join("&");
   const baseURL = `/medicine/warehouse/supplier/${id}?limit=${limit}&page=${page}`;
   const finalURL = `${baseURL}&${queryString}`;
-  console.log("final", finalURL);
   return protectedAxios.get<any>(finalURL);
 };
 

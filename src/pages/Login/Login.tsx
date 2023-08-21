@@ -42,7 +42,6 @@ const Login = () => {
     handleSubmit,
     loginValidationSchema
   );
-  console.log(error);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
       navigate(`/${routes.ALL_STORES}`);

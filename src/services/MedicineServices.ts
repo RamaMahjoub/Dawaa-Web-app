@@ -31,7 +31,6 @@ const findAllMedicines = (
     .join("&");
   const baseURL = `/medicine/warehouse?limit=${limit}&page=${page}`;
   const finalURL = `${baseURL}&${queryString}`;
-  console.log("final", finalURL);
   return protectedAxios.get<any>(finalURL);
 };
 
@@ -44,7 +43,7 @@ const findMedicinBatches = (id: string) => {
 };
 
 const findMedicinDistributions = (id: string) => {
-  return protectedAxios.get<any>(`order/warehouse/distribution/${id}`);
+  return protectedAxios.get<any>(`/medicine/warehouse/inventories/${id}`);
 };
 
 const editMedicin = (id: string, body: EditMedicineSchema) => {

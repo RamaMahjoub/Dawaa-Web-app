@@ -14,7 +14,9 @@ import {
   acceptInventoryReport,
   findInventoriesReports,
   rejectInventoryReport,
+  selectAcceptReportError,
   selectAcceptReportStatus,
+  selectRejectReportError,
   selectRejectReportStatus,
 } from "../../redux/reportsSlice";
 import Beat from "../../components/Loading/Beat";
@@ -23,7 +25,6 @@ import { usePagination } from "../../hooks/usePagination";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { toast } from "react-toastify";
 import { ResponseStatus } from "../../enums/ResponseStatus";
-import Loading from "../../components/Loading/Clip";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 const ReportAMedicine = () => {
@@ -37,27 +38,10 @@ const ReportAMedicine = () => {
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const acceptStatus = useAppSelector(selectAcceptReportStatus);
   const rejectStatus = useAppSelector(selectRejectReportStatus);
+  const acceptError = useAppSelector(selectAcceptReportError);
+  const rejectError = useAppSelector(selectRejectReportError);
   let content = useRef<any>(null);
 
-  let acceptButtonContent: any, rejectButtonContent: any;
-  if (acceptStatus === ResponseStatus.LOADING) {
-    acceptButtonContent = <Loading />;
-  } else if (acceptStatus === ResponseStatus.SUCCEEDED) {
-    acceptButtonContent = "قبول الطلب";
-  } else if (acceptStatus === ResponseStatus.FAILED) {
-    acceptButtonContent = "قبول الطلب";
-  } else if (acceptStatus === ResponseStatus.IDLE) {
-    acceptButtonContent = "قبول الطلب";
-  }
-  if (rejectStatus === ResponseStatus.LOADING) {
-    rejectButtonContent = <Loading />;
-  } else if (rejectStatus === ResponseStatus.SUCCEEDED) {
-    rejectButtonContent = "رفض الطلب";
-  } else if (rejectStatus === ResponseStatus.FAILED) {
-    rejectButtonContent = "رفض الطلب";
-  } else if (rejectStatus === ResponseStatus.IDLE) {
-    rejectButtonContent = "رفض الطلب";
-  }
   useEffect(() => {
     if (acceptStatus === ResponseStatus.SUCCEEDED) {
       setReports([]);
@@ -65,6 +49,8 @@ const ReportAMedicine = () => {
       setIsFetching(false);
       setHasMore(true);
       toast.success("تم قبول طلب الإبلاغ بنجاح");
+    } else if (acceptStatus === ResponseStatus.FAILED) {
+      toast.error(acceptError);
     }
     if (rejectStatus === ResponseStatus.SUCCEEDED) {
       setReports([]);
@@ -72,8 +58,10 @@ const ReportAMedicine = () => {
       setIsFetching(false);
       setHasMore(true);
       toast.success("تم رفض طلب الإبلاغ");
+    } else if (rejectStatus === ResponseStatus.SUCCEEDED) {
+      toast.error(rejectError);
     }
-  }, [acceptStatus, rejectStatus, handlePgination]);
+  }, [acceptStatus, rejectStatus, acceptError, rejectError, handlePgination]);
 
   const fetchReports = useCallback(async () => {
     try {
@@ -112,7 +100,6 @@ const ReportAMedicine = () => {
     [hasMore, isFetching, fetchReports]
   );
   useEffect(() => {
-    console.log("from effect");
     const observer = new IntersectionObserver(onIntersection);
     if (observer && endRef.current) {
       observer.observe(endRef.current);
@@ -166,22 +153,24 @@ const ReportAMedicine = () => {
                       </div>
                       <div className="flex justify-end gap-small">
                         <Button
-                          text={acceptButtonContent}
+                          text="قبول الطلب"
                           variant="base-blue"
                           disabled={false}
                           size="lg"
                           onClick={() =>
                             handleAcceptReport(report.id.toString())
                           }
+                          status={acceptStatus}
                         />
                         <Button
-                          text={rejectButtonContent}
+                          text="رفض الطلب"
                           variant="red"
                           disabled={false}
                           size="lg"
                           onClick={() =>
                             handleRejectReport(report.id.toString())
                           }
+                          status={rejectStatus}
                         />
                       </div>
                     </AccordionContent>

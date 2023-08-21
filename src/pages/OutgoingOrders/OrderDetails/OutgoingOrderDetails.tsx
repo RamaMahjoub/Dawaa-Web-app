@@ -8,7 +8,6 @@ import Header, { HeaderTypes } from "../../../components/Header/Header";
 import DestinationCard from "../../../components/DestinationCard/DestinationCard";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
-import NoData from "../../NoData/NoData";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import {
   findSendedOrderDetails,
@@ -29,7 +28,6 @@ const OutgoingOrderDetails = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(selectSendedOrderDetailsData);
   const status = useAppSelector(selectSendedOrderDetailsStatus);
-  console.log(data)
   useEffect(() => {
     dispatch(findSendedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
@@ -47,7 +45,9 @@ const OutgoingOrderDetails = () => {
           key={medicine.name}
           name={medicine.name}
           photoAlt={medicine.name}
-          photoSrc={NotFound}
+          photoSrc={
+            medicine.imageUrl === undefined ? NotFound : medicine.imageUrl
+          }
           subtitle={`${medicine.price} ل.س`}
           action={
             <IconBadge
@@ -63,11 +63,9 @@ const OutgoingOrderDetails = () => {
   }, [status, data]);
   if (status === ResponseStatus.LOADING) {
     contentRef.current = <Beat />;
-  } else if (status === ResponseStatus.IDLE) {
-    contentRef.current = <NoData />;
   } else if (status === ResponseStatus.FAILED) {
-    contentRef.current = <div>error...</div>;
-  } 
+    contentRef.current = <div>حدث خطأ ما...</div>;
+  }
   return (
     <>
       <div className="flex flex-col h-screen">

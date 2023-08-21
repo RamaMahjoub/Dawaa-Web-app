@@ -31,7 +31,6 @@ protectedAxios.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      console.log("hello expired");
       const { store } = require("../redux/store");
       store.dispatch(setSessionExpired());
     }

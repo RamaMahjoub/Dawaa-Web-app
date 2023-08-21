@@ -98,7 +98,6 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
       await fetchParmacies();
     } else {
       await dispatch(getAllSuppliers({}));
-      console.log(suppliers);
     }
   };
 

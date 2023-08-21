@@ -3,7 +3,7 @@ import { RootState } from "./store";
 import OrderService from "../services/OrderService";
 import { ResponseStatus } from "../enums/ResponseStatus";
 
-type AuthState = {
+type OrderState = {
   createOrderData: any;
   createOrderStatus: string;
   createOrderError: string | undefined;
@@ -42,7 +42,7 @@ type AuthState = {
   orderOverviewError: undefined | string;
 };
 
-const initialState: AuthState = {
+const initialState: OrderState = {
   createOrderData: {},
   createOrderStatus: ResponseStatus.IDLE,
   createOrderError: undefined,
@@ -490,5 +490,6 @@ export const selectOrderOverviewData = (state: RootState) =>
   state.order.orderOverviewData;
 export const selectOrderOverviewError = (state: RootState) =>
   state.order.orderOverviewError;
-  export const { resetAcceptStatus, resetDeliverStatus, resetRejectStatus } = orderSlice.actions;
+export const { resetAcceptStatus, resetDeliverStatus, resetRejectStatus } =
+  orderSlice.actions;
 export default orderSlice.reducer;

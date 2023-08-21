@@ -18,7 +18,6 @@ const getAllStores = (name?: string) => {
     .join("&");
   const baseURL = `/warehouse/inventories`;
   const finalURL = `${baseURL}?${queryString}`;
-  console.log("final", finalURL);
   return protectedAxios.get<any>(finalURL);
 };
 

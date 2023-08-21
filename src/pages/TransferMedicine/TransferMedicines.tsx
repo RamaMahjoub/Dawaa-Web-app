@@ -18,6 +18,7 @@ import {
   getMedicinesInStore,
   selectAllStoresData,
   selectAllStoresStatus,
+  selectTransferBetweenInventoriesError,
   selectTransferBetweenInventoriesStatus,
   transferBetweenInventories,
 } from "../../redux/storeSlice";
@@ -26,7 +27,6 @@ import Beat from "../../components/Loading/Beat";
 import { ResponseStatus } from "../../enums/ResponseStatus";
 import { usePagination } from "../../hooks/usePagination";
 import { v4 as uuidv4 } from "uuid";
-import Clip from "../../components/Loading/Clip";
 import { toast } from "react-toastify";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
@@ -45,7 +45,6 @@ const TransferMedicines = () => {
   const { pageIndex, pageSize, handlePgination } = usePagination(1);
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [medicines, setMedicines] = useState<any>([]);
-  let buttonContent;
 
   let content = useRef<any>(null);
   let endRef = useRef<any>(null);
@@ -59,7 +58,6 @@ const TransferMedicines = () => {
     }),
     []
   );
-  console.log(request.fromInventory, hasMore);
 
   const handleCaptureFromInventory = (id: number) => {
     request.fromInventory = id;
@@ -76,8 +74,9 @@ const TransferMedicines = () => {
   };
   const status = useAppSelector(selectAllStoresStatus);
   const sendStatus = useAppSelector(selectTransferBetweenInventoriesStatus);
+  const sendError = useAppSelector(selectTransferBetweenInventoriesError);
   useEffect(() => {
-    dispatch(getAllStores({name: undefined}));
+    dispatch(getAllStores({ name: undefined }));
   }, [dispatch]);
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
@@ -85,13 +84,14 @@ const TransferMedicines = () => {
       setToInventory(invintories.data);
     }
   }, [status, invintories]);
+
   let from, to;
   if (status === ResponseStatus.LOADING) {
     from = <Beat />;
     to = <Beat />;
   } else if (status === ResponseStatus.FAILED) {
-    from = <div>error...</div>;
-    to = <div>error...</div>;
+    from = <div>حدث خطأ ما...</div>;
+    to = <div>حدث خطأ ما...</div>;
   } else if (status === ResponseStatus.SUCCEEDED) {
     if (fromInventory?.length === 0) {
       from = <NoData />;
@@ -147,15 +147,10 @@ const TransferMedicines = () => {
       },
     }));
   };
-  if (sendStatus === ResponseStatus.LOADING) {
-    buttonContent = <Clip />;
-  } else if (sendStatus === ResponseStatus.SUCCEEDED) {
-    buttonContent = "إرسال";
+  if (sendStatus === ResponseStatus.SUCCEEDED) {
     toast.success("تم نقل الأدوية بنجاح");
-  } else if (sendStatus === ResponseStatus.IDLE) {
-    buttonContent = "إرسال";
   } else if (sendStatus === ResponseStatus.FAILED) {
-    buttonContent = "إرسال";
+    toast.error(sendError);
   }
   const handleQuantityChange = (key: number, newQuantity: number) => {
     setUiElements((prevElements: any) => ({
@@ -168,12 +163,6 @@ const TransferMedicines = () => {
   };
 
   const handleSendRequest = () => {
-    console.log(
-      "elements",
-      elements,
-      request.fromInventory,
-      request.toInventory
-    );
     if (
       Object.keys(elements).length > 0 &&
       request.fromInventory !== undefined &&
@@ -191,7 +180,6 @@ const TransferMedicines = () => {
         to: request.toInventory,
         batches: request.batches,
       };
-      console.log(req);
       dispatch(transferBetweenInventories(req));
     }
   };
@@ -223,7 +211,7 @@ const TransferMedicines = () => {
             if (medicines.length === 0) content.current = <NoData />;
           }
         } catch (error) {
-          content.current = <div>error...</div>;
+          content.current = <div>حدث خطأ ما...</div>;
         } finally {
           setIsFetching(false);
         }
@@ -280,10 +268,11 @@ const TransferMedicines = () => {
             <Button
               variant="base-blue"
               disabled={false}
-              text={buttonContent}
+              text="إرسال"
               size="lg"
               type="submit"
               onClick={handleSendRequest}
+              status={sendStatus}
             />
           </div>
         </div>
@@ -304,7 +293,7 @@ const TransferMedicines = () => {
                   return (
                     <div key={med.id}>
                       <MedicineCard
-                        name={"hello"}
+                        name={med.name}
                         photoAlt={med.id}
                         photoSrc={
                           med.imageUrl === null ? NotFound : med.imageUrl
@@ -330,8 +319,8 @@ const TransferMedicines = () => {
                           <DropdownProvider title="اختيار الدفعة">
                             <Dropdown
                               error={
-                                medicineSelected(med.id)
-                                // elements[med.id].batchId === null
+                                medicineSelected(med.id) &&
+                                elements[med.id].batchId === null
                               }
                             >
                               <DropdownMenu>

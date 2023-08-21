@@ -68,7 +68,6 @@ const Analytics = () => {
             <TextBadge title={`600000000 ل.س`} status={BadgeStatus.DANGER} />
           </span>
         </div>
-        {/* <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter gap-large px-xx-large pb-large > */}
         <div className="flex-1 bg-white p-large rounded-med">
           <p className="text-greyScale-main">
             الحسابات غير المكتملة مع المورّدين
@@ -144,7 +143,7 @@ const Analytics = () => {
                       <p className="px-medium">{item.pahrmacy}</p>
                     </span>
                     <Button
-                      variant="secondary-light"
+                      variant="text"
                       disabled={false}
                       text="عرض التفاصيل"
                       size="med"

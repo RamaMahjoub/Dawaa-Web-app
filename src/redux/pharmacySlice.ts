@@ -3,13 +3,13 @@ import { RootState } from "./store";
 import { ResponseStatus } from "../enums/ResponseStatus";
 import PharmacyService from "../services/pharmacyServices";
 
-type AuthState = {
+type PharmacyState = {
   allPharmaciesData: any;
   allPharmaciesStatus: string;
   allPharmaciesError: string | undefined;
 };
 
-const initialState: AuthState = {
+const initialState: PharmacyState = {
   allPharmaciesData: {},
   allPharmaciesStatus: ResponseStatus.IDLE,
   allPharmaciesError: undefined,

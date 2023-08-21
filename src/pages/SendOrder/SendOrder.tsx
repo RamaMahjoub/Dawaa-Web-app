@@ -38,7 +38,6 @@ const SendOrder = () => {
   let supplierContent;
   const dispatch = useAppDispatch();
   const basket = useAppSelector(selectBasket);
-  console.log(basket);
   const [total, setTotal] = useState<number>(0);
   const [medicineQuantities, setMedicineQuantities] = useState<{
     [key: number]: number;

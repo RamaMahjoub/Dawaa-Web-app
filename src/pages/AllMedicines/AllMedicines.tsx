@@ -63,7 +63,7 @@ const AllMedicines = () => {
             name={row.name}
             category={row.category}
             photoAlt={row.name}
-            photoSrc={NotFound}
+            photoSrc={row.imageUrl === undefined ? NotFound : row.imageUrl}
             subtitle={`${row.price} ل.س`}
             action={
               <Button

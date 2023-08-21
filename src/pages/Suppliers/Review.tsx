@@ -32,7 +32,6 @@ const Review: FC<Props> = ({ open, handleOpen, supplierId }) => {
     }
   }, [status, handleOpen, error]);
   const handleReview = (newVal: number | null) => {
-    console.log(newVal);
     setValue(newVal);
   };
 
@@ -40,7 +39,6 @@ const Review: FC<Props> = ({ open, handleOpen, supplierId }) => {
     const request = {
       evaluation: value,
     };
-    console.log(request);
     dispatch(supplierEvaluation({ id: supplierId, body: request }));
   };
   return (

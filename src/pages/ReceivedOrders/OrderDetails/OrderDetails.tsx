@@ -56,7 +56,6 @@ const OrderDetails = () => {
   useEffect(() => {
     dispatch(findReceivedOrderDetails({ id: orderId! }));
   }, [orderId, dispatch]);
-  console.log(data)
   const { open, handleOpen } = useOpenToggle();
   useEffect(() => {
     if (status === ResponseStatus.SUCCEEDED) {
@@ -72,7 +71,9 @@ const OrderDetails = () => {
           key={medicine.name}
           name={medicine.name}
           photoAlt={medicine.name}
-          photoSrc={NotFound}
+          photoSrc={
+            medicine.imageUrl === undefined ? NotFound : medicine.imageUrl
+          }
           subtitle={`${medicine.price} ل.س`}
           action={
             <IconBadge

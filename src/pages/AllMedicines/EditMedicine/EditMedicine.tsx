@@ -50,7 +50,6 @@ const EditMedicine: FC<Props> = ({
   const handleSubmit = (values: EditMedicineSchema) => {
     const newPrice = values.price;
     const request = { price: Number(newPrice) };
-    console.log(request);
 
     dispatch(editMedicine({ id: medicineId.toString(), body: request }));
   };

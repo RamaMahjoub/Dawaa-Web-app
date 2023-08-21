@@ -6,7 +6,7 @@ import { ReturnMedicines } from "../Schema/request/returnMedicines";
 import { EditMedicineSchema } from "../Schema/request/editMedicine.schema";
 import { ResponseStatus } from "../enums/ResponseStatus";
 
-type AuthState = {
+type MedicineState = {
   warehouseOnlyMedicinesData: any;
   warehouseOnlyMedicinesStatus: string;
   warehouseOnlyMedicinesError: string | undefined;
@@ -39,7 +39,7 @@ type AuthState = {
   allSendedReturnMedicinesStatus: string;
 };
 
-const initialState: AuthState = {
+const initialState: MedicineState = {
   warehouseOnlyMedicinesData: {},
   warehouseOnlyMedicinesStatus: ResponseStatus.IDLE,
   warehouseOnlyMedicinesError: undefined,
@@ -182,7 +182,6 @@ export const storeInInventory = createAsyncThunk(
   async (params: { id: string; body: SubRequest }) => {
     try {
       const { id, body } = params;
-      console.log(id, body);
       const response = await MedicineService.storeInInventory(id, body);
       return response.data;
     } catch (error: any) {

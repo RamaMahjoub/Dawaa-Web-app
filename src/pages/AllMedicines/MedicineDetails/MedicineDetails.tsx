@@ -32,10 +32,9 @@ import { ResponseStatus } from "../../../enums/ResponseStatus";
 
 const NotFound = require("./../../../assets/medicines/not-found.png");
 interface TableSchema {
-  name: string;
+  inventoryName: string;
   quantity: string;
-  managerName: string;
-  phoneNumber: string;
+  inventoryOwner: string;
 }
 
 interface TableSchema2 {
@@ -97,7 +96,7 @@ const MedicineDetails = () => {
       {
         header: "اسم المخزن",
         cell: (row) => row.renderValue(),
-        accessorKey: "name",
+        accessorKey: "inventoryName",
       },
       {
         header: "الكمية المتوافرة",
@@ -107,12 +106,7 @@ const MedicineDetails = () => {
       {
         header: "اسم مدير المخزن",
         cell: (row) => row.renderValue(),
-        accessorKey: "managerName",
-      },
-      {
-        header: "رقم الهاتف",
-        cell: (row) => row.renderValue(),
-        accessorKey: "phoneNumber",
+        accessorKey: "inventoryOwner",
       },
     ],
     []
@@ -140,10 +134,9 @@ const MedicineDetails = () => {
       distributionsData.data &&
       distributionsData.data.map((item: TableSchema) => {
         return {
-          name: item.name,
+          inventoryName: item.inventoryName,
           quantity: `${item.quantity} علبة`,
-          managerName: item.managerName,
-          phoneNumber: item.phoneNumber,
+          inventoryOwner: item.inventoryOwner,
         };
       })
     );
@@ -189,7 +182,13 @@ const MedicineDetails = () => {
         <div className="flex flex-col flex-1 overflow-auto bg-greyScale-lighter sm:flex-row scrollbar-thin scrollbar-track-white scrollbar-thumb-greyScale-lighter p-large gap-large">
           <div className="flex flex-col items-center justify-center h-full min-h-full overflow-auto bg-white scrollbar-thin gap-large p-large sm:w-4/12 rounded-med">
             <img
-              src={NotFound}
+              src={
+                med === undefined
+                  ? NotFound
+                  : med.imageUrl !== undefined
+                  ? med.imageUrl
+                  : NotFound
+              }
               alt={med !== undefined ? med.name : "not-found"}
               width={200}
               height={200}
