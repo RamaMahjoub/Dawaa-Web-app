@@ -1,23 +1,40 @@
-import { FC, useState } from "react";
-import {
-  Calendar2Event,
-  CurrencyDollar,
-  XSquareFill,
-} from "react-bootstrap-icons";
+import { FC } from "react";
+import { CurrencyDollar, XSquareFill } from "react-bootstrap-icons";
 import Button from "../../components/Button/Button";
 import { useMediaQuery } from "react-responsive";
 import TextField from "../../components/TextField/TextField";
-import DatepickerHeader from "../../components/Header/DatepickerHeader";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { addPayment, selectAddPaymentStatus } from "../../redux/paymentSlice";
+import { useFormSubmit } from "../../hooks/useFormSubmit";
+import { AddPayment } from "../../Schema/Requests/AddPayment";
+import { addPaymentValidationSchema } from "../../validations/addPayment.validation";
 
 interface Props {
   open: boolean;
   handleOpen: () => void;
+  userId?: string;
 }
-const AddInvoice: FC<Props> = ({ open, handleOpen }) => {
+const AddInvoice: FC<Props> = ({ open, handleOpen, userId }) => {
   const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
-  const [date, setDate] = useState(new Date());
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectAddPaymentStatus);
+  const initialValues: AddPayment = {
+    amount: 1000,
+  };
+
+  const handleSendRequest = (values: AddPayment) => {
+    const newAmount = values.amount;
+    const request = { amount: Number(newAmount) };
+    console.log(request);
+    dispatch(addPayment({ id: userId!, body: request }));
+  };
+  const formik = useFormSubmit(
+    initialValues,
+    handleSendRequest,
+    addPaymentValidationSchema
+  );
   return (
     <>
       {open && (
@@ -30,25 +47,21 @@ const AddInvoice: FC<Props> = ({ open, handleOpen }) => {
                 onClick={handleOpen}
               />
             </p>
-            <div className="flex flex-col flex-1 gap-2 overflow-auto px-medium py-medium scrollbar-thin">
-              {/* <form> */}
+            <form
+              className="flex flex-col flex-1 gap-2 overflow-auto px-medium py-medium scrollbar-thin"
+              onSubmit={formik.handleSubmit}
+            >
               <TextField
+                id="amount"
                 startIcon={<CurrencyDollar className="border-l pl-x-small" />}
                 inputSize="x-large"
-              />
-              <DatePicker
-                renderCustomHeader={(props) => <DatepickerHeader {...props} />}
-                selected={date}
-                onChange={(date: Date) => setDate(date)}
-                dateFormat="MMMM d, yyyy"
-                customInput={
-                  <TextField
-                    startIcon={
-                      <Calendar2Event className="border-l pl-x-small" />
-                    }
-                    inputSize="x-large"
-                    variant="fill"
-                  />
+                value={formik.getFieldProps("amount").value}
+                onChange={formik.getFieldProps("amount").onChange}
+                onBlur={formik.getFieldProps("amount").onBlur}
+                helperText={
+                  formik.touched.amount && Boolean(formik.errors.amount)
+                    ? String(formik.errors.amount)
+                    : ""
                 }
               />
               <div className="flex justify-end pt-small gap-small">
@@ -58,6 +71,7 @@ const AddInvoice: FC<Props> = ({ open, handleOpen }) => {
                   disabled={false}
                   size={isMobile ? "med" : "lg"}
                   type="submit"
+                  status={status}
                 />
                 <Button
                   text="إلغاء"
@@ -67,8 +81,7 @@ const AddInvoice: FC<Props> = ({ open, handleOpen }) => {
                   size={isMobile ? "med" : "lg"}
                 />
               </div>
-              {/* </form> */}
-            </div>
+            </form>
           </div>
         </div>
       )}

@@ -5,6 +5,7 @@ import { Data } from "../Schema/Responses/Data";
 import PaymentService from "../services/PaymentServices";
 import { RootState } from "./store";
 import { PharmacyPayment, SupplierPayment } from "../Schema/Responses/Payment";
+import { AddPayment } from "../Schema/Requests/AddPayment";
 
 type PaymentState = {
   allSuppliersPayments: ApiState<Data<Array<SupplierPayment>>>;
@@ -76,7 +77,7 @@ export const findAllPharmaciesPayments = createAsyncThunk(
 
 export const addPayment = createAsyncThunk(
   "/payment/:id",
-  async (params: { id: string; body: any }) => {
+  async (params: { id: string; body: AddPayment }) => {
     const { id, body } = params;
     try {
       const response = await PaymentService.addPayment(id, body);
