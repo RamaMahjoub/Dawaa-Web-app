@@ -20,6 +20,7 @@ import {
   selectallInventoriesStatus,
 } from "../../redux/inventorySlice";
 import { Inventory } from "../../Schema/Responses/Inventory";
+import { StoreInInventory } from "../../Schema/Requests/StoreInInventory";
 
 interface Props {
   open: boolean;
@@ -90,7 +91,7 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
     }));
   };
   useEffect(() => {
-    dispatch(getAllInventories({ name: undefined }));
+    dispatch(getAllInventories({}));
   }, [dispatch]);
 
   if (status === ResponseStatus.LOADING) {
@@ -113,7 +114,7 @@ const StoreDialog: FC<Props> = ({ open, handleOpen, medicine }) => {
             })
           : true;
       if (isValid) {
-        const body = {
+        const body: StoreInInventory = {
           batch: {
             batchId: elements[key].batchId,
             quantity: elements[key].quantity,

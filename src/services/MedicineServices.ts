@@ -1,6 +1,6 @@
-import { EditMedicineSchema } from "../Schema/request/editMedicine.schema";
-import { ReturnMedicines } from "../Schema/request/returnMedicines";
-import { SubRequest } from "../Schema/request/storeInInventory";
+import { EditMedicineSchema } from "../Schema/Requests/EditMedicine";
+import { ReturnRequest } from "../Schema/Requests/ReturnRequest";
+import { StoreInInventory } from "../Schema/Requests/StoreInInventory";
 import { protectedAxios } from "./axios";
 
 const findWarehouseOnlyMedicines = (page: string, limit: string) => {
@@ -50,14 +50,14 @@ const editMedicin = (id: string, body: EditMedicineSchema) => {
   return protectedAxios.patch<any>(`/medicine/warehouse/${id}`, body);
 };
 
-const storeInInventory = (id: string, body: SubRequest) => {
+const storeInInventory = (id: string, body: StoreInInventory) => {
   return protectedAxios.patch<any>(
     `/medicine/warehouse/transfer-to-inventory/${id}`,
     body
   );
 };
 
-const returnMedicines = (body: ReturnMedicines) => {
+const returnMedicines = (body: ReturnRequest) => {
   return protectedAxios.post<any>(`/returnOrder/warehouse`, body);
 };
 

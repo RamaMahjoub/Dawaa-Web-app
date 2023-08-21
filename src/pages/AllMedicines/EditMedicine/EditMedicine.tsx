@@ -10,11 +10,11 @@ import {
   selectEditMedicineError,
   selectEditMedicineStatus,
 } from "../../../redux/medicineSlice";
-import { EditMedicineSchema } from "../../../Schema/request/editMedicine.schema";
 import { useFormSubmit } from "../../../hooks/useFormSubmit";
 import { editMedicineValidationSchema } from "../../../validations/editMedicine.validation";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
 import { toast } from "react-toastify";
+import { EditMedicineSchema } from "../../../Schema/Requests/EditMedicine";
 
 interface Props {
   open: boolean;

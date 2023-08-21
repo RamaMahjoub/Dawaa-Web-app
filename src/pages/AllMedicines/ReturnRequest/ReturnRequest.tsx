@@ -22,6 +22,7 @@ import Beat from "../../../components/Loading/Beat";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
 import { toast } from "react-toastify";
+import { BatchRequest } from "../../../Schema/Requests/Batch";
 const NotFound = require("./../../../assets/medicines/not-found.png");
 
 interface Props {
@@ -95,14 +96,16 @@ const ReturnRequest: FC<Props> = ({ open, handleOpen }) => {
     if (reason !== "") {
       let isValid = true;
       if (elements !== undefined) {
-        const request = Object.keys(elements).map((key: any) => {
-          const element = elements[key];
-          if (element.batchId === null) isValid = false;
-          return {
-            batchId: element.batchId,
-            quantity: element.quantity,
-          };
-        });
+        const request: BatchRequest[] = Object.keys(elements).map(
+          (key: any) => {
+            const element = elements[key];
+            if (element.batchId === null) isValid = false;
+            return {
+              batchId: element.batchId,
+              quantity: element.quantity,
+            };
+          }
+        );
         if (isValid) {
           dispatch(returnMedicines({ returnReason: reason, batches: request }));
         } else {

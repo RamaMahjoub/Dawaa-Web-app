@@ -1,15 +1,15 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import MedicineService from "../services/MedicineServices";
-import { SubRequest } from "../Schema/request/storeInInventory";
-import { ReturnMedicines } from "../Schema/request/returnMedicines";
-import { EditMedicineSchema } from "../Schema/request/editMedicine.schema";
 import { ResponseStatus } from "../enums/ResponseStatus";
 import { ApiState } from "./type";
 import { Data } from "../Schema/Responses/Data";
 import { WarehouseMedicine } from "../Schema/Responses/WarhouseMedicine";
 import { Medicine, MedicineDistribution } from "../Schema/Responses/Medicine";
 import { Batch } from "../Schema/Responses/Batch";
+import { EditMedicineSchema } from "../Schema/Requests/EditMedicine";
+import { StoreInInventory } from "../Schema/Requests/StoreInInventory";
+import { ReturnRequest } from "../Schema/Requests/ReturnRequest";
 
 type MedicineState = {
   warehouseOnlyMedicines: ApiState<Data<Array<WarehouseMedicine>>>;
@@ -18,15 +18,9 @@ type MedicineState = {
   medicineDistributions: ApiState<Data<Array<MedicineDistribution>>>;
   medicineDetails: ApiState<Data<Medicine | undefined>>;
   medicinesToReturn: ApiState<Data<Array<WarehouseMedicine>>>;
-  editMedicineData: any;
-  editMedicineStatus: string;
-  editMedicineError: string | undefined;
-  storeInInventoryData: any;
-  storeInInventoryError: string | undefined;
-  storeInInventoryStatus: string;
-  returnMedicinesData: any;
-  returnMedicinesError: string | undefined;
-  returnMedicinesStatus: string;
+  editMedicine: ApiState<any>;
+  storeInInventory: ApiState<any>;
+  returnMedicines: ApiState<any>;
 };
 
 const initialState: MedicineState = {
@@ -60,15 +54,21 @@ const initialState: MedicineState = {
     error: undefined,
     status: ResponseStatus.IDLE,
   },
-  editMedicineData: {},
-  editMedicineStatus: ResponseStatus.IDLE,
-  editMedicineError: undefined,
-  storeInInventoryData: {},
-  storeInInventoryError: undefined,
-  storeInInventoryStatus: ResponseStatus.IDLE,
-  returnMedicinesData: {},
-  returnMedicinesError: undefined,
-  returnMedicinesStatus: ResponseStatus.IDLE,
+  editMedicine: {
+    status: ResponseStatus.IDLE,
+    error: undefined,
+    data: {},
+  },
+  storeInInventory: {
+    status: ResponseStatus.IDLE,
+    error: undefined,
+    data: {},
+  },
+  returnMedicines: {
+    status: ResponseStatus.IDLE,
+    error: undefined,
+    data: {},
+  },
 };
 
 export const findWarehouseOnlyMedicines = createAsyncThunk(
@@ -178,7 +178,7 @@ export const editMedicine = createAsyncThunk(
 
 export const storeInInventory = createAsyncThunk(
   "/medicine/warehouse/transfer-to-inventory",
-  async (params: { id: string; body: SubRequest }) => {
+  async (params: { id: string; body: StoreInInventory }) => {
     try {
       const { id, body } = params;
       const response = await MedicineService.storeInInventory(id, body);
@@ -191,7 +191,7 @@ export const storeInInventory = createAsyncThunk(
 
 export const returnMedicines = createAsyncThunk(
   "/returnOrder/warehouse",
-  async (body: ReturnMedicines) => {
+  async (body: ReturnRequest) => {
     try {
       const response = await MedicineService.returnMedicines(body);
       return response.data;
@@ -206,7 +206,7 @@ export const medicineSlice = createSlice({
   initialState,
   reducers: {
     resetReturnMedicinesStatus: (state) => {
-      state.returnMedicinesStatus = ResponseStatus.IDLE;
+      state.returnMedicines.status = ResponseStatus.IDLE;
     },
   },
   extraReducers(builder) {
@@ -296,43 +296,43 @@ export const medicineSlice = createSlice({
         state.medicineDistributions.error = action.error.message;
       })
       .addCase(editMedicine.pending, (state) => {
-        state.editMedicineStatus = ResponseStatus.LOADING;
+        state.editMedicine.status = ResponseStatus.LOADING;
       })
       .addCase(editMedicine.fulfilled, (state, action: PayloadAction<any>) => {
-        state.editMedicineStatus = ResponseStatus.SUCCEEDED;
-        state.editMedicineData = action.payload;
+        state.editMedicine.status = ResponseStatus.SUCCEEDED;
+        state.editMedicine.data = action.payload;
       })
       .addCase(editMedicine.rejected, (state, action) => {
-        state.editMedicineStatus = ResponseStatus.FAILED;
-        state.editMedicineError = action.error.message;
+        state.editMedicine.status = ResponseStatus.FAILED;
+        state.editMedicine.error = action.error.message;
       })
       .addCase(storeInInventory.pending, (state) => {
-        state.storeInInventoryStatus = ResponseStatus.LOADING;
+        state.storeInInventory.status = ResponseStatus.LOADING;
       })
       .addCase(
         storeInInventory.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.storeInInventoryStatus = ResponseStatus.SUCCEEDED;
-          state.storeInInventoryData = action.payload;
+          state.storeInInventory.status = ResponseStatus.SUCCEEDED;
+          state.storeInInventory.data = action.payload;
         }
       )
       .addCase(storeInInventory.rejected, (state, action) => {
-        state.storeInInventoryStatus = ResponseStatus.FAILED;
-        state.storeInInventoryError = action.error.message;
+        state.storeInInventory.status = ResponseStatus.FAILED;
+        state.storeInInventory.error = action.error.message;
       })
       .addCase(returnMedicines.pending, (state) => {
-        state.returnMedicinesStatus = ResponseStatus.LOADING;
+        state.returnMedicines.status = ResponseStatus.LOADING;
       })
       .addCase(
         returnMedicines.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.returnMedicinesStatus = ResponseStatus.SUCCEEDED;
-          state.returnMedicinesData = action.payload;
+          state.returnMedicines.status = ResponseStatus.SUCCEEDED;
+          state.returnMedicines.data = action.payload;
         }
       )
       .addCase(returnMedicines.rejected, (state, action) => {
-        state.returnMedicinesStatus = ResponseStatus.FAILED;
-        state.returnMedicinesError = action.error.message;
+        state.returnMedicines.status = ResponseStatus.FAILED;
+        state.returnMedicines.error = action.error.message;
       });
   },
 });
@@ -359,18 +359,18 @@ export const selectAllMedicinesError = (state: RootState) =>
   state.medicine.allMedicines.error;
 
 export const selectStoreInInventoryStatus = (state: RootState) =>
-  state.medicine.storeInInventoryStatus;
+  state.medicine.storeInInventory.status;
 export const selectStoreInInventoryData = (state: RootState) =>
-  state.medicine.storeInInventoryData;
+  state.medicine.storeInInventory.data;
 export const selectStoreInInventoryError = (state: RootState) =>
-  state.medicine.storeInInventoryError;
+  state.medicine.storeInInventory.error;
 
 export const selectReturnMedicinesStatus = (state: RootState) =>
-  state.medicine.returnMedicinesStatus;
+  state.medicine.returnMedicines.status;
 export const selectReturnMedicinesData = (state: RootState) =>
-  state.medicine.returnMedicinesData;
+  state.medicine.returnMedicines.data;
 export const selectReturnMedicinesError = (state: RootState) =>
-  state.medicine.returnMedicinesError;
+  state.medicine.returnMedicines.error;
 
 export const selectMedicineDetailsStatus = (state: RootState) =>
   state.medicine.medicineDetails.status;
@@ -394,10 +394,10 @@ export const selectMedicineDistributionsError = (state: RootState) =>
   state.medicine.medicineDistributions.error;
 
 export const selectEditMedicineStatus = (state: RootState) =>
-  state.medicine.editMedicineStatus;
+  state.medicine.editMedicine.status;
 export const selectEditMedicineData = (state: RootState) =>
-  state.medicine.editMedicineData;
+  state.medicine.editMedicine.data;
 export const selectEditMedicineError = (state: RootState) =>
-  state.medicine.editMedicineError;
+  state.medicine.editMedicine.error;
 export const { resetReturnMedicinesStatus } = medicineSlice.actions;
 export default medicineSlice.reducer;
