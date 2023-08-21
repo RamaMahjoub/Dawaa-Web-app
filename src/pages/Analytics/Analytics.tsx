@@ -1,8 +1,22 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { HeaderTitle } from "../../utils/HeaderTitle";
 import Header, { HeaderTypes } from "../../components/Header/Header";
 import TextBadge, { BadgeStatus } from "../../components/Badge/TextBadge";
 import Button from "../../components/Button/Button";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePagination } from "../../hooks/usePagination";
+import {
+  findAllPharmaciesPayments,
+  findAllSuppliersPayments,
+  selectAllPharmaciesPaymentData,
+  selectAllPharmaciesPaymentStatus,
+  selectAllSuppliersPaymentData,
+  selectAllSuppliersPaymentStatus,
+} from "../../redux/paymentSlice";
+import NoData from "../NoData/NoData";
+import { routes } from "../../router/constant";
 
 const schema: Array<{
   pahrmacy: string;
@@ -32,6 +46,129 @@ const schema: Array<{
 const Analytics = () => {
   const { pathname } = useLocation();
   const title = HeaderTitle(pathname);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const paymentPharmaciesStatus = useAppSelector(
+    selectAllPharmaciesPaymentStatus
+  );
+  const paymentSuppliersStatus = useAppSelector(
+    selectAllSuppliersPaymentStatus
+  );
+  const { pageIndex, pageSize, handlePgination } = usePagination(10);
+  const {
+    pageIndex: pharmacyIndex,
+    pageSize: pharmacySize,
+    handlePgination: pharmacyHandle,
+  } = usePagination(10);
+  const pahrmacyRef = useRef<any>(null);
+  const supplierRef = useRef<any>(null);
+  const pahrmacyContent = useRef<any>(null);
+  const supplierContent = useRef<any>(null);
+  const [supplierHasMore, setSupplierHasMore] = useState<boolean>(true);
+  const [pharmacyHasMore, setPharmacyHasMore] = useState<boolean>(true);
+  const [supplierIsFetching, setSupplierIsFetching] = useState<boolean>(true);
+  const [pharmacyIsFetching, setPharmacyIsFetching] = useState<boolean>(true);
+  const [suppliersPayment, setSuppliersPayment] = useState<any>([]);
+  const [pharmaciesPayment, setPharmaciesPayment] = useState<any>([]);
+  const fetchSuppliersPayments = useCallback(async () => {
+    try {
+      const response = await dispatch(
+        findAllSuppliersPayments({
+          limit: String(pageSize),
+          page: String(pageIndex),
+        })
+      );
+
+      if (response.payload && response.payload.data.length > 0) {
+        setSuppliersPayment((prevMedicines: any) => [
+          ...prevMedicines,
+          ...response.payload.data,
+        ]);
+        handlePgination(pageIndex + 1);
+      } else {
+        setSupplierHasMore(false);
+        if (suppliersPayment.length === 0) supplierContent.current = <NoData />;
+      }
+    } catch (error) {
+      supplierContent.current = <div>error...</div>;
+    } finally {
+      setSupplierIsFetching(false);
+    }
+  }, [suppliersPayment, pageIndex, pageSize, handlePgination, dispatch]);
+  const onSupplierIntersection = useCallback(
+    (entries: any) => {
+      const firstEntry = entries[0];
+      if (firstEntry.isIntersecting && supplierHasMore && !supplierIsFetching) {
+        setSupplierIsFetching(true);
+
+        fetchSuppliersPayments();
+      }
+    },
+    [supplierHasMore, supplierIsFetching, fetchSuppliersPayments]
+  );
+  const fetchPharmaciesPayment = useCallback(async () => {
+    try {
+      const response = await dispatch(
+        findAllPharmaciesPayments({
+          limit: String(pharmacySize),
+          page: String(pharmacyIndex),
+        })
+      );
+
+      if (response.payload && response.payload.data.length > 0) {
+        setPharmaciesPayment((prevMedicines: any) => [
+          ...prevMedicines,
+          ...response.payload.data,
+        ]);
+        pharmacyHandle(pharmacyIndex + 1);
+      } else {
+        setPharmacyHasMore(false);
+        if (pharmaciesPayment.length === 0)
+          pahrmacyContent.current = <NoData />;
+      }
+    } catch (error) {
+      pahrmacyContent.current = <div>حدث خطا ما...</div>;
+    } finally {
+      setPharmacyIsFetching(false);
+    }
+  }, [
+    pharmaciesPayment,
+    pharmacyIndex,
+    pharmacySize,
+    pharmacyHandle,
+    dispatch,
+  ]);
+  const onPharmacyIntersection = useCallback(
+    (entries: any) => {
+      const firstEntry = entries[0];
+      if (firstEntry.isIntersecting && pharmacyHasMore && !pharmacyIsFetching) {
+        setSupplierIsFetching(true);
+
+        fetchPharmaciesPayment();
+      }
+    },
+    [pharmacyHasMore, pharmacyIsFetching, fetchPharmaciesPayment]
+  );
+  useEffect(() => {
+    const supplierObserver = new IntersectionObserver(onSupplierIntersection);
+    const pharmacyObserver = new IntersectionObserver(onPharmacyIntersection);
+    if (supplierObserver && supplierRef.current) {
+      supplierObserver.observe(supplierRef.current);
+    }
+
+    if (pharmacyObserver && pahrmacyRef.current) {
+      pharmacyObserver.observe(pahrmacyRef.current);
+    }
+
+    return () => {
+      if (supplierObserver) supplierObserver.disconnect();
+      if (pharmacyObserver) pharmacyObserver.disconnect();
+    };
+  }, [onSupplierIntersection, onPharmacyIntersection]);
+
+  const handleNavigate = (userId: number) => {
+    navigate(`/${routes.INVOICES}/${userId}`);
+  };
   return (
     <div className="flex flex-col h-screen">
       <Header title={title!} leftSpace={HeaderTypes.FREE} />
@@ -69,9 +206,7 @@ const Analytics = () => {
           </span>
         </div>
         <div className="flex-1 bg-white p-large rounded-med">
-          <p className="text-greyScale-main">
-            الحسابات غير المكتملة مع المورّدين
-          </p>
+          <p className="text-greyScale-main">الحسابات مع المورّدين</p>
           <div className="flex flex-col overflow-auto divide-y max-h-80 scrollbar-none gap-medium">
             {schema.map((item, index: number) => {
               return (
@@ -86,7 +221,7 @@ const Analytics = () => {
                       disabled={false}
                       text="عرض التفاصيل"
                       size="med"
-                      // onClick={handleNavigate}
+                      onClick={() => handleNavigate(index)}
                     />
                   </div>
                   <div className="justify-between leading-loose bg-greyScale-lighter h-fit rounded-small p-large sm:flex">
@@ -130,9 +265,7 @@ const Analytics = () => {
           </div>
         </div>
         <div className="bg-white p-large rounded-med mt-large">
-          <p className="text-greyScale-main">
-            الحسابات غير المكتملة مع الصيدليات
-          </p>
+          <p className="text-greyScale-main">الحسابات مع الصيدليات</p>
           <div className="flex flex-col overflow-auto divide-y max-h-80 scrollbar-none gap-medium">
             {schema.map((item, index: number) => {
               return (
@@ -147,7 +280,7 @@ const Analytics = () => {
                       disabled={false}
                       text="عرض التفاصيل"
                       size="med"
-                      // onClick={handleNavigate}
+                      onClick={() => handleNavigate(index)}
                     />
                   </div>
                   <div className="justify-between leading-loose bg-greyScale-lighter h-fit rounded-small p-large sm:flex">

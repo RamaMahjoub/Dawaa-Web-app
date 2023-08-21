@@ -50,7 +50,7 @@ export const HeaderTitle = (path: string) => {
     return "الطلبات الصادرة";
   } else if (path === `/${routes.EXPRESS_ORDERS}`) {
     return "الطلبات السريعة";
-  } else if (path === `/${routes.INVOICES}`) {
+  } else if (path.includes(`/${routes.INVOICES}`)) {
     return "الفواتير";
   } else if (path === `/${routes.ANALYTICS}`) {
     return "الإحصائيات";

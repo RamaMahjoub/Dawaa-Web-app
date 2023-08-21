@@ -26,6 +26,7 @@ const Suppliers = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const deferredQuery = useDeferredValue(searchQuery);
   let content;
+  console.log(data);
   useEffect(() => {
     dispatch(
       getAllSuppliers({

@@ -129,7 +129,7 @@ export const router = createBrowserRouter(
           element={<AuthGuard element={<ExpressOrders />} />}
         />
         <Route
-          path={routes.INVOICES}
+          path={`${routes.INVOICES}/:userId`}
           element={<AuthGuard element={<Invoices />} />}
         />
         <Route

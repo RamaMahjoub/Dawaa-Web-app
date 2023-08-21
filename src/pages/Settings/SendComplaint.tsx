@@ -150,7 +150,6 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
   };
 
   const handleSendRequest = () => {
-    console.log(request);
     if (request.destination !== undefined && request.reason !== undefined) {
       if (dest === "صيدلية") {
         const complaint: PharmacyComplaint = {
@@ -165,7 +164,6 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
         };
         dispatch(sendSupplierComplaint(complaint));
       }
-      console.log("req", request);
     } else {
       toast.error("المعلومات المدخلة غير مكتملة");
     }
