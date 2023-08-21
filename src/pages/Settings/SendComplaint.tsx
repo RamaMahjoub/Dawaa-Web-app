@@ -19,6 +19,20 @@ import {
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { ResponseStatus } from "../../enums/ResponseStatus";
 import { Pharmacy } from "../../Schema/Responses/Pharmacy";
+import {
+  PharmacyComplaint,
+  SupplierComplaint,
+} from "../../Schema/Requests/Complaint";
+import {
+  resetStatus,
+  selectPharmacyComplaintError,
+  selectPharmacyComplaintStatus,
+  selectSupplierComplaintError,
+  selectSupplierComplaintStatus,
+  sendPharmacyComplaint,
+  sendSupplierComplaint,
+} from "../../redux/complaintSlice";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -38,11 +52,37 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
   const content = useRef<any>(null);
   const endRef = useRef<any>(null);
   const dispatch = useAppDispatch();
+  const supplierStatus = useAppSelector(selectSupplierComplaintStatus);
+  const pharmacyStatus = useAppSelector(selectPharmacyComplaintStatus);
+  const supplierError = useAppSelector(selectSupplierComplaintError);
+  const pharmacyError = useAppSelector(selectPharmacyComplaintError);
   const [request, setRequest] = useState<{
     destination: number | undefined;
     reason: string | undefined;
   }>({ destination: undefined, reason: undefined });
 
+  useEffect(() => {
+    if (
+      supplierStatus === ResponseStatus.SUCCEEDED ||
+      pharmacyStatus === ResponseStatus.SUCCEEDED
+    ) {
+      toast.success("تم إرسال الشكوى بنجاح");
+      dispatch(resetStatus());
+      handleOpen();
+      setRequest({ destination: undefined, reason: undefined });
+    } else if (supplierStatus === ResponseStatus.FAILED) {
+      toast.success(supplierError);
+    } else if (pharmacyError === ResponseStatus.FAILED) {
+      toast.success(pharmacyError);
+    }
+  }, [
+    supplierError,
+    supplierStatus,
+    pharmacyError,
+    pharmacyStatus,
+    dispatch,
+    handleOpen,
+  ]);
   const fetchParmacies = useCallback(async () => {
     try {
       const response = await dispatch(
@@ -110,7 +150,25 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
   };
 
   const handleSendRequest = () => {
-    console.log("req", request);
+    console.log(request);
+    if (request.destination !== undefined && request.reason !== undefined) {
+      if (dest === "صيدلية") {
+        const complaint: PharmacyComplaint = {
+          pharmacyId: request.destination,
+          reason: request.reason,
+        };
+        dispatch(sendPharmacyComplaint(complaint));
+      } else {
+        const complaint: SupplierComplaint = {
+          supplierId: request.destination,
+          reason: request.reason,
+        };
+        dispatch(sendSupplierComplaint(complaint));
+      }
+      console.log("req", request);
+    } else {
+      toast.error("المعلومات المدخلة غير مكتملة");
+    }
   };
   return (
     <>
@@ -168,7 +226,13 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
                             {suppliersStatus === ResponseStatus.SUCCEEDED &&
                               suppliers.data.length > 0 &&
                               suppliers.data.map((item: any) => (
-                                <DropdownItem key={item.id} title={item.name} />
+                                <DropdownItem
+                                  key={item.id}
+                                  title={item.name}
+                                  handleSelectValue={() =>
+                                    handleCaptureDestination(item.id)
+                                  }
+                                />
                               ))}
                           </DropdownMenu>
                         </Dropdown>
@@ -192,6 +256,7 @@ const SendComplaint: FC<Props> = ({ open, handleOpen }) => {
                 disabled={false}
                 size="lg"
                 onClick={handleSendRequest}
+                status={dest === "صيدلية" ? pharmacyStatus : supplierStatus}
               />
             </div>
           </div>

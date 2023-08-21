@@ -7,6 +7,7 @@ import orderSlice from "./orderSlice";
 import reportsSlice from "./reportsSlice";
 import pharmacySlice from "./pharmacySlice";
 import paymentSlice from "./paymentSlice";
+import complaintSlice from "./complaintSlice";
 
 export const store = configureStore({
   reducer: {
@@ -17,7 +18,8 @@ export const store = configureStore({
     order: orderSlice,
     report: reportsSlice,
     pharmacy: pharmacySlice,
-    payment: paymentSlice
+    payment: paymentSlice,
+    complaint: complaintSlice,
   },
 });
 
