@@ -13,11 +13,7 @@ import {
 import NoData from "../../NoData/NoData";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
-import {
-  findAllSendedReturnMedicines,
-  selectAllSendedReturnMedicinesData,
-  selectAllSendedReturnMedicinesStatus,
-} from "../../../redux/medicineSlice";
+
 import { SendedReturnOrders } from "../../../Schema/tables/SendedReturnOrders";
 import TextBadge, { BadgeStatus } from "../../../components/Badge/TextBadge";
 import { getMonth } from "../../../utils/Month";
@@ -30,6 +26,12 @@ import { FunnelFill } from "react-bootstrap-icons";
 import IconButton from "../../../components/Button/IconButton";
 import { useOpenToggle } from "../../../hooks/useOpenToggle";
 import { useMediaQuery } from "react-responsive";
+import {
+  findAllSendedReturnMedicines,
+  selectAllSendedReturnMedicinesData,
+  selectAllSendedReturnMedicinesStatus,
+} from "../../../redux/orderSlice";
+import { SendedReturnOrder } from "../../../Schema/Responses/SendedOrder";
 
 const filterList: Array<Filter> = [
   { name: "طلبات الشراء", route: `/${routes.OUTGOING_ORDERS}` },
@@ -77,6 +79,7 @@ const OutgoingReturnOrders = () => {
     ],
     []
   );
+  console.log(data);
   useEffect(() => {
     dispatch(
       findAllSendedReturnMedicines({
@@ -86,30 +89,28 @@ const OutgoingReturnOrders = () => {
     );
   }, [dispatch, pageIndex, pageSize]);
   const transformedData = useMemo(() => {
-    return (
-      status === ResponseStatus.SUCCEEDED &&
-      data.data.length > 0 &&
-      data.data.map((order: SendedReturnOrders) => {
-        const state =
-          order.status === "Pending" ? (
-            <TextBadge title={"معلّق"} status={BadgeStatus.WARNING} />
-          ) : order.status === "Accepted" ? (
-            <TextBadge title={"تم القبول"} status={BadgeStatus.SUCCESS} />
-          ) : (
-            <TextBadge title={"مرفوض"} status={BadgeStatus.DANGER} />
-          );
-        const date = new Date(order.returnOrderDate);
-        return {
-          id: `#${order.id}`,
-          returnOrderDate: `${getMonth(
-            date.getMonth() + 1
-          )} ${date.getFullYear()}، ${date.getDate()} `,
-          status: state,
-          supplierName: order.supplierName,
-          totalPrice: `${order.totalPrice} ل.س`,
-        };
-      })
-    );
+    return status === ResponseStatus.SUCCEEDED && data.data.length > 0
+      ? data.data.map((order: SendedReturnOrder) => {
+          const state =
+            order.status === "Pending" ? (
+              <TextBadge title={"معلّق"} status={BadgeStatus.WARNING} />
+            ) : order.status === "Accepted" ? (
+              <TextBadge title={"تم القبول"} status={BadgeStatus.SUCCESS} />
+            ) : (
+              <TextBadge title={"مرفوض"} status={BadgeStatus.DANGER} />
+            );
+          const date = new Date(order.returnOrderDate);
+          return {
+            id: `#${order.id}`,
+            returnOrderDate: `${getMonth(
+              date.getMonth() + 1
+            )} ${date.getFullYear()}، ${date.getDate()} `,
+            status: state,
+            supplierName: order.supplierName,
+            totalPrice: `${order.totalPrice} ل.س`,
+          };
+        })
+      : [];
   }, [data.data, status]);
 
   const table = useReactTable({

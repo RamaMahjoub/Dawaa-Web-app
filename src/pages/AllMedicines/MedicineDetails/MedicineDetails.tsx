@@ -29,6 +29,8 @@ import {
 import Beat from "../../../components/Loading/Beat";
 import NoData from "../../NoData/NoData";
 import { ResponseStatus } from "../../../enums/ResponseStatus";
+import { Medicine, MedicineDistribution } from "../../../Schema/Responses/Medicine";
+import { Batch } from "../../../Schema/Responses/Batch";
 
 const NotFound = require("./../../../assets/medicines/not-found.png");
 interface TableSchema {
@@ -56,7 +58,7 @@ const MedicineDetails = () => {
   const distributionsStatus = useAppSelector(selectMedicineDistributionsStatus);
   const batchesStatus = useAppSelector(selectMedicineBatchesStatus);
   const batchesData = useAppSelector(selectMedicineBatchesData);
-  const [med, setMed] = useState<any>();
+  const [med, setMed] = useState<Medicine>();
   useEffect(() => {
     Promise.all([
       dispatch(findMedicineDetails({ id: medicineId! })),
@@ -64,6 +66,7 @@ const MedicineDetails = () => {
       dispatch(findMedicinnBatches({ id: medicineId! })),
     ]);
   }, [dispatch, medicineId]);
+  console.log(batchesData, distributionsData, med);
   let content = <NoData />,
     distributionsContent = <NoData />,
     batchesInWarehouseContent = <NoData />;
@@ -129,30 +132,27 @@ const MedicineDetails = () => {
   );
 
   const inventoriesDistributionData: Array<TableSchema> = useMemo(() => {
-    return (
-      distributionsStatus === ResponseStatus.SUCCEEDED &&
-      distributionsData.data &&
-      distributionsData.data.map((item: TableSchema) => {
-        return {
-          inventoryName: item.inventoryName,
-          quantity: `${item.quantity} علبة`,
-          inventoryOwner: item.inventoryOwner,
-        };
-      })
-    );
+    return distributionsStatus === ResponseStatus.SUCCEEDED &&
+      distributionsData.data
+      ? distributionsData.data.map((item: MedicineDistribution) => {
+          return {
+            inventoryName: item.inventoryName,
+            quantity: `${item.quantity} علبة`,
+            inventoryOwner: item.inventoryOwner,
+          };
+        })
+      : [];
   }, [distributionsData, distributionsStatus]);
 
   const batchesInWarehouseData: Array<TableSchema2> = useMemo(() => {
-    return (
-      batchesStatus === "succeeded" &&
-      batchesData.data &&
-      batchesData.data.map((item: TableSchema2) => {
-        return {
-          id: item.id,
-          quantity: `${item.quantity} علبة`,
-        };
-      })
-    );
+    return batchesStatus === "succeeded" && batchesData.data
+      ? batchesData.data.map((item: Batch) => {
+          return {
+            id: item.id,
+            quantity: `${item.quantity} علبة`,
+          };
+        })
+      : [];
   }, [batchesData, batchesStatus]);
 
   const inventoriesDistributionTable = useReactTable({

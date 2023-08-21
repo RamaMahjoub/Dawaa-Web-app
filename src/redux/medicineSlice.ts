@@ -8,24 +8,16 @@ import { ResponseStatus } from "../enums/ResponseStatus";
 import { ApiState } from "./type";
 import { Data } from "../Schema/Responses/Data";
 import { WarehouseMedicine } from "../Schema/Responses/WarhouseMedicine";
+import { Medicine, MedicineDistribution } from "../Schema/Responses/Medicine";
+import { Batch } from "../Schema/Responses/Batch";
 
 type MedicineState = {
   warehouseOnlyMedicines: ApiState<Data<Array<WarehouseMedicine>>>;
-  allMedicinesData: any;
-  allMedicinesStatus: string;
-  allMedicinesError: string | undefined;
-  medicinesToReturnData: any;
-  medicinesToReturnStatus: string;
-  medicinesToReturnError: undefined | string;
-  medicineDetailsData: any;
-  medicineDetailsStatus: string;
-  medicineDetailsError: string | undefined;
-  medicineBatchesData: any;
-  medicineBatchesStatus: string;
-  medicineBatchesError: string | undefined;
-  medicineDistributionsData: any;
-  medicineDistributionsStatus: string;
-  medicineDistributionsError: string | undefined;
+  allMedicines: ApiState<Data<Array<Medicine>>>;
+  medicineBatches: ApiState<Data<Array<Batch>>>;
+  medicineDistributions: ApiState<Data<Array<MedicineDistribution>>>;
+  medicineDetails: ApiState<Data<Medicine | undefined>>;
+  medicinesToReturn: ApiState<Data<Array<WarehouseMedicine>>>;
   editMedicineData: any;
   editMedicineStatus: string;
   editMedicineError: string | undefined;
@@ -35,9 +27,6 @@ type MedicineState = {
   returnMedicinesData: any;
   returnMedicinesError: string | undefined;
   returnMedicinesStatus: string;
-  allSendedReturnMedicinesData: any;
-  allSendedReturnMedicinesError: string | undefined;
-  allSendedReturnMedicinesStatus: string;
 };
 
 const initialState: MedicineState = {
@@ -46,21 +35,31 @@ const initialState: MedicineState = {
     error: undefined,
     status: ResponseStatus.IDLE,
   },
-  allMedicinesData: {},
-  allMedicinesStatus: ResponseStatus.IDLE,
-  allMedicinesError: undefined,
-  medicinesToReturnData: {},
-  medicinesToReturnStatus: ResponseStatus.IDLE,
-  medicinesToReturnError: undefined,
-  medicineDetailsData: {},
-  medicineDetailsStatus: ResponseStatus.IDLE,
-  medicineDetailsError: undefined,
-  medicineBatchesData: {},
-  medicineBatchesStatus: ResponseStatus.IDLE,
-  medicineBatchesError: undefined,
-  medicineDistributionsData: {},
-  medicineDistributionsStatus: ResponseStatus.IDLE,
-  medicineDistributionsError: undefined,
+  allMedicines: {
+    data: { data: [] },
+    error: undefined,
+    status: ResponseStatus.IDLE,
+  },
+  medicinesToReturn: {
+    data: { data: [] },
+    error: undefined,
+    status: ResponseStatus.IDLE,
+  },
+  medicineDetails: {
+    data: { data: undefined },
+    error: undefined,
+    status: ResponseStatus.IDLE,
+  },
+  medicineBatches: {
+    data: { data: [] },
+    error: undefined,
+    status: ResponseStatus.IDLE,
+  },
+  medicineDistributions: {
+    data: { data: [] },
+    error: undefined,
+    status: ResponseStatus.IDLE,
+  },
   editMedicineData: {},
   editMedicineStatus: ResponseStatus.IDLE,
   editMedicineError: undefined,
@@ -70,9 +69,6 @@ const initialState: MedicineState = {
   returnMedicinesData: {},
   returnMedicinesError: undefined,
   returnMedicinesStatus: ResponseStatus.IDLE,
-  allSendedReturnMedicinesData: {},
-  allSendedReturnMedicinesError: undefined,
-  allSendedReturnMedicinesStatus: ResponseStatus.IDLE,
 };
 
 export const findWarehouseOnlyMedicines = createAsyncThunk(
@@ -205,22 +201,6 @@ export const returnMedicines = createAsyncThunk(
   }
 );
 
-export const findAllSendedReturnMedicines = createAsyncThunk(
-  "/returnOrder/warehouse/allSended",
-  async (params: { page: string; limit: string }) => {
-    try {
-      const { page, limit } = params;
-      const response = await MedicineService.findAllSendedReturnMedicines(
-        page,
-        limit
-      );
-      return response.data;
-    } catch (error: any) {
-      throw error.response.data.error || "حدث خطأ ما";
-    }
-  }
-);
-
 export const medicineSlice = createSlice({
   name: "medicine",
   initialState,
@@ -246,74 +226,74 @@ export const medicineSlice = createSlice({
         state.warehouseOnlyMedicines.error = action.error.message;
       })
       .addCase(findAllMedicines.pending, (state) => {
-        state.allMedicinesStatus = ResponseStatus.LOADING;
+        state.allMedicines.status = ResponseStatus.LOADING;
       })
       .addCase(
         findAllMedicines.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.allMedicinesStatus = ResponseStatus.SUCCEEDED;
-          state.allMedicinesData = action.payload;
+          state.allMedicines.status = ResponseStatus.SUCCEEDED;
+          state.allMedicines.data = action.payload;
         }
       )
       .addCase(findAllMedicines.rejected, (state, action) => {
-        state.allMedicinesStatus = ResponseStatus.FAILED;
-        state.allMedicinesError = action.error.message;
+        state.allMedicines.status = ResponseStatus.FAILED;
+        state.allMedicines.error = action.error.message;
       })
       .addCase(findMedicineDetails.pending, (state) => {
-        state.medicineDetailsStatus = ResponseStatus.LOADING;
+        state.medicineDetails.status = ResponseStatus.LOADING;
       })
       .addCase(
         findMedicineDetails.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.medicineDetailsStatus = ResponseStatus.SUCCEEDED;
-          state.medicineDetailsData = action.payload;
+          state.medicineDetails.status = ResponseStatus.SUCCEEDED;
+          state.medicineDetails.data = action.payload;
         }
       )
       .addCase(findMedicineDetails.rejected, (state, action) => {
-        state.medicineDetailsStatus = ResponseStatus.FAILED;
-        state.medicineDetailsError = action.error.message;
+        state.medicineDetails.status = ResponseStatus.FAILED;
+        state.medicineDetails.error = action.error.message;
       })
       .addCase(findMedicinnBatches.pending, (state) => {
-        state.medicineBatchesStatus = ResponseStatus.LOADING;
+        state.medicineBatches.status = ResponseStatus.LOADING;
       })
       .addCase(
         findMedicinnBatches.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.medicineBatchesStatus = ResponseStatus.SUCCEEDED;
-          state.medicineBatchesData = action.payload;
+          state.medicineBatches.status = ResponseStatus.SUCCEEDED;
+          state.medicineBatches.data = action.payload;
         }
       )
       .addCase(findMedicinnBatches.rejected, (state, action) => {
-        state.medicineBatchesStatus = ResponseStatus.FAILED;
-        state.medicineBatchesError = action.error.message;
+        state.medicineBatches.status = ResponseStatus.FAILED;
+        state.medicineBatches.error = action.error.message;
       })
       .addCase(
         findMedicinesToReeturn.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.medicinesToReturnStatus = ResponseStatus.SUCCEEDED;
-          state.medicinesToReturnData = action.payload;
+          state.medicinesToReturn.status = ResponseStatus.SUCCEEDED;
+          state.medicinesToReturn.data = action.payload;
         }
       )
       .addCase(findMedicinesToReeturn.rejected, (state, action) => {
-        state.medicinesToReturnStatus = ResponseStatus.FAILED;
-        state.medicineDistributionsError = action.error.message;
+        state.medicinesToReturn.status = ResponseStatus.FAILED;
+        state.medicineDistributions.error = action.error.message;
       })
       .addCase(findMedicinesToReeturn.pending, (state) => {
-        state.medicinesToReturnStatus = ResponseStatus.LOADING;
+        state.medicinesToReturn.status = ResponseStatus.LOADING;
       })
       .addCase(findMedicineDistributions.pending, (state) => {
-        state.medicineDistributionsStatus = ResponseStatus.LOADING;
+        state.medicineDistributions.status = ResponseStatus.LOADING;
       })
       .addCase(
         findMedicineDistributions.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.medicineDistributionsStatus = ResponseStatus.SUCCEEDED;
-          state.medicineDistributionsData = action.payload;
+          state.medicineDistributions.status = ResponseStatus.SUCCEEDED;
+          state.medicineDistributions.data = action.payload;
         }
       )
       .addCase(findMedicineDistributions.rejected, (state, action) => {
-        state.medicineDistributionsStatus = ResponseStatus.FAILED;
-        state.medicineDistributionsError = action.error.message;
+        state.medicineDistributions.status = ResponseStatus.FAILED;
+        state.medicineDistributions.error = action.error.message;
       })
       .addCase(editMedicine.pending, (state) => {
         state.editMedicineStatus = ResponseStatus.LOADING;
@@ -353,20 +333,6 @@ export const medicineSlice = createSlice({
       .addCase(returnMedicines.rejected, (state, action) => {
         state.returnMedicinesStatus = ResponseStatus.FAILED;
         state.returnMedicinesError = action.error.message;
-      })
-      .addCase(findAllSendedReturnMedicines.pending, (state) => {
-        state.allSendedReturnMedicinesStatus = ResponseStatus.LOADING;
-      })
-      .addCase(
-        findAllSendedReturnMedicines.fulfilled,
-        (state, action: PayloadAction<any>) => {
-          state.allSendedReturnMedicinesStatus = ResponseStatus.SUCCEEDED;
-          state.allSendedReturnMedicinesData = action.payload;
-        }
-      )
-      .addCase(findAllSendedReturnMedicines.rejected, (state, action) => {
-        state.allSendedReturnMedicinesStatus = ResponseStatus.FAILED;
-        state.allSendedReturnMedicinesError = action.error.message;
       });
   },
 });
@@ -379,18 +345,18 @@ export const selectWarehouseOnlyMedicinesError = (state: RootState) =>
   state.medicine.warehouseOnlyMedicines.error;
 
 export const selectMedicinesToReturnStatus = (state: RootState) =>
-  state.medicine.medicinesToReturnStatus;
+  state.medicine.medicinesToReturn.status;
 export const selectMedicinesToReturnData = (state: RootState) =>
-  state.medicine.medicinesToReturnData;
+  state.medicine.medicinesToReturn.data;
 export const selectMedicinesToReturnError = (state: RootState) =>
-  state.medicine.medicinesToReturnError;
+  state.medicine.medicinesToReturn.error;
 
 export const selectAllMedicinesStatus = (state: RootState) =>
-  state.medicine.allMedicinesStatus;
+  state.medicine.allMedicines.status;
 export const selectAllMedicinesData = (state: RootState) =>
-  state.medicine.allMedicinesData;
+  state.medicine.allMedicines.data;
 export const selectAllMedicinesError = (state: RootState) =>
-  state.medicine.allMedicinesError;
+  state.medicine.allMedicines.error;
 
 export const selectStoreInInventoryStatus = (state: RootState) =>
   state.medicine.storeInInventoryStatus;
@@ -406,33 +372,26 @@ export const selectReturnMedicinesData = (state: RootState) =>
 export const selectReturnMedicinesError = (state: RootState) =>
   state.medicine.returnMedicinesError;
 
-export const selectAllSendedReturnMedicinesStatus = (state: RootState) =>
-  state.medicine.allSendedReturnMedicinesStatus;
-export const selectAllSendedReturnMedicinesData = (state: RootState) =>
-  state.medicine.allSendedReturnMedicinesData;
-export const selectAllSendedReturnMedicinesError = (state: RootState) =>
-  state.medicine.allSendedReturnMedicinesError;
-
 export const selectMedicineDetailsStatus = (state: RootState) =>
-  state.medicine.medicineDetailsStatus;
+  state.medicine.medicineDetails.status;
 export const selectMedicineDetailsData = (state: RootState) =>
-  state.medicine.medicineDetailsData;
+  state.medicine.medicineDetails.data;
 export const selectMedicineDetailsError = (state: RootState) =>
-  state.medicine.medicineDetailsError;
+  state.medicine.medicineDetails.error;
 
 export const selectMedicineBatchesStatus = (state: RootState) =>
-  state.medicine.medicineBatchesStatus;
+  state.medicine.medicineBatches.status;
 export const selectMedicineBatchesData = (state: RootState) =>
-  state.medicine.medicineBatchesData;
+  state.medicine.medicineBatches.data;
 export const selectMedicineBatchesError = (state: RootState) =>
-  state.medicine.medicineBatchesError;
+  state.medicine.medicineBatches.error;
 
 export const selectMedicineDistributionsStatus = (state: RootState) =>
-  state.medicine.medicineDistributionsStatus;
+  state.medicine.medicineDistributions.status;
 export const selectMedicineDistributionsData = (state: RootState) =>
-  state.medicine.medicineDistributionsData;
+  state.medicine.medicineDistributions.data;
 export const selectMedicineDistributionsError = (state: RootState) =>
-  state.medicine.medicineDistributionsError;
+  state.medicine.medicineDistributions.error;
 
 export const selectEditMedicineStatus = (state: RootState) =>
   state.medicine.editMedicineStatus;

@@ -24,3 +24,11 @@ export interface SendedOrderDetails {
   medicines: MedicineInSendedOrder[];
   supplier: SupplierInSendedOrder;
 }
+
+export interface SendedReturnOrder {
+  id: number;
+  returnOrderDate: Date;
+  status: string;
+  supplierName: string;
+  totalPrice: number;
+}

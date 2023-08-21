@@ -7,6 +7,7 @@ import { Data } from "../Schema/Responses/Data";
 import {
   SendedOrder,
   SendedOrderDetails,
+  SendedReturnOrder,
 } from "../Schema/Responses/SendedOrder";
 import {
   OrderOverview,
@@ -14,6 +15,7 @@ import {
   ReceivedOrderDetails,
   ReceivedReturnOrder,
 } from "../Schema/Responses/ReceivedOrder";
+import MedicineService from "../services/MedicineServices";
 
 type OrderState = {
   createOrder: ApiState<any>;
@@ -28,6 +30,7 @@ type OrderState = {
   acceptReturnOrder: ApiState<any>;
   rejectReturnOrder: ApiState<any>;
   orderOverview: ApiState<Data<Array<OrderOverview>>>;
+  allSendedReturnMedicines: ApiState<Data<Array<SendedReturnOrder>>>;
 };
 
 const initialState: OrderState = {
@@ -92,6 +95,12 @@ const initialState: OrderState = {
     status: ResponseStatus.IDLE,
     error: undefined,
   },
+
+  allSendedReturnMedicines: {
+    data: { data: [] },
+    status: ResponseStatus.IDLE,
+    error: undefined,
+  },
 };
 
 export const createOrder = createAsyncThunk(
@@ -145,6 +154,21 @@ export const findReceivedOrders = createAsyncThunk(
   }
 );
 
+export const findAllSendedReturnMedicines = createAsyncThunk(
+  "/returnOrder/warehouse/allSended",
+  async (params: { page: string; limit: string }) => {
+    try {
+      const { page, limit } = params;
+      const response = await MedicineService.findAllSendedReturnMedicines(
+        page,
+        limit
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response.data.error || "حدث خطأ ما";
+    }
+  }
+);
 export const findReceivedReturnOrders = createAsyncThunk(
   "/report-medicine/warehouse/pharmacy",
   async (params: { limit: string; page: string }) => {
@@ -420,6 +444,20 @@ export const orderSlice = createSlice({
       .addCase(findOrderDistribution.rejected, (state, action) => {
         state.orderOverview.status = ResponseStatus.FAILED;
         state.orderOverview.error = action.error.message;
+      })
+      .addCase(findAllSendedReturnMedicines.pending, (state) => {
+        state.allSendedReturnMedicines.status = ResponseStatus.LOADING;
+      })
+      .addCase(
+        findAllSendedReturnMedicines.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.allSendedReturnMedicines.status = ResponseStatus.SUCCEEDED;
+          state.allSendedReturnMedicines.data = action.payload;
+        }
+      )
+      .addCase(findAllSendedReturnMedicines.rejected, (state, action) => {
+        state.allSendedReturnMedicines.status = ResponseStatus.FAILED;
+        state.allSendedReturnMedicines.error = action.error.message;
       });
   },
 });
@@ -503,6 +541,14 @@ export const selectOrderOverviewData = (state: RootState) =>
   state.order.orderOverview.data;
 export const selectOrderOverviewError = (state: RootState) =>
   state.order.orderOverview.error;
+
+export const selectAllSendedReturnMedicinesStatus = (state: RootState) =>
+  state.order.allSendedReturnMedicines.status;
+export const selectAllSendedReturnMedicinesData = (state: RootState) =>
+  state.order.allSendedReturnMedicines.data;
+export const selectAllSendedReturnMedicinesError = (state: RootState) =>
+  state.order.allSendedReturnMedicines.error;
+
 export const { resetAcceptStatus, resetDeliverStatus, resetRejectStatus } =
   orderSlice.actions;
 export default orderSlice.reducer;

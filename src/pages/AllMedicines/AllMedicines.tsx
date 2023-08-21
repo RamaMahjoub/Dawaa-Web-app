@@ -21,6 +21,7 @@ import Beat from "../../components/Loading/Beat";
 import NoData from "../NoData/NoData";
 import { usePagination } from "../../hooks/usePagination";
 import { ResponseStatus } from "../../enums/ResponseStatus";
+import { Medicine } from "../../Schema/Responses/Medicine";
 const NotFound = require("./../../assets/medicines/not-found.png");
 
 const AllMedicines = () => {
@@ -46,18 +47,18 @@ const AllMedicines = () => {
       })
     );
   }, [dispatch, pageIndex, pageSize, filtered, deferredQuery]);
-
+  console.log(data);
   if (status === ResponseStatus.LOADING) {
     content.current = <Beat />;
   } else if (status === ResponseStatus.SUCCEEDED) {
     data.data.length > 0 &&
-      data.data.forEach((row: any) => {
+      data.data.forEach((row: Medicine) => {
         if (!catigoriesList.includes(row.category))
           catigoriesList.push(row.category);
       });
     content.current =
       data.data.length > 0 ? (
-        data.data.map((row: any) => (
+        data.data.map((row: Medicine) => (
           <MedicineCard
             key={row.id}
             name={row.name}
@@ -71,7 +72,7 @@ const AllMedicines = () => {
                 disabled={false}
                 text="عرض التفاصيل"
                 size="med"
-                onClick={() => handleNavigate(row.id)}
+                onClick={() => handleNavigate(String(row.id))}
               />
             }
           />
@@ -144,7 +145,7 @@ const AllMedicines = () => {
           </div>
           <CustomPagination
             page={pageIndex + 1}
-            count={status === "succeeded" ? data.totalRecords : 0}
+            count={status === "succeeded" ? data.totalRecords! : 0}
             onChange={handlePgination}
             pageSize={pageSize}
           />
